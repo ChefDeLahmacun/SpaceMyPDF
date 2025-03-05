@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FormSubmit Setup Guide</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    h1 {
+      color: #4a6741;
+      border-bottom: 2px solid #4a6741;
+      padding-bottom: 10px;
+    }
+    h2 {
+      color: #4a6741;
+      margin-top: 30px;
+    }
+    code {
+      background-color: #f5f5f5;
+      padding: 2px 5px;
+      border-radius: 3px;
+      font-family: monospace;
+    }
+    pre {
+      background-color: #f5f5f5;
+      padding: 15px;
+      border-radius: 5px;
+      overflow-x: auto;
+    }
+    .step {
+      margin-bottom: 30px;
+      padding: 20px;
+      background-color: #f9f9f9;
+      border-radius: 5px;
+      border-left: 5px solid #4a6741;
+    }
+    .note {
+      background-color: #fff8e1;
+      padding: 15px;
+      border-radius: 5px;
+      border-left: 5px solid #ffc107;
+      margin: 20px 0;
+    }
+    .security {
+      background-color: #e8f5e9;
+      padding: 15px;
+      border-radius: 5px;
+      border-left: 5px solid #4caf50;
+      margin: 20px 0;
+    }
+    img {
+      max-width: 100%;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      margin: 15px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    tr:hover {
+      background-color: #f5f5f5;
+    }
+    .important {
+      background-color: #ffebee;
+      padding: 15px;
+      border-radius: 5px;
+      border-left: 5px solid #f44336;
+      margin: 20px 0;
+      font-weight: bold;
+    }
+    .success {
+      background-color: #e8f5e9;
+      padding: 15px;
+      border-radius: 5px;
+      border-left: 5px solid #4caf50;
+      margin: 20px 0;
+      font-weight: bold;
+    }
+    .update {
+      background-color: #e3f2fd;
+      padding: 15px;
+      border-radius: 5px;
+      border-left: 5px solid #2196f3;
+      margin: 20px 0;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>FormSubmit.co Setup Guide for PDFextend</h1>
+  
+  <p>This guide will help you set up FormSubmit.co to securely send feedback emails from your PDFextend application.</p>
+  
+  <div class="update">
+    <p>🔄 UPDATE: Multiple Image Attachments Fixed</p>
+    <ul>
+      <li>Fixed issue with only one image being sent when multiple images are attached</li>
+      <li>Now using unique field names for each attachment (attachment1, attachment2, etc.)</li>
+      <li>Added attachment counter to help FormSubmit process multiple files</li>
+      <li>All images now properly attach to the email</li>
+    </ul>
+  </div>
+  
+  <div class="update">
+    <p>🔄 UPDATE: No More New Windows</p>
+    <ul>
+      <li>Fixed issue with form opening in a new window</li>
+      <li>Implemented hidden iframe technique for form submissions</li>
+      <li>Added _next parameter to ensure staying on the same page</li>
+      <li>All submissions now stay completely within the current page</li>
+    </ul>
+  </div>
+  
+  <div class="update">
+    <p>🔄 UPDATE: CAPTCHA Completely Disabled</p>
+    <ul>
+      <li>Fixed CAPTCHA redirection issue</li>
+      <li>Added _captcha=false parameter to all submissions</li>
+      <li>No more CAPTCHA pages under any circumstances</li>
+      <li>Users always stay on the current page</li>
+    </ul>
+  </div>
+  
+  <div class="update">
+    <p>🔄 UPDATE: Fixed Image Attachments</p>
+    <ul>
+      <li>Images now properly attach to feedback emails</li>
+      <li>Using a hybrid approach for optimal user experience</li>
+      <li>AJAX for text-only submissions (stays on page)</li>
+      <li>Hidden form for submissions with images (stays on page via iframe)</li>
+    </ul>
+  </div>
+  
+  <div class="success">
+    <p>✅ IMPROVED IMPLEMENTATION: The form now uses AJAX submission</p>
+    <ul>
+      <li>Users stay on the current page after submitting feedback</li>
+      <li>No redirection to CAPTCHA pages</li>
+      <li>Seamless user experience</li>
+    </ul>
+  </div>
+  
+  <div class="important">
+    <p>⚠️ TROUBLESHOOTING: If you didn't receive an activation email:</p>
+    <ol>
+      <li>Check your spam/junk folder for emails from FormSubmit.co</li>
+      <li>Try submitting the form again</li>
+      <li>The activation email will be sent to <code>code.canogullari@gmail.com</code></li>
+    </ol>
+  </div>
+  
+  <div class="note">
+    <strong>Why FormSubmit.co?</strong> FormSubmit.co offers unlimited free submissions, supports file attachments, and includes security features like spam filtering - all without requiring any registration or API keys.
+  </div>
+  
+  <table>
+    <tr>
+      <th>Feature</th>
+      <th>FormSubmit.co</th>
+      <th>Formspree Free</th>
+      <th>EmailJS Free</th>
+    </tr>
+    <tr>
+      <td>Monthly submissions</td>
+      <td>Unlimited</td>
+      <td>50</td>
+      <td>200</td>
+    </tr>
+    <tr>
+      <td>File attachments</td>
+      <td>Yes (multiple)</td>
+      <td>Yes (10MB limit)</td>
+      <td>Limited support</td>
+    </tr>
+    <tr>
+      <td>AJAX support</td>
+      <td>Yes</td>
+      <td>Yes (paid)</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>No CAPTCHA</td>
+      <td>Yes (disabled)</td>
+      <td>No</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>No new windows</td>
+      <td>Yes (iframe)</td>
+      <td>No</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Spam filtering</td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>Limited</td>
+    </tr>
+    <tr>
+      <td>Registration required</td>
+      <td>No</td>
+      <td>Yes</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>API keys needed</td>
+      <td>No</td>
+      <td>Yes</td>
+      <td>Yes</td>
+    </tr>
+  </table>
+  
+  <div class="security">
+    <strong>Security Features:</strong> The implementation includes:
+    <ul>
+      <li>Honeypot field to catch spam bots</li>
+      <li>HTTPS encryption for all data transmission</li>
+      <li>Unique subject lines with timestamps</li>
+      <li>No exposure of sensitive API keys</li>
+    </ul>
+  </div>
+  
+  <div class="step">
+    <h2>Step 1: First-Time Setup</h2>
+    <p>The first time someone submits the form, you'll receive an activation email from FormSubmit.co at <code>code.canogullari@gmail.com</code>.</p>
+    <ol>
+      <li>Check your email for a message from FormSubmit.co</li>
+      <li>Click the activation link in the email</li>
+      <li>This confirms your email address and activates the form</li>
+    </ol>
+    <p>That's it! After this one-time activation, all future form submissions will be sent directly to your email.</p>
+  </div>
+  
+  <div class="step">
+    <h2>Step 2: How the Hybrid Submission Works</h2>
+    <p>The form now uses a hybrid approach to handle both text-only and image submissions:</p>
+    
+    <h3>For Text-Only Submissions:</h3>
+    <pre>
+// For submissions without images, use the AJAX endpoint
+const formData = new FormData();
+formData.append('message', feedback);
+formData.append('_subject', `PDFextend Feedback - ${new Date().toLocaleString()}`);
+formData.append('_captcha', 'false');
+
+// Send to FormSubmit via fetch to prevent page redirect
+const response = await fetch('https://formsubmit.co/ajax/code.canogullari@gmail.com', {
+  method: 'POST',
+  body: formData,
+  headers: {
+    'Accept': 'application/json'
+  }
+});</pre>
+    
+    <h3>For Submissions with Multiple Images:</h3>
+    <pre>
+// Create a hidden iframe to target form submission
+let iframe = document.getElementById('hidden_iframe') as HTMLIFrameElement;
+if (!iframe) {
+  iframe = document.createElement('iframe');
+  iframe.name = 'hidden_iframe';
+  iframe.id = 'hidden_iframe';
+  iframe.style.display = 'none';
+  document.body.appendChild(iframe);
+}
+
+// Create a hidden form for submission
+const hiddenForm = document.createElement('form');
+hiddenForm.method = 'POST';
+hiddenForm.action = 'https://formsubmit.co/code.canogullari@gmail.com';
+hiddenForm.enctype = 'multipart/form-data';
+hiddenForm.style.display = 'none';
+hiddenForm.target = 'hidden_iframe'; // Target the hidden iframe
+
+// Add form fields...
+
+// Add multiple images with unique names
+feedbackImages.forEach((image, index) => {
+  const fileInput = document.createElement('input');
+  fileInput.type = 'file';
+  fileInput.name = `attachment${index + 1}`; // Unique name for each attachment
+  
+  // Create a DataTransfer object to set files
+  const dataTransfer = new DataTransfer();
+  dataTransfer.items.add(image);
+  fileInput.files = dataTransfer.files;
+  
+  hiddenForm.appendChild(fileInput);
+});
+
+// Add a count of attachments
+const countInput = document.createElement('input');
+countInput.type = 'hidden';
+countInput.name = 'attachment_count';
+countInput.value = feedbackImages.length.toString();
+hiddenForm.appendChild(countInput);
+
+// Submit the form
+document.body.appendChild(hiddenForm);
+hiddenForm.submit();</pre>
+    
+    <p>This approach offers several benefits:</p>
+    <ul>
+      <li>Users stay on the current page after submitting</li>
+      <li>All images are properly attached to emails</li>
+      <li>No CAPTCHA page redirection</li>
+      <li>No new windows or tabs opening</li>
+      <li>Better user experience</li>
+    </ul>
+  </div>
+  
+  <div class="note">
+    <strong>Note:</strong> FormSubmit.co is completely free with unlimited submissions. There are no monthly limits or hidden fees.
+  </div>
+  
+  <div class="security">
+    <h2>Security Considerations</h2>
+    <p>The implementation includes several security features:</p>
+    <ul>
+      <li><strong>Honeypot Field:</strong> The hidden <code>_honey</code> field catches spam bots</li>
+      <li><strong>HTTPS Encryption:</strong> All data is transmitted securely</li>
+      <li><strong>Unique Subjects:</strong> Each submission has a timestamp to prevent email threading</li>
+      <li><strong>No API Keys:</strong> No API keys or credentials are exposed in your client-side code</li>
+      <li><strong>CAPTCHA Disabled:</strong> While CAPTCHA is disabled for user convenience, the honeypot field still provides spam protection</li>
+    </ul>
+  </div>
+  
+  <h2>That's it!</h2>
+  <p>Your feedback form is now configured to send emails to <code>code.canogullari@gmail.com</code> with a unique subject line for each submission and all attached images. The implementation is secure, prevents spam, and works reliably with unlimited submissions - all without redirecting users away from your site or opening new windows.</p>
+  
+  <p>Just remember to check your email for the activation link after the first submission!</p>
+</body>
+</html> 

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="795" height="842" viewBox="0 0 795 842" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="595" height="842" fill="white"/>
+  <rect x="40" y="40" width="515" height="60" fill="#1F2937"/>
+  <rect x="40" y="120" width="515" height="12" fill="#4B5563"/>
+  <rect x="40" y="144" width="515" height="12" fill="#4B5563"/>
+  <rect x="40" y="168" width="400" height="12" fill="#4B5563"/>
+  
+  <rect x="40" y="200" width="515" height="200" fill="#F3F4F6"/>
+  
+  <rect x="40" y="420" width="515" height="12" fill="#4B5563"/>
+  <rect x="40" y="444" width="515" height="12" fill="#4B5563"/>
+  <rect x="40" y="468" width="440" height="12" fill="#4B5563"/>
+  
+  <rect x="40" y="500" width="20" height="20" rx="10" fill="#4B5563"/>
+  <rect x="70" y="504" width="200" height="12" fill="#4B5563"/>
+  
+  <rect x="40" y="530" width="20" height="20" rx="10" fill="#4B5563"/>
+  <rect x="70" y="534" width="300" height="12" fill="#4B5563"/>
+  
+  <rect x="40" y="560" width="20" height="20" rx="10" fill="#4B5563"/>
+  <rect x="70" y="564" width="250" height="12" fill="#4B5563"/>
+  
+  <!-- Notes section -->
+  <rect x="595" y="0" width="200" height="842" fill="white"/>
+  <path d="M595 0V842" stroke="#93C5FD" stroke-width="2" stroke-dasharray="8 8"/>
+  <text x="695" y="421" fill="#9CA3AF" font-family="system-ui" font-size="16" text-anchor="middle" transform="rotate(90 695 421)">Notes</text>
+</svg> 

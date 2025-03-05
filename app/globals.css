@@ -1,0 +1,214 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-rgb: 242, 196, 170;  /* #f2c4aa - matching the side columns */
+  --green-section-color: #c7edd4; /* Original green color for the preview section */
+}
+
+html, body {
+  height: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb));
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  border: none;
+  outline: 'none';
+  position: relative;
+}
+
+/* Add a pseudo-element to ensure the green section is always visible at the correct position */
+body::after {
+  content: '';
+  position: fixed; /* Changed from absolute to fixed for better behavior when zoomed out */
+  top: 370px; /* Default position for the green section */
+  left: 50%;
+  transform: translateX(-50%); /* Center the element */
+  width: 100%;
+  max-width: 1560px; /* Match the max-width of the main container */
+  height: 950px; /* Limit height to only cover the preview section */
+  background-color: var(--green-section-color); /* This will be the green color for the preview section */
+  z-index: -1;
+  pointer-events: none;
+  transition: background-color 0.3s ease; /* Add transition for smooth color changes */
+}
+
+/* Add another pseudo-element for the bottom section with the side column color */
+body::before {
+  content: '';
+  position: fixed; /* Changed from absolute to fixed for better behavior when zoomed out */
+  top: 1320px; /* Position after the green section */
+  left: 50%;
+  transform: translateX(-50%); /* Center the element */
+  width: 100%;
+  max-width: 1560px; /* Match the max-width of the main container */
+  height: 100vh;
+  background-color: #f2c4aa; /* Match the side columns */
+  z-index: -2;
+  pointer-events: none;
+}
+
+/* Green background class to ensure immediate color application */
+.bottom-background {
+  background-color: var(--green-section-color) !important;
+  transition: top 0.3s ease, background-color 0.3s ease; /* Add transition for color changes */
+}
+
+/* Background sections */
+.header-section {
+  background-color: #edc077;
+  z-index: 1;
+}
+
+.features-section {
+  background-color: #b5b2ae;
+  z-index: 1;
+}
+
+.feedback-section {
+  background-color: #c7caed;
+  z-index: 1;
+}
+
+.side-column {
+  background-color: #f2c4aa;
+  z-index: 2;
+}
+
+/* Basic styling for form elements */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 12px;
+  background: transparent;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 12px;
+  background-color: #d1d5db;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+input[type="range"]::-moz-range-track {
+  height: 12px;
+  background-color: #d1d5db;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+input[type="range"]::-ms-track {
+  height: 12px;
+  background-color: #d1d5db;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background-color: #4b5563;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  margin-top: -4px;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background-color: #4b5563;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+
+input[type="range"]::-ms-thumb {
+  width: 20px;
+  height: 20px;
+  background-color: #4b5563;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+
+input[type="range"]:focus {
+  outline: none;
+}
+
+textarea {
+  @apply resize-none;
+}
+
+/* Simple reset for buttons */
+button {
+  @apply cursor-pointer;
+}
+
+/* Media queries for responsive layout */
+@media (max-width: 768px) {
+  /* Stack columns on smaller screens */
+  .green-section-columns {
+    flex-direction: column !important;
+  }
+  
+  /* Adjust spacing for stacked layout */
+  .green-section-columns > div {
+    flex: 1 1 auto !important;
+    width: 100% !important;
+  }
+  
+  /* Hide the vertical divider on small screens */
+  .column-divider {
+    display: none !important;
+  }
+}
+
+/* Remove the content loading/ready states and fixed height rules */
+
+/* Font fallback */
+.font-fallback {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+}
+
+/* Font fallback system */
+@layer base {
+  html {
+    font-family: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 
+                 Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+  }
+  
+  /* Apply font variables to specific elements if needed */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-inter), system-ui, sans-serif;
+  }
+  
+  /* Font smoothing for better rendering */
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Font loading fallback - show content only when fonts are ready */
+.font-loading .content {
+  opacity: 0;
+}
+
+.fonts-loaded .content {
+  opacity: 1;
+  transition: opacity 0.2s ease-in;
+}
