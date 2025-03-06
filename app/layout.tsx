@@ -39,13 +39,23 @@ export default function RootLayout({
         {/* External CSS is now imported at the top */}
         {/* External JS is now loaded with Next.js Script component */}
         <Script src="/scripts/font-loader.js" strategy="beforeInteractive" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
       </head>
-      <body suppressHydrationWarning>
+      <body suppressHydrationWarning style={{ WebkitOverflowScrolling: 'touch' }}>
         <Navigation />
         <div className="bottom-section-placeholder"></div>
         {children}
         <GoogleAnalytics gaId={GA_MEASUREMENT_ID} />
+        <Script id="enable-ios-scroll-to-top" strategy="afterInteractive">
+          {`
+            document.addEventListener('DOMContentLoaded', function() {
+              // Fix for iOS scroll to top when tapping status bar
+              if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+                window.addEventListener('scroll', function() {}, { passive: true });
+              }
+            });
+          `}
+        </Script>
       </body>
     </html>
   );

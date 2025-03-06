@@ -17,9 +17,9 @@
   --side-box-width: 12%;
 }
 
-html, body {
+html {
   height: 100%;
-  overflow-x: hidden;
+  position: static; /* Ensure static positioning */
 }
 
 body {
@@ -31,6 +31,9 @@ body {
   border: none;
   outline: 'none';
   position: relative;
+  height: 100%;
+  overflow-y: auto; /* Allow vertical scrolling */
+  -webkit-overflow-scrolling: touch; /* Enable momentum scrolling on iOS */
 }
 
 /* Remove the pseudo-elements that were causing issues */
@@ -415,3 +418,15 @@ iframe {
 
 /* IMPORTANT: Do not hide the #greenSection element or its children */
 /* These styles are now managed by GreenSectionFinal.css */
+
+/* Fix for iOS "Scroll to Top" feature */
+html, body, #__next, main {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Ensure the main content area is scrollable */
+main, #__next, body, html {
+  height: auto;
+  min-height: 100%;
+}

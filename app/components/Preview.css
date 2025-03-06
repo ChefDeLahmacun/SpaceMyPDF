@@ -3,7 +3,7 @@
   border: 1px solid #ddd;
   background-color: white;
   position: relative;
-  overflow: hidden;
+  overflow: auto;
   border-radius: 4px;
   width: 100%;
 }

@@ -5,7 +5,7 @@
   z-index: 1 !important;
   background-color: #c7edd4 !important;
   position: relative !important;
-  overflow: hidden !important;
+  overflow: visible !important;
   min-height: 95vh !important;
   display: flex !important;
   flex-direction: row !important;
@@ -13,6 +13,7 @@
   max-width: 100% !important;
   box-sizing: border-box !important;
   border: none !important;
+  -webkit-overflow-scrolling: touch !important;
 }
 
 /* Preview section - takes up 60% of the width */
@@ -23,6 +24,7 @@
   flex: 0 0 60% !important;
   max-width: 60% !important;
   border: none !important;
+  -webkit-overflow-scrolling: touch !important;
 }
 
 /* Column divider */
@@ -43,6 +45,7 @@
   flex: 0 0 40% !important;
   max-width: 40% !important;
   border: none !important;
+  -webkit-overflow-scrolling: touch !important;
 }
 
 /* Force the layout to stay in row format regardless of screen size */
@@ -93,4 +96,10 @@
     min-height: 1px !important;
     max-height: 1px !important;
   }
+}
+
+/* Ensure child containers are properly scrollable */
+#greenSectionFinal > div:first-of-type,
+#greenSectionFinal > div:last-of-type {
+  -webkit-overflow-scrolling: touch !important;
 } 
