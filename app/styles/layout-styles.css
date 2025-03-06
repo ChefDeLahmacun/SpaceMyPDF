@@ -7,7 +7,7 @@
   width: 100%;
   max-width: 1560px; /* Match the max-width of the main container */
   height: 950px; /* Match minGreenSectionHeight */
-  background-color: #c7edd4; /* Original green color for the preview section */
+  background-color: #f2c4aa; /* Changed to match side column color */
   z-index: 0;
 }
 
