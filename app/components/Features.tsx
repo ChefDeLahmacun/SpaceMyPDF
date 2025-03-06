@@ -81,7 +81,8 @@ const Features: React.FC = () => {
         gap: screenSize.isSmallMobile ? '2vh' : '1.5vh',
         height: 'auto',
         overflow: 'visible',
-        marginBottom: '1.5vh'
+        marginBottom: '1.5vh',
+        width: '100%'
       }}>
         <FeatureCard 
           icon={<FaUserFriends size={24} color="#4a6741" />}
@@ -147,16 +148,25 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description, scr
     }}>
       <div style={{ 
         display: 'flex', 
-        alignItems: 'center', 
+        alignItems: 'flex-start', 
         marginBottom: '1.8vh',
-        height: '3.2vh'
+        flexWrap: screenSize.isSmallMobile ? 'wrap' : 'nowrap',
+        gap: '8px'
       }}>
-        <div style={{ marginRight: '1%' }}>{icon}</div>
+        <div style={{ 
+          marginRight: screenSize.isSmallMobile ? '0' : '1%',
+          flexShrink: 0
+        }}>
+          {icon}
+        </div>
         <h3 style={{ 
           margin: '0', 
-          fontSize: 'clamp(16px, 1.8vw, 18px)',
+          fontSize: screenSize.isSmallMobile ? '16px' : 'clamp(15px, 1.6vw, 18px)',
           fontWeight: '600', 
-          color: '#2c3e50' 
+          color: '#2c3e50',
+          lineHeight: '1.3',
+          wordWrap: 'break-word',
+          hyphens: 'auto'
         }}>
           {title}
         </h3>
