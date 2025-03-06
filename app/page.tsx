@@ -701,7 +701,7 @@ export default function Home() {
           width: '100%', 
           display: 'flex', 
           flexDirection: 'column',
-          backgroundColor: '#c7b5e8', // Add explicit background color to match the feedback section
+          backgroundColor: '#f2c4aa', // Match side column color
           borderTopLeftRadius: '0',
           borderTopRightRadius: '0',
           overflow: 'hidden',
