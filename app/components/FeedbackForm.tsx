@@ -244,7 +244,7 @@ const FeedbackForm = ({
         position: 'relative',
         zIndex: 2,
         overflow: 'visible',
-        borderRadius: '8px 8px 0 0'
+        borderRadius: '0 0 25px 25px'
       }}>
         <div style={{ 
           display: 'flex', 

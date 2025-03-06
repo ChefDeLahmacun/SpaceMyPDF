@@ -150,8 +150,8 @@ const Layout = ({ children, feedbackSectionNeedsExtraHeight, feedbackSubmitted =
             height: feedbackHeight,
             zIndex: 2,
             backgroundColor: '#f2c4aa', /* Match side column color */
-            borderBottomLeftRadius: '30px',
-            borderBottomRightRadius: '30px',
+            borderBottomLeftRadius: '25px',
+            borderBottomRightRadius: '25px',
             overflow: 'hidden'
           }}></div>
           
