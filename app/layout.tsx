@@ -39,6 +39,7 @@ export default function RootLayout({
         {/* External CSS is now imported at the top */}
         {/* External JS is now loaded with Next.js Script component */}
         <Script src="/scripts/font-loader.js" strategy="beforeInteractive" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
       </head>
       <body suppressHydrationWarning>
         <Navigation />

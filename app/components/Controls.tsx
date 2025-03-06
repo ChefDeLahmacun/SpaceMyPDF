@@ -71,18 +71,25 @@ const Controls: React.FC<ControlsProps> = ({
 
   return (
     <div style={{
-      flex: 2,
-      padding: '20px',
+      padding: '2% 5%',
+      backgroundColor: '#c7edd4',
+      height: '100%',
+      overflow: 'auto',
+      margin: 0,
+      border: 'none',
       display: 'flex',
       flexDirection: 'column',
-      overflow: 'visible'
+      alignItems: 'center',
+      justifyContent: 'flex-start',
+      width: '100%',
+      boxSizing: 'border-box'
     }}>
       <h2 style={{ 
-        fontSize: '24px', 
+        fontSize: 'clamp(18px, 3vw, 24px)',
         fontWeight: '600',
         color: '#2c3e50',
         textAlign: 'center',
-        marginBottom: '12px',
+        marginBottom: '1.5vh',
         marginTop: '0',
         letterSpacing: '0.5px'
       }}>
@@ -92,19 +99,20 @@ const Controls: React.FC<ControlsProps> = ({
       {/* Detailed instructions for controls section */}
       <div style={{
         backgroundColor: 'rgba(255,255,255,0.7)',
-        padding: '12px 15px',
+        padding: '1.5vh 2%',
         borderRadius: '8px',
-        marginBottom: '15px',
+        marginBottom: '1.5vh',
         border: '1px solid #ddd',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+        boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+        width: '100%'
       }}>
-        <p style={{ fontSize: '14px', margin: '0 0 8px 0', lineHeight: '1.5', color: '#34495e' }}>
+        <p style={{ fontSize: 'clamp(12px, 1.4vw, 14px)', margin: '0 0 0.8vh 0', lineHeight: '1.5', color: '#34495e' }}>
           <strong>Step 1:</strong> Upload your PDF below.
         </p>
-        <p style={{ fontSize: '14px', margin: '0 0 8px 0', lineHeight: '1.5', color: '#34495e' }}>
+        <p style={{ fontSize: 'clamp(12px, 1.4vw, 14px)', margin: '0 0 0.8vh 0', lineHeight: '1.5', color: '#34495e' }}>
           <strong>Step 2:</strong> Choose how wide you want your note space and where you want it.
         </p>
-        <p style={{ fontSize: '14px', margin: '0', lineHeight: '1.5', color: '#34495e' }}>
+        <p style={{ fontSize: 'clamp(12px, 1.4vw, 14px)', margin: '0', lineHeight: '1.5', color: '#34495e' }}>
           <strong>Step 3:</strong> Download your PDF and open it in your preferred note-taking application to start writing notes.
         </p>
       </div>
@@ -115,35 +123,87 @@ const Controls: React.FC<ControlsProps> = ({
         overflowX: 'hidden',
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'flex-start'
+        justifyContent: 'flex-start',
+        width: '100%'
       }}>
-        <div style={{ marginBottom: '20px' }}>
-          <p style={{ fontWeight: '600', marginBottom: '5px', color: '#2c3e50', fontSize: '15px' }}>Upload PDF</p>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".pdf"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) handleFileUpload(file);
-              }}
-              style={{ marginRight: '10px', maxWidth: '100%', width: '100%' }}
-              key={file ? 'pdf-input-with-file' : 'pdf-input-empty'}
-            />
+        <div style={{ marginBottom: '2vh', width: '100%' }}>
+          <p style={{ fontWeight: '600', marginBottom: '1vh', color: '#2c3e50', fontSize: 'clamp(13px, 1.5vw, 15px)' }}>Upload PDF</p>
+          <div style={{ 
+            border: '1px solid black',
+            borderRadius: '4px',
+            backgroundColor: 'white',
+            padding: '10px',
+            marginBottom: '10px',
+            width: '100%'
+          }}>
+            <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+              <div style={{ 
+                display: 'flex', 
+                flexDirection: 'row',
+                alignItems: 'center', 
+                width: '100%',
+                flexWrap: 'wrap'
+              }}>
+                <label 
+                  htmlFor="pdf-file-input" 
+                  style={{ 
+                    padding: '8px 12px',
+                    backgroundColor: '#f0f0f0',
+                    border: '1px solid #ccc',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    marginRight: '10px',
+                    marginBottom: '5px',
+                    fontSize: 'clamp(12px, 1.4vw, 14px)'
+                  }}
+                >
+                  Choose File
+                </label>
+                <span style={{ 
+                  fontSize: 'clamp(12px, 1.4vw, 14px)',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  maxWidth: '100%'
+                }}>
+                  {file ? file.name : 'No file chosen'}
+                </span>
+                <input
+                  id="pdf-file-input"
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleFileUpload(file);
+                  }}
+                  style={{ 
+                    position: 'absolute',
+                    width: '1px',
+                    height: '1px',
+                    padding: '0',
+                    margin: '-1px',
+                    overflow: 'hidden',
+                    clip: 'rect(0,0,0,0)',
+                    border: '0'
+                  }}
+                  key={file ? 'pdf-input-with-file' : 'pdf-input-empty'}
+                />
+              </div>
+            </div>
+            <p style={{ fontSize: 'clamp(10px, 1.2vw, 12px)', marginTop: '10px', marginBottom: '0' }}>Maximum file size: 50MB</p>
           </div>
-          <p style={{ fontSize: '12px', marginTop: '5px' }}>Maximum file size: 50MB</p>
         </div>
         
         {file && (
-          <div style={{ marginBottom: '20px' }}>
+          <div style={{ marginBottom: '2vh', width: '100%' }}>
             <button
               onClick={clearFile}
               style={{
-                padding: '5px 10px',
+                padding: '0.5vh 1%',
                 backgroundColor: 'white',
                 border: '1px solid black',
-                borderRadius: '3px',
+                borderRadius: '4px',
                 cursor: 'pointer'
               }}
             >
@@ -152,177 +212,246 @@ const Controls: React.FC<ControlsProps> = ({
           </div>
         )}
         
-        <div style={{ marginBottom: '20px' }}>
-          <p style={{ fontWeight: 'bold', marginBottom: '5px' }}>Note Space Width: <span style={{ color: '#4b5563', fontSize: '16px' }}>{noteSpaceWidth}%</span></p>
-          <div style={{ width: '95%', maxWidth: '350px', marginBottom: '5px' }}>
-            <input
-              type="range"
-              min="10"
-              max="150"
-              value={noteSpaceWidth}
-              onChange={(e) => setNoteSpaceWidth(Number(e.target.value))}
-              style={{ width: '100%' }}
-            />
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', width: '95%', maxWidth: '350px' }}>
-            <span>10%</span>
-            <span>150%</span>
-          </div>
-          
-          {/* Preset size buttons */}
-          <div style={{ marginTop: '10px' }}>
-            <p style={{ fontSize: '14px', marginBottom: '5px' }}>Preset Sizes:</p>
-            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-              <button
-                onClick={() => setNoteSpaceWidth(30)}
-                style={{
-                  padding: '5px 10px',
-                  backgroundColor: noteSpaceWidth === 30 ? '#e6e6e6' : 'white',
-                  border: noteSpaceWidth === 30 ? '2px solid black' : '1px solid black',
-                  borderRadius: '3px',
-                  cursor: 'pointer'
-                }}
-              >
-                S (30%)
-              </button>
-              <button
-                onClick={() => setNoteSpaceWidth(70)}
-                style={{
-                  padding: '5px 10px',
-                  backgroundColor: noteSpaceWidth === 70 ? '#e6e6e6' : 'white',
-                  border: noteSpaceWidth === 70 ? '2px solid black' : '1px solid black',
-                  borderRadius: '3px',
-                  cursor: 'pointer'
-                }}
-              >
-                M (70%)
-              </button>
-              <button
-                onClick={() => setNoteSpaceWidth(100)}
-                style={{
-                  padding: '5px 10px',
-                  backgroundColor: noteSpaceWidth === 100 ? '#e6e6e6' : 'white',
-                  border: noteSpaceWidth === 100 ? '2px solid black' : '1px solid black',
-                  borderRadius: '3px',
-                  cursor: 'pointer'
-                }}
-              >
-                L (100%)
-              </button>
-              <button
-                onClick={() => setNoteSpaceWidth(150)}
-                style={{
-                  padding: '5px 10px',
-                  backgroundColor: noteSpaceWidth === 150 ? '#e6e6e6' : 'white',
-                  border: noteSpaceWidth === 150 ? '2px solid black' : '1px solid black',
-                  borderRadius: '3px',
-                  cursor: 'pointer'
-                }}
-              >
-                XL (150%)
-              </button>
+        <div style={{ marginBottom: '2vh', width: '100%' }}>
+          <p style={{ fontWeight: '600', marginBottom: '1vh', color: '#2c3e50', fontSize: 'clamp(13px, 1.5vw, 15px)' }}>Note Space Width: <span style={{ color: '#4b5563', fontSize: 'clamp(14px, 1.6vw, 16px)' }}>{noteSpaceWidth}%</span></p>
+          <div style={{ 
+            border: '1px solid black',
+            borderRadius: '4px',
+            backgroundColor: 'white',
+            padding: '10px',
+            marginBottom: '10px',
+            width: '100%'
+          }}>
+            <div style={{ width: '100%', maxWidth: '100%', marginBottom: '10px' }}>
+              <input
+                ref={sliderRef}
+                type="range"
+                min="10"
+                max="150"
+                value={noteSpaceWidth}
+                onChange={(e) => setNoteSpaceWidth(Number(e.target.value))}
+                style={{ width: '100%' }}
+              />
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'clamp(10px, 1.2vw, 12px)', width: '100%' }}>
+              <span>10%</span>
+              <span>150%</span>
+            </div>
+            
+            {/* Preset size buttons */}
+            <div style={{ marginTop: '15px', width: '100%' }}>
+              <p style={{ fontSize: 'clamp(12px, 1.4vw, 14px)', marginBottom: '10px' }}>Preset Sizes:</p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2%', width: '100%' }}>
+                <button
+                  onClick={() => setNoteSpaceWidth(30)}
+                  style={{
+                    padding: '0.5vh 1%',
+                    backgroundColor: noteSpaceWidth === 30 ? '#e6e6e6' : 'white',
+                    border: noteSpaceWidth === 30 ? '2px solid black' : '1px solid black',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    flex: '1'
+                  }}
+                >
+                  S (30%)
+                </button>
+                <button
+                  onClick={() => setNoteSpaceWidth(70)}
+                  style={{
+                    padding: '0.5vh 1%',
+                    backgroundColor: noteSpaceWidth === 70 ? '#e6e6e6' : 'white',
+                    border: noteSpaceWidth === 70 ? '2px solid black' : '1px solid black',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    flex: '1'
+                  }}
+                >
+                  M (70%)
+                </button>
+                <button
+                  onClick={() => setNoteSpaceWidth(100)}
+                  style={{
+                    padding: '0.5vh 1%',
+                    backgroundColor: noteSpaceWidth === 100 ? '#e6e6e6' : 'white',
+                    border: noteSpaceWidth === 100 ? '2px solid black' : '1px solid black',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    flex: '1'
+                  }}
+                >
+                  L (100%)
+                </button>
+              </div>
             </div>
           </div>
         </div>
         
         {/* Note Space Position selector */}
-        <div style={{ marginBottom: '20px' }}>
-          <p style={{ fontWeight: 'bold', marginBottom: '5px' }}>Note Space Position</p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-              {['right', 'left', 'top', 'bottom'].map((position) => (
-                <button
-                  key={position}
-                  onClick={() => setNoteSpacePosition(position)}
-                  style={{
-                    padding: '8px 12px',
-                    backgroundColor: noteSpacePosition === position ? '#e6e6e6' : 'white',
-                    border: noteSpacePosition === position ? '2px solid black' : '1px solid black',
-                    borderRadius: '3px',
-                    cursor: 'pointer',
-                    textTransform: 'capitalize',
-                    flex: '1 0 calc(50% - 10px)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    minWidth: '80px'
-                  }}
-                >
-                  <div style={{ 
-                    width: '16px', 
-                    height: '16px', 
-                    marginRight: '5px',
-                    position: 'relative',
-                    border: '1px solid #666',
-                    borderRadius: '2px'
-                  }}>
-                    <div style={{ 
-                      position: 'absolute',
-                      backgroundColor: '#666',
-                      ...(position === 'right' ? { right: 0, top: 0, width: '30%', height: '100%' } :
-                         position === 'left' ? { left: 0, top: 0, width: '30%', height: '100%' } :
-                         position === 'top' ? { top: 0, left: 0, width: '100%', height: '30%' } :
-                         { bottom: 0, left: 0, width: '100%', height: '30%' })
-                    }}></div>
-                  </div>
-                  {position}
-                </button>
-              ))}
-            </div>
-            <p style={{ fontSize: '12px', margin: '5px 0 0 0' }}>
-              Select where to add the note space on each page
-            </p>
-          </div>
-        </div>
-        
-        {/* Color options section */}
-        <div style={{ marginBottom: '20px' }}>
-          <p style={{ fontWeight: 'bold', marginBottom: '5px' }}>Note Space Color</p>
-          <p style={{ fontSize: '12px', marginTop: '0', marginBottom: '10px' }}>Default: White</p>
+        <div style={{ marginBottom: '2vh', width: '100%' }}>
+          <p style={{ fontWeight: '600', marginBottom: '1vh', color: '#2c3e50', fontSize: 'clamp(13px, 1.5vw, 15px)' }}>Note Space Position</p>
           
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <input
-                type="radio"
-                id="colorWhite"
-                name="colorOption"
-                checked={colorOption === 'white'}
-                onChange={() => {
-                  setColorOption('white');
-                }}
-                style={{ cursor: 'pointer' }}
-              />
-              <label htmlFor="colorWhite" style={{ fontSize: '14px', cursor: 'pointer' }}>
-                White (Default)
+          <div style={{ width: '100%' }}>
+            <div 
+              style={{ 
+                border: '1px solid black',
+                borderRadius: '4px',
+                backgroundColor: 'white',
+                padding: '10px',
+                marginBottom: '10px',
+                width: '100%',
+                cursor: 'pointer'
+              }}
+              onClick={() => setNoteSpacePosition('right')}
+            >
+              <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', width: '100%' }}>
+                <input 
+                  type="checkbox" 
+                  checked={noteSpacePosition === 'right'} 
+                  onChange={() => setNoteSpacePosition('right')} 
+                  style={{ marginRight: '10px' }}
+                />
+                Right
               </label>
-              <div style={{ 
-                width: '20px', 
-                height: '20px', 
-                backgroundColor: '#ffffff', 
-                border: '1px solid #ccc',
-                marginLeft: '5px'
-              }}></div>
             </div>
             
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <input
-                type="radio"
-                id="colorCustom"
-                name="colorOption"
-                checked={colorOption === 'custom'}
-                onChange={() => {
-                  setColorOption('custom');
-                }}
-                style={{ cursor: 'pointer' }}
-              />
-              <label htmlFor="colorCustom" style={{ fontSize: '14px', cursor: 'pointer' }}>
-                Custom Color
+            <div 
+              style={{ 
+                border: '1px solid black',
+                borderRadius: '4px',
+                backgroundColor: 'white',
+                padding: '10px',
+                marginBottom: '10px',
+                width: '100%',
+                cursor: 'pointer'
+              }}
+              onClick={() => setNoteSpacePosition('left')}
+            >
+              <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', width: '100%' }}>
+                <input 
+                  type="checkbox" 
+                  checked={noteSpacePosition === 'left'} 
+                  onChange={() => setNoteSpacePosition('left')} 
+                  style={{ marginRight: '10px' }}
+                />
+                Left
+              </label>
+            </div>
+            
+            <div 
+              style={{ 
+                border: '1px solid black',
+                borderRadius: '4px',
+                backgroundColor: 'white',
+                padding: '10px',
+                marginBottom: '10px',
+                width: '100%',
+                cursor: 'pointer'
+              }}
+              onClick={() => setNoteSpacePosition('top')}
+            >
+              <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', width: '100%' }}>
+                <input 
+                  type="checkbox" 
+                  checked={noteSpacePosition === 'top'} 
+                  onChange={() => setNoteSpacePosition('top')} 
+                  style={{ marginRight: '10px' }}
+                />
+                Top
+              </label>
+            </div>
+            
+            <div 
+              style={{ 
+                border: '1px solid black',
+                borderRadius: '4px',
+                backgroundColor: 'white',
+                padding: '10px',
+                width: '100%',
+                cursor: 'pointer'
+              }}
+              onClick={() => setNoteSpacePosition('bottom')}
+            >
+              <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', width: '100%' }}>
+                <input 
+                  type="checkbox" 
+                  checked={noteSpacePosition === 'bottom'} 
+                  onChange={() => setNoteSpacePosition('bottom')} 
+                  style={{ marginRight: '10px' }}
+                />
+                Bottom
+              </label>
+            </div>
+          </div>
+          
+          <p style={{ fontSize: 'clamp(10px, 1.2vw, 12px)', margin: '1vh 0 0 0' }}>
+            Select where to add the note space on each page
+          </p>
+        </div>
+        
+        {/* Note Space Color section */}
+        <div style={{ marginBottom: '2vh', width: '100%' }}>
+          <p style={{ fontWeight: '600', marginBottom: '1vh', color: '#2c3e50', fontSize: 'clamp(13px, 1.5vw, 15px)' }}>Note Space Color</p>
+          
+          <div style={{ width: '100%' }}>
+            <div 
+              style={{ 
+                border: '1px solid black',
+                borderRadius: '4px',
+                backgroundColor: 'white',
+                padding: '10px',
+                marginBottom: '10px',
+                width: '100%',
+                cursor: 'pointer'
+              }}
+              onClick={() => setColorOption('white')}
+            >
+              <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', width: '100%' }}>
+                <input
+                  type="radio"
+                  id="colorWhite"
+                  name="colorOption"
+                  checked={colorOption === 'white'}
+                  onChange={() => setColorOption('white')}
+                  style={{ cursor: 'pointer', marginRight: '8px' }}
+                />
+                <span style={{ fontSize: 'clamp(12px, 1.4vw, 14px)' }}>White (Default)</span>
+                <div style={{ 
+                  width: '20px', 
+                  height: '20px', 
+                  backgroundColor: '#ffffff', 
+                  border: '1px solid #ccc',
+                  marginLeft: '8px'
+                }}></div>
+              </label>
+            </div>
+            
+            <div 
+              style={{ 
+                border: '1px solid black',
+                borderRadius: '4px',
+                backgroundColor: 'white',
+                padding: '10px',
+                width: '100%',
+                cursor: 'pointer'
+              }}
+              onClick={() => setColorOption('custom')}
+            >
+              <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', width: '100%' }}>
+                <input
+                  type="radio"
+                  id="colorCustom"
+                  name="colorOption"
+                  checked={colorOption === 'custom'}
+                  onChange={() => setColorOption('custom')}
+                  style={{ cursor: 'pointer', marginRight: '8px' }}
+                />
+                <span style={{ fontSize: 'clamp(12px, 1.4vw, 14px)' }}>Custom Color</span>
               </label>
             </div>
             
             {colorOption === 'custom' && (
-              <div style={{ marginLeft: '25px', marginTop: '5px' }}>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', marginBottom: '10px' }}>
+              <div style={{ marginTop: '10px', width: '100%', padding: '0 10px' }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1%', marginBottom: '1vh' }}>
                   {predefinedColors.map((color) => (
                     <div
                       key={color.value}
@@ -340,7 +469,7 @@ const Controls: React.FC<ControlsProps> = ({
                   ))}
                 </div>
                 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '2%' }}>
                   <input
                     type="color"
                     value={customColor}
@@ -358,7 +487,7 @@ const Controls: React.FC<ControlsProps> = ({
                     }}
                     style={{
                       width: '80px',
-                      padding: '5px',
+                      padding: '2%',
                       border: '1px solid #ccc',
                       borderRadius: '3px'
                     }}
@@ -369,86 +498,99 @@ const Controls: React.FC<ControlsProps> = ({
           </div>
         </div>
         
-        <div style={{ marginBottom: '20px' }}>
-          <p style={{ fontWeight: 'bold', marginBottom: '5px' }}>Output Filename</p>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        {/* Output Filename section */}
+        <div style={{ marginBottom: '2vh', width: '100%' }}>
+          <p style={{ fontWeight: '600', marginBottom: '1vh', color: '#2c3e50', fontSize: 'clamp(13px, 1.5vw, 15px)' }}>Output Filename</p>
+          <div style={{ 
+            border: '1px solid black',
+            borderRadius: '4px',
+            backgroundColor: 'white',
+            padding: '10px',
+            marginBottom: '10px',
+            width: '100%'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '2%', width: '100%' }}>
+              <div style={{ 
+                display: 'flex', 
+                flex: 1,
+                border: '1px solid #ccc',
+                borderRadius: '4px',
+                overflow: 'hidden',
+                height: 'auto',
+                minHeight: '2.5rem'
+              }}>
+                <input
+                  type="text"
+                  value={baseFileName}
+                  onChange={handleBaseFileNameChange}
+                  style={{
+                    flex: 1,
+                    padding: '2%',
+                    border: 'none',
+                    outline: 'none',
+                    minWidth: 0,
+                    height: '100%',
+                    boxSizing: 'border-box',
+                    fontSize: 'clamp(12px, 1.4vw, 16px)'
+                  }}
+                  placeholder="Enter filename"
+                />
+                <span style={{ 
+                  padding: '2%', 
+                  backgroundColor: '#f0f0f0', 
+                  color: '#666',
+                  borderLeft: '1px solid #ccc',
+                  whiteSpace: 'nowrap',
+                  display: 'flex',
+                  alignItems: 'center'
+                }}>
+                  .pdf
+                </span>
+              </div>
+              <button
+                onClick={resetBaseFileName}
+                style={{
+                  padding: '2%',
+                  backgroundColor: 'white',
+                  border: '1px solid #ccc',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                  height: 'auto',
+                  minHeight: '2.5rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxSizing: 'border-box',
+                  fontSize: 'clamp(12px, 1.4vw, 16px)'
+                }}
+              >
+                Reset
+              </button>
+            </div>
             <div style={{ 
               display: 'flex', 
-              flex: 1,
-              border: '1px solid black',
-              borderRadius: '3px',
-              overflow: 'hidden',
-              height: '30px'
+              alignItems: 'center', 
+              marginTop: '10px',
+              gap: '2%'
             }}>
               <input
-                type="text"
-                value={baseFileName}
-                onChange={handleBaseFileNameChange}
-                style={{
-                  flex: 1,
-                  padding: '5px',
-                  border: 'none',
-                  outline: 'none',
-                  minWidth: 0,
-                  height: '100%',
-                  boxSizing: 'border-box'
-                }}
-                placeholder="Enter filename"
+                type="checkbox"
+                id="includeWithNotes"
+                checked={includeWithNotes}
+                onChange={handleCheckboxChange}
+                style={{ cursor: 'pointer' }}
               />
-              <span style={{ 
-                padding: '5px', 
-                backgroundColor: '#f0f0f0', 
-                color: '#666',
-                borderLeft: '1px solid #ccc',
-                whiteSpace: 'nowrap',
-                display: 'flex',
-                alignItems: 'center'
-              }}>
-                {includeWithNotes ? '_with_notes.pdf' : '.pdf'}
-              </span>
+              <label 
+                htmlFor="includeWithNotes" 
+                style={{ 
+                  fontSize: 'clamp(12px, 1.4vw, 14px)',
+                  cursor: 'pointer'
+                }}
+              >
+                Include "_with_notes" in filename
+              </label>
             </div>
-            <button
-              onClick={resetBaseFileName}
-              style={{
-                padding: '0 10px',
-                backgroundColor: 'white',
-                border: '1px solid black',
-                borderRadius: '3px',
-                cursor: 'pointer',
-                whiteSpace: 'nowrap',
-                height: '30px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxSizing: 'border-box',
-                fontSize: '14px'
-              }}
-            >
-              Reset
-            </button>
-          </div>
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            marginTop: '8px',
-            gap: '8px'
-          }}>
-            <input
-              type="checkbox"
-              id="includeWithNotes"
-              checked={includeWithNotes}
-              onChange={handleCheckboxChange}
-              style={{ cursor: 'pointer' }}
-            />
-            <label 
-              htmlFor="includeWithNotes" 
-              style={{ 
-                fontSize: '14px',
-                cursor: 'pointer'
-              }}
-            >
-              Include "_with_notes" in filename
-            </label>
           </div>
         </div>
         
@@ -457,8 +599,9 @@ const Controls: React.FC<ControlsProps> = ({
             <div style={{ 
               display: 'flex', 
               alignItems: 'center', 
-              marginBottom: '15px',
-              gap: '8px'
+              marginBottom: '2%',
+              gap: '2%',
+              width: '100%'
             }}>
               <input
                 type="checkbox"
@@ -470,7 +613,7 @@ const Controls: React.FC<ControlsProps> = ({
               <label 
                 htmlFor="specifyLocation" 
                 style={{ 
-                  fontSize: '14px',
+                  fontSize: 'clamp(12px, 1.4vw, 14px)',
                   cursor: 'pointer'
                 }}
               >
@@ -483,17 +626,17 @@ const Controls: React.FC<ControlsProps> = ({
                 width: '100%',
                 display: 'flex',
                 justifyContent: 'center',
-                marginBottom: '15px'
+                marginBottom: '2%'
               }}>
                 <div style={{
-                  fontSize: '12px',
+                  fontSize: 'clamp(10px, 1.2vw, 12px)',
                   color: '#777',
                   fontStyle: 'italic',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '6px',
-                  padding: '4px 8px',
+                  gap: '2%',
+                  padding: '1% 2%',
                   background: 'rgba(0, 0, 0, 0.03)',
                   borderRadius: '4px',
                   maxWidth: 'fit-content',
@@ -507,35 +650,37 @@ const Controls: React.FC<ControlsProps> = ({
               </div>
             )}
             
-            <div style={{ marginBottom: '20px' }}>
+            <div style={{ marginBottom: '3%', width: '100%' }}>
               <button
                 onClick={handleDownload}
                 disabled={downloadIsProcessing}
                 style={{
                   width: '100%',
-                  padding: '8px 16px',
+                  padding: '2%',
                   backgroundColor: 'white',
                   border: '1px solid black',
-                  borderRadius: '3px',
+                  borderRadius: '4px',
                   cursor: downloadIsProcessing ? 'default' : 'pointer',
-                  opacity: downloadIsProcessing ? 0.7 : 1
+                  opacity: downloadIsProcessing ? 0.7 : 1,
+                  fontSize: 'clamp(14px, 1.6vw, 16px)'
                 }}
               >
                 {downloadIsProcessing ? 'Processing...' : 'Download PDF'}
               </button>
               {successMessage && (
                 <div style={{ 
-                  marginTop: '10px', 
-                  padding: '8px 12px',
+                  marginTop: '2%', 
+                  padding: '2%',
                   backgroundColor: '#e6f7e6',
                   border: '1px solid #c3e6cb',
                   borderRadius: '4px',
                   color: '#155724',
-                  fontSize: '14px',
+                  fontSize: 'clamp(12px, 1.4vw, 14px)',
                   textAlign: 'center',
-                  boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+                  boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                  width: '100%'
                 }}>
-                  <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                  <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2%' }}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-.997-6l7.07-7.071-1.414-1.414-5.656 5.657-2.829-2.829-1.414 1.414L11.003 16z" 
                         fill="currentColor"/>

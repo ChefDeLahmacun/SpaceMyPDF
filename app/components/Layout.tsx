@@ -5,27 +5,30 @@ export const GreenContentRefContext = createContext<React.RefObject<HTMLDivEleme
 
 interface LayoutProps {
   children: ReactNode;
-  feedbackSectionNeedsExtraHeight: boolean;
+  feedbackSectionNeedsExtraHeight?: boolean;
   feedbackSubmitted?: boolean;
 }
 
 const Layout = ({ children, feedbackSectionNeedsExtraHeight, feedbackSubmitted = false }: LayoutProps) => {
-  // Define consistent dimensions
-  const headerHeight = '100px';
-  const featuresHeight = '280px';
-  const minGreenSectionHeight = '950px'; // Minimum height
-  const feedbackHeight = feedbackSubmitted ? '410px' : (feedbackSectionNeedsExtraHeight ? '500px' : '400px');
-  const sideBoxWidth = '180px';
+  // Define dimensions using viewport-relative units and percentages
+  const headerHeight = '10vh'; // Was 100px
+  const [featuresHeight, setFeaturesHeight] = useState('auto');
+  const minGreenSectionHeight = '95vh'; // Was 950px
+  const feedbackHeight = feedbackSubmitted ? '65vh' : (feedbackSectionNeedsExtraHeight ? '70vh' : '60vh'); // Increased heights for more padding
+  
+  // Adjust side box width based on screen size
+  const [sideBoxWidth, setSideBoxWidth] = useState('12%');
   
   // Start with a reasonable default height
   const [greenSectionHeight, setGreenSectionHeight] = useState(minGreenSectionHeight);
   const greenContentRef = useRef<HTMLDivElement>(null);
+  const featuresRef = useRef<HTMLDivElement>(null);
   
   // Function to update green section height
   const updateGreenSectionHeight = () => {
     if (greenContentRef.current) {
       const contentHeight = greenContentRef.current.scrollHeight;
-      const minHeight = parseInt(minGreenSectionHeight);
+      const minHeight = window.innerHeight * 0.95; // 95vh in pixels
       
       if (contentHeight > minHeight) {
         setGreenSectionHeight(`${contentHeight}px`);
@@ -34,57 +37,59 @@ const Layout = ({ children, feedbackSectionNeedsExtraHeight, feedbackSubmitted =
       }
     }
   };
+
+  // Function to update features section height
+  const updateFeaturesHeight = () => {
+    if (featuresRef.current) {
+      const contentHeight = featuresRef.current.scrollHeight;
+      // Set minimum height to ensure all content is visible
+      setFeaturesHeight(`max(32vh, ${contentHeight}px)`);
+    }
+  };
+  
+  // Update side box width based on screen size
+  const updateSideBoxWidth = () => {
+    if (window.innerWidth <= 768) {
+      setSideBoxWidth('5%'); // Smaller side boxes on mobile
+    } else {
+      setSideBoxWidth('12%'); // Original size on desktop
+    }
+  };
   
   // Use useLayoutEffect for initial height calculation
   useLayoutEffect(() => {
+    updateSideBoxWidth();
     if (greenContentRef.current) {
       updateGreenSectionHeight();
     }
+    updateFeaturesHeight();
   }, []);
   
-  // Use useEffect for ongoing updates
+  // Add resize listener to adjust heights on window resize
   useEffect(() => {
-    // Set up a resize observer to detect content changes
-    const resizeObserver = new ResizeObserver(() => {
-      requestAnimationFrame(updateGreenSectionHeight);
-    });
-    
-    // Set up a mutation observer to detect DOM changes
-    const mutationObserver = new MutationObserver(() => {
-      requestAnimationFrame(updateGreenSectionHeight);
-    });
-    
-    if (greenContentRef.current) {
-      resizeObserver.observe(greenContentRef.current);
-      mutationObserver.observe(greenContentRef.current, {
-        childList: true,
-        subtree: true,
-        attributes: true,
-        characterData: true
-      });
-    }
-    
-    // Also update on window resize
-    window.addEventListener('resize', updateGreenSectionHeight);
-    
-    // Clean up
-    return () => {
-      if (greenContentRef.current) {
-        resizeObserver.unobserve(greenContentRef.current);
-        mutationObserver.disconnect();
-      }
-      resizeObserver.disconnect();
-      window.removeEventListener('resize', updateGreenSectionHeight);
+    const handleResize = () => {
+      updateSideBoxWidth();
+      updateGreenSectionHeight();
+      updateFeaturesHeight();
     };
-  }, [minGreenSectionHeight]);
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  
+  // Update height when content changes
+  useEffect(() => {
+    updateGreenSectionHeight();
+    updateFeaturesHeight();
+  }, [children]);
   
   return (
     <GreenContentRefContext.Provider value={greenContentRef}>
       <div style={{ 
         width: '100%', 
-        minHeight: '85vh',
+        minHeight: '100vh',
         position: 'relative',
-        overflow: 'visible',
+        overflow: 'hidden', // Changed from visible to hidden to prevent content from extending
         backgroundColor: '#f2c4aa',
         border: 'none',
         outline: 'none',
@@ -94,7 +99,7 @@ const Layout = ({ children, feedbackSectionNeedsExtraHeight, feedbackSubmitted =
         <div style={{
           position: 'relative',
           width: '100%',
-          maxWidth: '1560px', // Constrain the maximum width
+          maxWidth: '100%', // Was 1560px
           margin: '0 auto'
         }}>
           {/* Background color sections */}
@@ -108,69 +113,78 @@ const Layout = ({ children, feedbackSectionNeedsExtraHeight, feedbackSubmitted =
             zIndex: 0
           }}></div>
           
-          <div style={{
-            position: 'absolute',
-            top: headerHeight,
-            left: 0,
-            width: '100%',
-            height: featuresHeight,
-            backgroundColor: '#dae1f0',
-            zIndex: 0
-          }}></div>
+          <div 
+            ref={featuresRef}
+            style={{
+              position: 'absolute',
+              top: headerHeight,
+              left: 0,
+              width: '100%',
+              height: featuresHeight,
+              backgroundColor: '#dae1f0',
+              zIndex: 0
+            }}
+          ></div>
           
           {/* Green section with dynamic height */}
           <div id="greenSection" style={{
             position: 'absolute',
             top: `calc(${headerHeight} + ${featuresHeight})`,
-            left: 0,
-            width: '100%',
+            left: sideBoxWidth,
+            width: `calc(100% - (${sideBoxWidth} * 2))`,
             height: greenSectionHeight,
+            minHeight: minGreenSectionHeight,
             backgroundColor: '#c7edd4', /* Original green color for the preview section */
-            zIndex: 0
+            zIndex: 3,
+            overflow: 'hidden', /* Add overflow hidden to prevent content from extending outside */
+            boxSizing: 'border-box'
           }}></div>
           
-          <div style={{
+          <div className="feedback-section" style={{
             position: 'absolute',
             top: `calc(${headerHeight} + ${featuresHeight} + ${greenSectionHeight})`,
             left: sideBoxWidth,
-            width: `calc(100% - ${parseInt(sideBoxWidth) * 2}px)`,
+            width: `calc(100% - (${sideBoxWidth} * 2))`,
             height: feedbackHeight,
-            backgroundColor: '#c7caed',
             zIndex: 2,
+            backgroundColor: '#c7b5e8', /* Add explicit background color to feedback section */
             borderBottomLeftRadius: '30px',
-            borderBottomRightRadius: '30px'
+            borderBottomRightRadius: '30px',
+            overflow: 'hidden'
           }}></div>
           
           {/* Left side box */}
           <div style={{
-            backgroundColor: '#f2c4aa',
+            backgroundColor: 'rgb(var(--background-rgb))',
             width: sideBoxWidth,
             position: 'absolute',
             top: 0,
             left: 0,
             bottom: 0,
+            height: '100%',
             zIndex: 1
           }}></div>
           
           {/* Right side box */}
           <div style={{
-            backgroundColor: '#f2c4aa',
+            backgroundColor: 'rgb(var(--background-rgb))',
             width: sideBoxWidth,
             position: 'absolute',
             top: 0,
             right: 0,
             bottom: 0,
+            height: '100%',
             zIndex: 1
           }}></div>
           
           {/* Main content */}
           <div style={{
             position: 'relative',
-            width: `calc(100% - ${parseInt(sideBoxWidth) * 2}px)`,
-            maxWidth: '1200px',
+            width: `calc(100% - (${sideBoxWidth} * 2))`,
+            maxWidth: '100%', // Was 1200px
             margin: '0 auto',
             paddingTop: '0',
-            zIndex: 3
+            zIndex: 4
           }}>
             {children}
           </div>

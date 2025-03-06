@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect, useLayoutEffect, useContext } from 'react';
+import React, { useState, useRef, useEffect, useLayoutEffect, useContext, useCallback } from 'react';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import Image from 'next/image';
 import Layout, { GreenContentRefContext } from './components/Layout';
@@ -12,6 +12,7 @@ import FeedbackForm from './components/FeedbackForm';
 import WhiteBox from './components/WhiteBox';
 import DonationsBox from './components/DonationsBox';
 import { useAnalytics } from './utils/useAnalytics';
+import './components/GreenSectionFinal.css';
 
 export default function Home() {
   const { trackEvent } = useAnalytics();
@@ -661,54 +662,52 @@ export default function Home() {
         <Features />
         
         <GreenContentWrapper>
-          <div style={{
-            display: 'flex',
-            flexDirection: 'row',
-            gap: '20px',
-            flex: 1,
-            flexWrap: 'wrap'
-          }}>
-            <Preview 
-              file={file}
-              isProcessing={isProcessing}
-              pdfPreviewUrl={pdfPreviewUrl}
-            />
-            
-            <div style={{
-              width: '1px',
-              backgroundColor: 'black',
-              height: '100%'
-            }}></div>
-            
-            <Controls 
-              file={file}
-              noteSpaceWidth={noteSpaceWidth}
-              setNoteSpaceWidth={setNoteSpaceWidth}
-              noteSpacePosition={noteSpacePosition}
-              setNoteSpacePosition={setNoteSpacePosition}
-              colorOption={colorOption}
-              setColorOption={setColorOption}
-              customColor={customColor}
-              setCustomColor={setCustomColor}
-              baseFileName={baseFileName}
-              handleBaseFileNameChange={handleBaseFileNameChange}
-              includeWithNotes={includeWithNotes}
-              handleCheckboxChange={handleCheckboxChange}
-              resetBaseFileName={resetBaseFileName}
-              fileInputRef={fileInputRef}
-              handleFileUpload={handleFileUpload}
-              clearFile={clearFile}
-              handleDownload={handleDownload}
-              downloadIsProcessing={downloadIsProcessing}
-              predefinedColors={predefinedColors}
-              specifyLocation={specifyLocation}
-              setSpecifyLocation={setSpecifyLocation}
-              successMessage={successMessage}
-            />
-          </div>
+          <Preview 
+            file={file}
+            isProcessing={isProcessing}
+            pdfPreviewUrl={pdfPreviewUrl}
+          />
+          
+          <div className="column-divider"></div>
+          
+          <Controls 
+            file={file}
+            noteSpaceWidth={noteSpaceWidth}
+            setNoteSpaceWidth={setNoteSpaceWidth}
+            noteSpacePosition={noteSpacePosition}
+            setNoteSpacePosition={setNoteSpacePosition}
+            colorOption={colorOption}
+            setColorOption={setColorOption}
+            customColor={customColor}
+            setCustomColor={setCustomColor}
+            baseFileName={baseFileName}
+            handleBaseFileNameChange={handleBaseFileNameChange}
+            includeWithNotes={includeWithNotes}
+            handleCheckboxChange={handleCheckboxChange}
+            resetBaseFileName={resetBaseFileName}
+            fileInputRef={fileInputRef}
+            handleFileUpload={handleFileUpload}
+            clearFile={clearFile}
+            handleDownload={handleDownload}
+            downloadIsProcessing={downloadIsProcessing}
+            predefinedColors={predefinedColors}
+            specifyLocation={specifyLocation}
+            setSpecifyLocation={setSpecifyLocation}
+            successMessage={successMessage}
+          />
         </GreenContentWrapper>
         
-        <div style={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ 
+          width: '100%', 
+          display: 'flex', 
+          flexDirection: 'column',
+          backgroundColor: '#c7b5e8', // Add explicit background color to match the feedback section
+          borderTopLeftRadius: '0',
+          borderTopRightRadius: '0',
+          overflow: 'hidden',
+          position: 'relative',
+          zIndex: 2
+        }}>
           <FeedbackForm 
             feedback={feedback}
             setFeedback={setFeedback}
@@ -721,7 +720,7 @@ export default function Home() {
             feedbackSectionNeedsExtraHeight={feedbackSectionNeedsExtraHeight}
             feedbackSubmitted={feedbackSubmitted}
           />
-          <WhiteBox />
+          <div className="section-gap"></div>
           <DonationsBox />
         </div>
       </div>
@@ -731,32 +730,8 @@ export default function Home() {
 
 // Component to wrap the green content and use the context
 function GreenContentWrapper({ children }: { children: React.ReactNode }) {
-  const greenContentRef = useContext(GreenContentRefContext);
-  
-  // Simple effect to trigger resize events
-  useEffect(() => {
-    // Dispatch resize events at different intervals to ensure proper measurement
-    const timers = [0, 50, 100].map(delay => 
-      setTimeout(() => window.dispatchEvent(new Event('resize')), delay)
-    );
-    
-    return () => timers.forEach(clearTimeout);
-  }, []);
-  
   return (
-    <div 
-      className="green-content-wrapper"
-      ref={greenContentRef || undefined}
-      style={{
-        width: '100%',
-        minHeight: '950px',
-        display: 'flex',
-        boxSizing: 'border-box',
-        paddingBottom: '60px',
-        borderBottom: '1px solid #ddd',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-        overflow: 'visible'
-      }}>
+    <div id="greenSectionFinal">
       {children}
     </div>
   );

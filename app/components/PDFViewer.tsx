@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { PDFDocument } from 'pdf-lib';
+import '../components/Preview.css';
 
 interface PDFViewerProps {
   file: File;
@@ -74,10 +75,7 @@ export default function PDFViewer({ file, noteSpaceWidth, scale = 1.0 }: PDFView
 
   if (isProcessing) {
     return (
-      <div style={{ 
-        width: '100%', 
-        height: '300px', 
-        backgroundColor: 'white', 
+      <div className="pdf-viewer-container" style={{ 
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center' 
@@ -88,10 +86,10 @@ export default function PDFViewer({ file, noteSpaceWidth, scale = 1.0 }: PDFView
   }
 
   return (
-    <div style={{ width: '100%', height: '300px', backgroundColor: 'white' }}>
+    <div className="pdf-viewer-container">
       {pdfPreviewUrl ? (
         <iframe 
-          src={pdfPreviewUrl} 
+          src={`${pdfPreviewUrl}#toolbar=0&navpanes=0&scrollbar=1`} 
           style={{ 
             width: '100%', 
             height: '100%',
@@ -101,7 +99,7 @@ export default function PDFViewer({ file, noteSpaceWidth, scale = 1.0 }: PDFView
           title="PDF Preview"
         />
       ) : (
-        <div style={{ 
+        <div className="pdf-viewer-container" style={{ 
           display: 'flex', 
           alignItems: 'center', 
           justifyContent: 'center', 

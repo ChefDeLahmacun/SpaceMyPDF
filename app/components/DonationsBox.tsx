@@ -520,53 +520,22 @@ const DonationsBox = () => {
     }
   };
 
+  // Add a function to handle amount validation on blur
   const handleAmountBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    let needsUpdate = false;
+    const numValue = parseFloat(value);
     
-    // Only set default value if the field is completely empty or invalid
-    if (value === '') {
-      console.log('Field is empty on blur, setting default amount');
+    if (isNaN(numValue) || numValue <= 0) {
       setDonationAmount('1.00');
       currentAmountRef.current = '1.00';
-      needsUpdate = true;
-    } else if (!validateAmount(value)) {
-      // If the value is invalid (but not empty), set to default
-      console.log('Invalid amount on blur, setting default amount');
-      setDonationAmount('1.00');
-      currentAmountRef.current = '1.00';
-      needsUpdate = true;
+    } else if (numValue > 10000) {
+      setDonationAmount('10000.00');
+      currentAmountRef.current = '10000.00';
     } else {
-      // Format the amount with 2 decimal places when the field loses focus
-      const formattedAmount = formatAmount(value);
-      
-      // Only update if the amount actually changed
-      if (formattedAmount !== donationAmount) {
-        console.log(`Formatting amount on blur: ${donationAmount} -> ${formattedAmount}`);
-        setDonationAmount(formattedAmount);
-        currentAmountRef.current = formattedAmount;
-        needsUpdate = true;
-      }
-    }
-    
-    // Always force an update on blur if the card form is open
-    // This ensures the amount is updated in the PayPal interface
-    if (needsUpdate || isCardSelected) {
-      // Force a complete re-render of the PayPal button
-      if (buttonInstance.current) {
-        try {
-          buttonInstance.current.close();
-          buttonInstance.current = null;
-        } catch (error) {
-          console.error('Error closing PayPal button:', error);
-        }
-      }
-      
-      // Set the force update flag to true
-      setForceUpdate(true);
-      
-      // Force re-render with new key
-      setButtonKey(prevKey => prevKey + 1);
+      // Format to 2 decimal places
+      const formattedValue = numValue.toFixed(2);
+      setDonationAmount(formattedValue);
+      currentAmountRef.current = formattedValue;
     }
   };
 
@@ -760,6 +729,21 @@ const DonationsBox = () => {
     }
   };
 
+  // Add a function to handle quick amount selection
+  const handleQuickAmountClick = (amount: string) => {
+    setDonationAmount(amount);
+    currentAmountRef.current = amount;
+    
+    // Force update the button if needed
+    if (buttonInstance.current) {
+      setForceUpdate(true);
+      setTimeout(() => {
+        setForceUpdate(false);
+        setButtonKey(prev => prev + 1);
+      }, 300);
+    }
+  };
+  
   // Effect to initialize the PayPal button when the component mounts or when buttonKey or selectedCurrency changes
   useEffect(() => {
     // Only initialize if we're not in success state and PayPal is available
@@ -850,20 +834,25 @@ const DonationsBox = () => {
       minHeight: isExpanded ? '850px' : '230px',
       height: 'auto',
       backgroundColor: '#ffd9d9',
-      marginTop: '-1px',
-      marginBottom: '25px',
-      borderRadius: '30px',
+      marginTop: '3vh',
+      marginBottom: '3vh',
+      borderRadius: '4%',
       boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-      padding: '20px',
-      paddingBottom: '30px',
+      padding: '2vh 4%',
+      paddingBottom: '4vh',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
       textAlign: 'center',
       position: 'relative',
-      transition: 'min-height 0.3s ease-in-out'
+      zIndex: 4,
+      transition: 'min-height 0.3s ease-in-out',
+      width: '100%',
+      maxWidth: '100%',
+      boxSizing: 'border-box'
     }}>
       <Script 
+        id="paypal-script"
         src={`https://www.paypal.com/sdk/js?client-id=${process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID}&currency=${selectedCurrency}&intent=capture&enable-funding=card&disable-funding=paylater&locale=en_GB&commit=true&vault=true`}
         strategy="afterInteractive"
         onLoad={() => {
@@ -905,9 +894,9 @@ const DonationsBox = () => {
       />
       
       <h2 style={{
-        fontSize: '22px',
+        fontSize: 'clamp(18px, 5vw, 22px)',
         color: '#333',
-        marginBottom: '10px',
+        marginBottom: '2vh',
         fontWeight: '600'
       }}>
         Support SpaceMyPDF
@@ -917,17 +906,17 @@ const DonationsBox = () => {
         <div style={{
           backgroundColor: '#d4edda',
           color: '#155724',
-          padding: '20px',
-          borderRadius: '8px',
-          marginTop: '15px',
-          marginBottom: '15px',
-          width: '80%',
+          padding: '4%',
+          borderRadius: '2%',
+          marginTop: '2vh',
+          marginBottom: '2vh',
+          width: '90%',
           maxWidth: '500px',
           border: '1px solid #c3e6cb',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: '15px'
+          gap: '2vh'
         }}>
           <div style={{
             fontSize: '50px',
@@ -1018,312 +1007,335 @@ const DonationsBox = () => {
             alignItems: 'center',
             gap: '8px',
             marginBottom: '15px',
-            maxWidth: '800px'
+            maxWidth: '100%',
+            padding: '0 2%',
+            boxSizing: 'border-box'
           }}>
             <p style={{
-              fontSize: '15px',
+              fontSize: 'clamp(14px, 4vw, 15px)',
               color: '#555',
               margin: '0',
-              lineHeight: '1.5'
+              lineHeight: '1.5',
+              width: '100%',
+              wordWrap: 'break-word'
             }}>
               If you find SpaceMyPDF helpful, please consider supporting it.
             </p>
             <p style={{
-              fontSize: '16px',
+              fontSize: 'clamp(15px, 4vw, 16px)',
               color: '#444',
               fontWeight: '500',
               margin: '0',
-              lineHeight: '1.5'
+              lineHeight: '1.5',
+              width: '100%',
+              wordWrap: 'break-word'
             }}>
               Every donation counts, even just £1 makes a difference!
             </p>
             <p style={{
-              fontSize: '15px',
+              fontSize: 'clamp(14px, 4vw, 15px)',
               color: '#555',
               margin: '0',
-              lineHeight: '1.5'
+              lineHeight: '1.5',
+              width: '100%',
+              wordWrap: 'break-word'
             }}>
               Your contribution helps keep the service free. All donations are processed securely through PayPal.
             </p>
           </div>
           
           <div style={{
+            marginBottom: '0px',
             display: 'flex',
             flexDirection: 'column',
-            gap: '10px',
             alignItems: 'center',
-            width: '100%',
-            flex: 1
+            gap: '4px',
+            backgroundColor: 'rgba(255, 255, 255, 0.5)',
+            padding: '8px 20px',
+            borderRadius: '8px',
+            border: '1px solid rgba(0, 0, 0, 0.1)',
+            width: '90%',
+            maxWidth: '350px',
+            boxSizing: 'border-box'
           }}>
+            {/* Add currency selector */}
             <div style={{
-              marginBottom: '0px',
               display: 'flex',
-              flexDirection: 'column',
               alignItems: 'center',
-              gap: '4px',
-              backgroundColor: 'rgba(255, 255, 255, 0.5)',
-              padding: '8px 20px',
-              borderRadius: '8px',
-              border: '1px solid rgba(0, 0, 0, 0.1)'
+              gap: '10px',
+              marginBottom: '10px',
+              width: '100%',
+              justifyContent: 'center',
+              flexWrap: 'wrap'
             }}>
-              {/* Add currency selector */}
-              <div style={{
+              <label 
+                htmlFor="currencySelector"
+                style={{
+                  fontSize: 'clamp(14px, 4vw, 16px)',
+                  color: '#333',
+                  fontWeight: '600'
+                }}
+              >
+                Currency:
+              </label>
+              <select
+                id="currencySelector"
+                value={selectedCurrency}
+                onChange={handleCurrencyChange}
+                style={{
+                  padding: '6px 10px',
+                  fontSize: 'clamp(12px, 3.5vw, 14px)',
+                  border: '1px solid #ccc',
+                  borderRadius: '4px',
+                  backgroundColor: 'white',
+                  cursor: 'pointer',
+                  maxWidth: '100%',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis'
+                }}
+              >
+                {currencies.map(currency => (
+                  <option key={currency.code} value={currency.code}>
+                    {currency.code} ({currency.symbol}) - {currency.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            
+            <label 
+              htmlFor="donationAmount"
+              style={{
+                fontSize: 'clamp(14px, 4vw, 16px)',
+                color: '#333',
+                fontWeight: '600',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '10px',
-                marginBottom: '10px',
+                gap: '4px',
+                textAlign: 'center',
                 width: '100%',
                 justifyContent: 'center'
-              }}>
-                <label 
-                  htmlFor="currencySelector"
-                  style={{
-                    fontSize: '16px',
-                    color: '#333',
-                    fontWeight: '600'
-                  }}
-                >
-                  Currency:
-                </label>
-                <select
-                  id="currencySelector"
-                  value={selectedCurrency}
-                  onChange={handleCurrencyChange}
-                  style={{
-                    padding: '6px 10px',
-                    fontSize: '14px',
-                    border: '1px solid #ccc',
-                    borderRadius: '4px',
-                    backgroundColor: 'white',
-                    cursor: 'pointer'
-                  }}
-                >
-                  {currencies.map(currency => (
-                    <option key={currency.code} value={currency.code}>
-                      {currency.code} ({currency.symbol}) - {currency.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              
-              <label 
-                htmlFor="donationAmount"
-                style={{
-                  fontSize: '16px',
-                  color: '#333',
-                  fontWeight: '600',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px'
-                }}
-              >
-                Choose Your Donation Amount
-                <span style={{ 
-                  color: '#e74c3c',
-                  fontSize: '18px',
-                  lineHeight: 1,
-                  marginLeft: '4px'
-                }}>*</span>
-              </label>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '5px',
-                position: 'relative'
-              }}>
-                <span style={{
-                  fontSize: '18px',
-                  color: '#333',
-                  fontWeight: '500'
-                }}>{getCurrencySymbol()}</span>
-                <input
-                  id="donationAmount"
-                  type="number"
-                  value={donationAmount}
-                  onChange={handleAmountChange}
-                  min="0.01"
-                  max="10000"
-                  step="0.01"
-                  required
-                  aria-required="true"
-                  style={{
-                    width: '120px',
-                    padding: '8px 12px',
-                    fontSize: '16px',
-                    border: '1px solid #ccc',
-                    borderRadius: '4px',
-                    textAlign: 'center',
-                    backgroundColor: 'white',
-                    boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.1)',
-                    transition: 'all 0.2s ease'
-                  }}
-                  onBlur={handleAmountBlur}
-                />
-              </div>
-              <p style={{
-                fontSize: '13px',
-                color: '#666',
-                margin: '2px 0 0 0',
-                fontStyle: 'italic'
-              }}>
-                Min: {getCurrencySymbol()}0.01 - Max: {getCurrencySymbol()}10,000
-              </p>
-            </div>
-            
-            {/* PayPal button container */}
-            <div
-              key={buttonKey}
-              ref={buttonContainerRef}
-              style={{
-                border: '1px solid transparent', 
-                padding: '0',
-                minHeight: '45px',
-                width: '300px',
-                position: 'relative',
-                marginTop: '-10px'
               }}
             >
-              {forceUpdate && (
-                <div style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  backgroundColor: 'rgba(255, 255, 255, 0.7)',
-                  zIndex: 10,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <div style={{
-                    width: '20px',
-                    height: '20px',
-                    border: '3px solid rgba(0, 0, 0, 0.1)',
-                    borderTop: '3px solid #003087',
-                    borderRadius: '50%',
-                    animation: 'spin 1s linear infinite',
-                  }}></div>
-                  <style jsx>{`
-                    @keyframes spin {
-                      0% { transform: rotate(0deg); }
-                      100% { transform: rotate(360deg); }
-                    }
-                  `}</style>
-                </div>
-              )}
-              <div 
-                key={`paypal-button-container-${buttonKey}-${loadAttempts}`}
-                ref={buttonContainerRef}
-                style={{ 
-                  width: '300px',
-                  minHeight: '45px',
-                  marginBottom: '0',
-                  marginTop: '-10px',
-                  padding: '0',
-                  position: 'relative',
-                  backgroundColor: 'transparent'
+              Choose Your Donation Amount
+              <span style={{ 
+                color: '#e74c3c',
+                fontSize: 'clamp(16px, 4.5vw, 18px)',
+                lineHeight: 1,
+                marginLeft: '4px'
+              }}>*</span>
+            </label>
+            
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '5px',
+              position: 'relative',
+              justifyContent: 'center',
+              width: '100%'
+            }}>
+              <span style={{
+                fontSize: 'clamp(16px, 4.5vw, 18px)',
+                color: '#333',
+                fontWeight: '500'
+              }}>{getCurrencySymbol()}</span>
+              <input
+                id="donationAmount"
+                type="number"
+                value={donationAmount}
+                onChange={handleAmountChange}
+                min="0.01"
+                max="10000"
+                step="0.01"
+                required
+                aria-required="true"
+                style={{
+                  width: '120px',
+                  padding: '8px 12px',
+                  fontSize: 'clamp(14px, 4vw, 16px)',
+                  border: '1px solid #ccc',
+                  borderRadius: '4px',
+                  textAlign: 'center',
+                  backgroundColor: 'white',
+                  boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.1)',
+                  transition: 'all 0.2s ease'
                 }}
-              >
-                {!isPayPalLoaded && !forceUpdate && (
-                  <div style={{
-                    width: '100%',
-                    height: '45px',
-                    backgroundColor: '#FFC439',
-                    borderRadius: '4px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#003087',
-                    fontSize: '16px'
-                  }}>
-                    Loading PayPal...
-                  </div>
-                )}
-              </div>
+                onBlur={handleAmountBlur}
+              />
             </div>
-            
-            <div style={{ height: '10px' }}></div>
-            
-            {!isPayPalLoaded && (
+            <p style={{
+              fontSize: 'clamp(11px, 3.5vw, 13px)',
+              color: '#666',
+              margin: '2px 0 0 0',
+              fontStyle: 'italic',
+              width: '100%',
+              textAlign: 'center'
+            }}>
+              Min: {getCurrencySymbol()}0.01 - Max: {getCurrencySymbol()}10,000
+            </p>
+          </div>
+          
+          {/* PayPal button container */}
+          <div
+            key={buttonKey}
+            ref={buttonContainerRef}
+            style={{
+              border: '1px solid transparent', 
+              padding: '0',
+              minHeight: '45px',
+              width: '100%',
+              maxWidth: '300px',
+              position: 'relative',
+              marginTop: '-10px',
+              boxSizing: 'border-box'
+            }}
+          >
+            {forceUpdate && (
               <div style={{
-                padding: '10px',
-                backgroundColor: loadingError ? '#f8d7da' : '#fff3cd',
-                color: loadingError ? '#721c24' : '#856404',
-                borderRadius: '4px',
-                marginTop: '10px',
-                fontSize: '14px',
-                border: loadingError ? '1px solid #f5c6cb' : '1px solid #ffeeba'
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: 'rgba(255, 255, 255, 0.7)',
+                zIndex: 10,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
               }}>
-                {loadingError ? (
-                  <>
-                    <p style={{ fontWeight: 'bold', margin: '0 0 8px 0' }}>
-                      PayPal failed to load after multiple attempts.
-                    </p>
-                    <ul style={{ textAlign: 'left', margin: '0 0 10px 0', paddingLeft: '20px' }}>
-                      <li>Check your internet connection</li>
-                      <li>Try refreshing the page</li>
-                      <li>Try using a different browser</li>
-                      <li>Disable any ad blockers or privacy extensions</li>
-                    </ul>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
-                      <button 
-                        onClick={handleManualReload}
-                        style={{
-                          padding: '6px 12px',
-                          backgroundColor: '#007bff',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '4px',
-                          cursor: 'pointer',
-                          fontSize: '14px',
-                          width: '150px'
-                        }}
-                      >
-                        Try Again
-                      </button>
-                      <p style={{ margin: '5px 0', fontSize: '13px' }}>or</p>
-                      <a 
-                        href="https://paypal.me/spacemypdf" 
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                          padding: '6px 12px',
-                          backgroundColor: '#28a745',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '4px',
-                          cursor: 'pointer',
-                          fontSize: '14px',
-                          textDecoration: 'none',
-                          display: 'inline-block',
-                          width: '150px',
-                          textAlign: 'center'
-                        }}
-                      >
-                        Donate via PayPal.me
-                      </a>
-                    </div>
-                  </>
-                ) : (
-                  'PayPal is taking longer than expected to load. Please wait...'
-                )}
+                <div style={{
+                  width: '20px',
+                  height: '20px',
+                  border: '3px solid rgba(0, 0, 0, 0.1)',
+                  borderTop: '3px solid #003087',
+                  borderRadius: '50%',
+                  animation: 'spin 1s linear infinite',
+                }}></div>
+                <style jsx>{`
+                  @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                  }
+                `}</style>
               </div>
             )}
-            
-            <div className="donation-footer" style={{ 
-              margin: '0',
-              padding: '0'
-            }}>
-              <p style={{
-                fontSize: '14px',
-                color: '#666',
-                textAlign: 'center',
-                margin: '0'
-              }}>
-                🔒 Secure payments processed by PayPal with buyer and seller protection
-              </p>
+            <div 
+              key={`paypal-button-container-${buttonKey}-${loadAttempts}`}
+              ref={buttonContainerRef}
+              style={{
+                width: '100%',
+                maxWidth: '300px',
+                minHeight: '45px',
+                marginBottom: '0',
+                marginTop: '-10px',
+                padding: '0',
+                position: 'relative',
+                backgroundColor: 'transparent',
+                boxSizing: 'border-box'
+              }}
+            >
+              {!isPayPalLoaded && !forceUpdate && (
+                <div style={{
+                  width: '100%',
+                  height: '45px',
+                  backgroundColor: '#FFC439',
+                  borderRadius: '4px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#003087',
+                  fontSize: '16px'
+                }}>
+                  Loading PayPal...
+                </div>
+              )}
             </div>
+          </div>
+          
+          <div style={{ height: '10px' }}></div>
+          
+          {!isPayPalLoaded && (
+            <div style={{
+              padding: '10px',
+              backgroundColor: loadingError ? '#f8d7da' : '#fff3cd',
+              color: loadingError ? '#721c24' : '#856404',
+              borderRadius: '4px',
+              marginTop: '10px',
+              fontSize: '14px',
+              border: loadingError ? '1px solid #f5c6cb' : '1px solid #ffeeba'
+            }}>
+              {loadingError ? (
+                <>
+                  <p style={{ fontWeight: 'bold', margin: '0 0 8px 0' }}>
+                    PayPal failed to load after multiple attempts.
+                  </p>
+                  <ul style={{ textAlign: 'left', margin: '0 0 10px 0', paddingLeft: '20px' }}>
+                    <li>Check your internet connection</li>
+                    <li>Try refreshing the page</li>
+                    <li>Try using a different browser</li>
+                    <li>Disable any ad blockers or privacy extensions</li>
+                  </ul>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
+                    <button 
+                      onClick={handleManualReload}
+                      style={{
+                        padding: '6px 12px',
+                        backgroundColor: '#007bff',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontSize: '14px',
+                        width: '150px'
+                      }}
+                    >
+                      Try Again
+                    </button>
+                    <p style={{ margin: '5px 0', fontSize: '13px' }}>or</p>
+                    <a 
+                      href="https://paypal.me/spacemypdf" 
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        padding: '6px 12px',
+                        backgroundColor: '#28a745',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontSize: '14px',
+                        textDecoration: 'none',
+                        display: 'inline-block',
+                        width: '150px',
+                        textAlign: 'center'
+                      }}
+                    >
+                      Donate via PayPal.me
+                    </a>
+                  </div>
+                </>
+              ) : (
+                'PayPal is taking longer than expected to load. Please wait...'
+              )}
+            </div>
+          )}
+          
+          <div className="donation-footer" style={{ 
+            margin: '0',
+            padding: '0',
+            width: '100%',
+            maxWidth: '100%'
+          }}>
+            <p style={{
+              fontSize: 'clamp(12px, 3.5vw, 14px)',
+              color: '#666',
+              textAlign: 'center',
+              margin: '0',
+              padding: '0 5%',
+              boxSizing: 'border-box',
+              width: '100%'
+            }}>
+              🔒 Secure payments processed by PayPal with buyer and seller protection
+            </p>
           </div>
         </div>
       )}

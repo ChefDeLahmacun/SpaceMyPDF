@@ -8,13 +8,13 @@ const Header: React.FC = () => {
   return (
     <div style={{
       width: '100%',
-      height: '100px',
+      height: '10vh',
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
       borderBottom: '1px solid rgba(221, 221, 221, 0.5)',
       boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-      padding: '10px 0',
+      padding: '1vh 0',
       boxSizing: 'border-box',
       background: 'linear-gradient(to right, #f0d6a7 0%, #edc077 50%, #f0d6a7 100%)',
       position: 'relative',
@@ -24,11 +24,14 @@ const Header: React.FC = () => {
       <div style={{
         display: 'flex',
         alignItems: 'center',
-        gap: '15px'
+        gap: '2%',
+        maxWidth: '90%',
+        width: '100%',
+        justifyContent: 'center'
       }}>
         <div style={{
-          width: '70px',
-          height: '70px',
+          width: 'clamp(40px, 7vh, 70px)',
+          height: 'clamp(40px, 7vh, 70px)',
           background: 'linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%)',
           borderRadius: '50%',
           display: 'flex',
@@ -57,10 +60,11 @@ const Header: React.FC = () => {
         </div>
         <div style={{
           display: 'flex',
-          flexDirection: 'column'
+          flexDirection: 'column',
+          alignItems: 'center'
         }}>
           <div style={{
-            fontSize: '32px',
+            fontSize: 'clamp(18px, 4vw, 32px)',
             fontWeight: 'bold',
             color: '#2c3e50',
             letterSpacing: '0.5px',
@@ -72,10 +76,11 @@ const Header: React.FC = () => {
             <span>SpaceMyPDF</span>
           </div>
           <div style={{
-            fontSize: '14px',
+            fontSize: 'clamp(12px, 2vw, 14px)',
             color: '#444',
             fontStyle: 'italic',
-            marginTop: '2px'
+            marginTop: '2px',
+            textAlign: 'center'
           }}>
             Add note space to your PDFs easily
           </div>

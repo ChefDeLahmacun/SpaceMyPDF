@@ -1,4 +1,5 @@
 import React from 'react';
+import './Preview.css';
 
 interface PDFPreviewProps {
   pdfPreviewUrl: string | { original: string; modified: string };
@@ -15,7 +16,7 @@ const PDFPreview = ({ pdfPreviewUrl, isProcessing }: PDFPreviewProps) => {
           display: 'flex', 
           justifyContent: 'center', 
           alignItems: 'center', 
-          height: '300px', 
+          height: '60vh', 
           border: '1px solid #ddd',
           borderRadius: '4px',
           backgroundColor: '#f9f9f9'
@@ -32,8 +33,8 @@ const PDFPreview = ({ pdfPreviewUrl, isProcessing }: PDFPreviewProps) => {
           {typeof pdfPreviewUrl === 'string' ? (
             <div style={{ border: '1px solid #ddd', borderRadius: '4px', overflow: 'hidden' }}>
               <iframe
-                src={pdfPreviewUrl}
-                style={{ width: '100%', height: '500px', border: 'none' }}
+                src={`${pdfPreviewUrl}#toolbar=0&navpanes=0&scrollbar=1`}
+                className="pdf-preview-single"
                 title="PDF Preview"
               />
             </div>
@@ -43,8 +44,8 @@ const PDFPreview = ({ pdfPreviewUrl, isProcessing }: PDFPreviewProps) => {
                 <p style={{ fontWeight: 'bold', marginBottom: '5px' }}>Original PDF:</p>
                 <div style={{ border: '1px solid #ddd', borderRadius: '4px', overflow: 'hidden' }}>
                   <iframe
-                    src={pdfPreviewUrl.original}
-                    style={{ width: '100%', height: '300px', border: 'none' }}
+                    src={`${pdfPreviewUrl.original}#toolbar=0&navpanes=0&scrollbar=1`}
+                    className="pdf-preview-original"
                     title="Original PDF Preview"
                   />
                 </div>
@@ -53,8 +54,8 @@ const PDFPreview = ({ pdfPreviewUrl, isProcessing }: PDFPreviewProps) => {
                 <p style={{ fontWeight: 'bold', marginBottom: '5px' }}>Modified PDF with Note Space:</p>
                 <div style={{ border: '1px solid #ddd', borderRadius: '4px', overflow: 'hidden' }}>
                   <iframe
-                    src={pdfPreviewUrl.modified}
-                    style={{ width: '100%', height: '300px', border: 'none' }}
+                    src={`${pdfPreviewUrl.modified}#toolbar=0&navpanes=0&scrollbar=1`}
+                    className="pdf-preview-modified"
                     title="Modified PDF Preview"
                   />
                 </div>
@@ -63,11 +64,10 @@ const PDFPreview = ({ pdfPreviewUrl, isProcessing }: PDFPreviewProps) => {
           )}
         </div>
       ) : (
-        <div style={{ 
+        <div className="pdf-viewer-container" style={{ 
           display: 'flex', 
           justifyContent: 'center', 
-          alignItems: 'center', 
-          height: '300px', 
+          alignItems: 'center',
           border: '1px solid #ddd',
           borderRadius: '4px',
           backgroundColor: '#f9f9f9'

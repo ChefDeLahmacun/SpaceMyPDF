@@ -6,6 +6,15 @@
   --foreground-rgb: 0, 0, 0;
   --background-rgb: 242, 196, 170;  /* #f2c4aa - matching the side columns */
   --green-section-color: #c7edd4; /* Original green color for the preview section */
+  --feedback-section-color: #c7caed; /* Purple/blue color for the feedback section */
+  
+  /* Responsive dimensions */
+  --header-height: 10vh;
+  --features-height: auto; /* Changed from fixed height to auto */
+  --min-features-height: 32vh; /* Minimum height for features section */
+  --green-section-height: 95vh;
+  --feedback-height: 60vh; /* Updated to provide more space below the button */
+  --side-box-width: 12%;
 }
 
 html, body {
@@ -24,42 +33,8 @@ body {
   position: relative;
 }
 
-/* Add a pseudo-element to ensure the green section is always visible at the correct position */
-body::after {
-  content: '';
-  position: fixed; /* Changed from absolute to fixed for better behavior when zoomed out */
-  top: 370px; /* Default position for the green section */
-  left: 50%;
-  transform: translateX(-50%); /* Center the element */
-  width: 100%;
-  max-width: 1560px; /* Match the max-width of the main container */
-  height: 950px; /* Limit height to only cover the preview section */
-  background-color: var(--green-section-color); /* This will be the green color for the preview section */
-  z-index: -1;
-  pointer-events: none;
-  transition: background-color 0.3s ease; /* Add transition for smooth color changes */
-}
-
-/* Add another pseudo-element for the bottom section with the side column color */
-body::before {
-  content: '';
-  position: fixed; /* Changed from absolute to fixed for better behavior when zoomed out */
-  top: 1320px; /* Position after the green section */
-  left: 50%;
-  transform: translateX(-50%); /* Center the element */
-  width: 100%;
-  max-width: 1560px; /* Match the max-width of the main container */
-  height: 100vh;
-  background-color: #f2c4aa; /* Match the side columns */
-  z-index: -2;
-  pointer-events: none;
-}
-
-/* Green background class to ensure immediate color application */
-.bottom-background {
-  background-color: var(--green-section-color) !important;
-  transition: top 0.3s ease, background-color 0.3s ease; /* Add transition for color changes */
-}
+/* Remove the pseudo-elements that were causing issues */
+/* Instead, we'll use direct styling on the elements */
 
 /* Background sections */
 .header-section {
@@ -68,18 +43,92 @@ body::before {
 }
 
 .features-section {
-  background-color: #b5b2ae;
-  z-index: 1;
+  position: relative;
+  z-index: 10;
+  background-color: #dae1f0;
+  margin-bottom: 0;
 }
 
 .feedback-section {
-  background-color: #c7caed;
-  z-index: 1;
+  background-color: var(--feedback-section-color);
+  position: relative;
+  z-index: 2;
+  min-height: var(--feedback-height);
+  overflow: hidden;
+}
+
+/* Add a new class for the gap between feedback and donations sections */
+.section-gap {
+  height: 12vh; /* Doubled from 6vh to 12vh */
+  background-color: transparent;
+  position: relative;
+  z-index: 4;
 }
 
 .side-column {
   background-color: #f2c4aa;
   z-index: 2;
+}
+
+/* Green section specific styling */
+#greenSection {
+  margin-top: 0;
+  padding-top: 0;
+  z-index: 1;
+  background-color: #c7edd4;
+  position: relative;
+  overflow: hidden;
+  min-height: 95vh;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+
+/* Preview section - takes up 2/3 of the width */
+#greenSection > div:first-of-type {
+  width: 66.67%;
+  overflow: auto;
+}
+
+/* Column divider */
+#greenSection > div:nth-child(2) {
+  width: 1px;
+  background-color: #999;
+}
+
+/* Controls section - takes up 1/3 of the width */
+#greenSection > div:last-of-type {
+  width: 33.33%;
+  overflow: auto;
+}
+
+/* Media query for smaller screens */
+@media (max-width: 768px) {
+  #greenSection {
+    flex-direction: column;
+  }
+  
+  #greenSection > div:first-of-type,
+  #greenSection > div:last-of-type {
+    width: 100%;
+  }
+  
+  #greenSection > div:nth-child(2) {
+    height: 1px;
+    width: 100%;
+  }
+}
+
+/* Ensure the preview container fills the green section */
+#previewContainer {
+  background-color: var(--green-section-color);
+  min-height: 100%;
+  height: auto;
+  flex: 3; /* Ensure it's 3x the width of the controls */
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 2vh !important;
+  margin-bottom: 2vh !important;
 }
 
 /* Basic styling for form elements */
@@ -160,24 +209,127 @@ button {
 
 /* Media queries for responsive layout */
 @media (max-width: 768px) {
-  /* Stack columns on smaller screens */
   .green-section-columns {
-    flex-direction: column !important;
+    flex-direction: column;
   }
   
-  /* Adjust spacing for stacked layout */
-  .green-section-columns > div {
-    flex: 1 1 auto !important;
+  .green-section-columns > div:first-child,
+  .green-section-columns > div:last-child {
     width: 100% !important;
+    height: auto;
+    min-height: 50vh;
   }
   
-  /* Hide the vertical divider on small screens */
+  .green-section-columns > div:nth-child(2) {
+    width: 100% !important;
+    height: 1px !important;
+    margin: 0;
+  }
+  
+  /* Hide the vertical divider on mobile */
   .column-divider {
     display: none !important;
   }
+  
+  /* Add a horizontal divider on mobile */
+  .green-section-columns > div:first-child::after {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 1px;
+    background-color: black;
+    margin: 10px 0;
+  }
+  
+  #greenSection {
+    min-height: auto;
+    height: auto;
+    background-color: var(--green-section-color);
+    padding-bottom: 0;
+  }
+  
+  .feature-card {
+    width: 100%;
+    margin-bottom: 15px;
+  }
+  
+  .feedback-section {
+    min-height: 60vh;
+  }
+  
+  /* Ensure PDFs display properly on mobile */
+  #previewContainer iframe {
+    width: 100% !important;
+    height: 100% !important;
+    transform: scale(0.8);
+    transform-origin: top center;
+  }
+  
+  /* Make PDF containers taller on mobile */
+  #previewContainer > div > div > div {
+    height: 50vh !important;
+  }
+  
+  /* Fix stretched text boxes on mobile */
+  #previewContainer div[style*="backgroundColor: #f8f9fa"] {
+    max-height: 6rem !important;
+    height: auto !important;
+    word-wrap: break-word !important;
+    white-space: normal !important;
+  }
+  
+  #previewContainer div[style*="backgroundColor: #f8f9fa"] p {
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+  }
+  
+  /* Fix for green background behind features section */
+  .features-section {
+    position: relative;
+    z-index: 10;
+    background-color: rgb(var(--background-rgb));
+    margin-bottom: 0;
+  }
+  
+  /* Ensure the green section stays below the features */
+  #greenSection {
+    margin-top: 0;
+    padding-top: 0;
+  }
 }
 
-/* Remove the content loading/ready states and fixed height rules */
+@media (max-width: 480px) {
+  :root {
+    --header-height: 8vh;
+    --min-features-height: 20vh;
+    --feedback-height: 50vh;
+  }
+  
+  body {
+    font-size: 14px;
+  }
+  
+  h1, h2, h3 {
+    font-size: 1.2em !important;
+  }
+  
+  p {
+    font-size: 0.9em !important;
+    line-height: 1.6 !important;
+  }
+  
+  /* Ensure note boxes display properly on very small screens */
+  #previewContainer div[style*="backgroundColor: #f8f9fa"] {
+    padding: 8px !important;
+    margin-top: 8px !important;
+    margin-bottom: 8px !important;
+  }
+  
+  #previewContainer div[style*="backgroundColor: #f8f9fa"] p {
+    font-size: 11px !important;
+    line-height: 1.3 !important;
+  }
+}
 
 /* Font fallback */
 .font-fallback {
@@ -212,3 +364,54 @@ button {
   opacity: 1;
   transition: opacity 0.2s ease-in;
 }
+
+/* Add utility class for feature cards */
+.feature-card {
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  border-radius: 8px;
+  padding: 2vh 1.5%;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* Remove the previous PDF-specific styles */
+iframe {
+  border: 0;
+  display: block;
+}
+
+/* Remove all duplicate and conflicting rules */
+.green-section-columns,
+.green-section-columns > div:first-child,
+.green-section-columns > div:last-child,
+.green-section-columns > div:nth-child(2),
+.green-section-columns > div:first-child::after,
+.green-section-columns > div:first-of-type,
+.green-section-columns > div:last-of-type,
+.green-content-wrapper,
+.green-content-wrapper > div:first-child,
+.green-content-wrapper > div:last-child,
+#greenSection.green-section-columns,
+#greenSection.green-section-columns > div:first-of-type,
+#greenSection.green-section-columns > div:nth-child(2),
+#greenSection.green-section-columns > div:last-of-type {
+  display: none !important;
+}
+
+@media (max-width: 768px) {
+  .green-section-columns,
+  .green-content-wrapper,
+  .green-content-wrapper > div:first-child,
+  .green-content-wrapper > div:last-child,
+  .green-content-wrapper > div:first-child,
+  #greenSection.green-section-columns,
+  #greenSection.green-section-columns > div:first-child,
+  #greenSection.green-section-columns > div:last-child,
+  #greenSection.green-section-columns > div:nth-child(2) {
+    display: none !important;
+  }
+}
+
+/* IMPORTANT: Do not hide the #greenSection element or its children */
+/* These styles are now managed by GreenSectionFinal.css */

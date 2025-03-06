@@ -1,0 +1,204 @@
+.pdf-preview-container {
+  height: 50vh;
+  border: 1px solid #ddd;
+  background-color: white;
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px;
+  width: 100%;
+}
+
+/* Portrait mode - reduce height */
+@media (orientation: portrait) {
+  .pdf-preview-container {
+    height: 45vh;
+  }
+}
+
+/* Landscape mode - increase height */
+@media (orientation: landscape) {
+  .pdf-preview-container {
+    height: 80vh;
+  }
+}
+
+.pdf-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.pdf-viewer-container {
+  width: 100%;
+  height: 50vh;
+  background-color: white;
+}
+
+/* Portrait mode - reduce height */
+@media (orientation: portrait) {
+  .pdf-viewer-container {
+    height: 45vh;
+  }
+}
+
+/* Landscape mode - increase height */
+@media (orientation: landscape) {
+  .pdf-viewer-container {
+    height: 80vh;
+  }
+}
+
+.pdf-preview-single {
+  width: 100%;
+  height: 50vh;
+  border: none;
+}
+
+/* Portrait mode - reduce height */
+@media (orientation: portrait) {
+  .pdf-preview-single {
+    height: 45vh;
+  }
+}
+
+/* Landscape mode - increase height */
+@media (orientation: landscape) {
+  .pdf-preview-single {
+    height: 80vh;
+  }
+}
+
+.pdf-preview-original {
+  width: 100%;
+  height: 35vh;
+  border: none;
+}
+
+/* Portrait mode - reduce height */
+@media (orientation: portrait) {
+  .pdf-preview-original {
+    height: 30vh;
+  }
+}
+
+/* Landscape mode - increase height */
+@media (orientation: landscape) {
+  .pdf-preview-original {
+    height: 65vh;
+  }
+}
+
+.pdf-preview-modified {
+  width: 100%;
+  height: 35vh;
+  border: none;
+}
+
+/* Portrait mode - reduce height */
+@media (orientation: portrait) {
+  .pdf-preview-modified {
+    height: 30vh;
+  }
+}
+
+/* Landscape mode - increase height */
+@media (orientation: landscape) {
+  .pdf-preview-modified {
+    height: 65vh;
+  }
+}
+
+/* Additional media query for tablets and larger phones in landscape */
+@media (orientation: landscape) and (min-height: 500px) {
+  .pdf-preview-container,
+  .pdf-viewer-container,
+  .pdf-preview-single {
+    height: 85vh;
+  }
+  
+  .pdf-preview-original,
+  .pdf-preview-modified {
+    height: 70vh;
+  }
+}
+
+/* Additional media query for desktop screens */
+@media (min-width: 1024px) and (min-height: 768px) {
+  .pdf-preview-container,
+  .pdf-viewer-container,
+  .pdf-preview-single {
+    height: 70vh;
+  }
+  
+  .pdf-preview-original,
+  .pdf-preview-modified {
+    height: 55vh;
+  }
+}
+
+/* Additional media query for mobile devices in landscape */
+@media (orientation: landscape) and (max-height: 500px) {
+  .pdf-preview-container,
+  .pdf-viewer-container,
+  .pdf-preview-single {
+    height: 90vh;
+  }
+  
+  .pdf-preview-original,
+  .pdf-preview-modified {
+    height: 75vh;
+  }
+}
+
+/* Specific adjustment for mobile devices in portrait */
+@media (orientation: portrait) and (max-width: 480px) {
+  .pdf-preview-container,
+  .pdf-viewer-container,
+  .pdf-preview-single {
+    height: 40vh;
+  }
+  
+  .pdf-preview-original,
+  .pdf-preview-modified {
+    height: 25vh;
+  }
+}
+
+/* Ensure iframes scale properly in landscape mode */
+@media (orientation: landscape) {
+  iframe {
+    transform-origin: top center;
+    max-height: 100%;
+    object-fit: contain;
+  }
+  
+  /* Specific adjustments for small landscape screens like phones */
+  @media (max-height: 450px) {
+    .pdf-preview-container,
+    .pdf-viewer-container,
+    .pdf-preview-single {
+      height: 95vh;
+    }
+    
+    .pdf-preview-original,
+    .pdf-preview-modified {
+      height: 80vh;
+    }
+  }
+}
+
+/* Ensure PDF viewers display all pages */
+iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: auto !important;
+}
+
+/* Add specific styles for PDF viewers */
+.pdf-iframe, 
+.pdf-preview-single, 
+.pdf-preview-original, 
+.pdf-preview-modified {
+  overflow: auto !important;
+} 

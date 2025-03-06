@@ -234,10 +234,10 @@ const FeedbackForm = ({
         style={{ display: 'none' }}
       ></form>
       
-      <div style={{
+      <div className="feedback-section" style={{
         width: '100%',
-        minHeight: feedbackSubmitted ? '500px' : (feedbackSectionNeedsExtraHeight ? '500px' : '400px'),
-        padding: '15px 20px 0 20px',
+        minHeight: feedbackSubmitted ? '50vh' : (feedbackSectionNeedsExtraHeight ? '50vh' : '40vh'),
+        padding: '2vh 2% 4vh 2%',
         boxSizing: 'border-box',
         display: 'flex',
         flexDirection: 'column',
@@ -253,13 +253,13 @@ const FeedbackForm = ({
           flex: 1,
           position: 'relative',
           zIndex: 3,
-          paddingTop: '5px',
+          paddingTop: '0.5vh',
           paddingBottom: 0
         }}>
           <h2 style={{ 
-            fontSize: '22px', 
+            fontSize: 'clamp(18px, 2.2vw, 22px)',
             fontWeight: '600', 
-            marginBottom: '10px',
+            marginBottom: '1.5vh',
             color: '#2c3e50',
             letterSpacing: '0.5px',
             display: 'flex',
@@ -306,10 +306,10 @@ const FeedbackForm = ({
           </h2>
           
           <p style={{ 
-            fontSize: '14px', 
+            fontSize: 'clamp(12px, 1.4vw, 14px)',
             textAlign: 'center', 
             maxWidth: '700px',
-            margin: '0 auto 15px auto',
+            margin: '0 auto 2vh auto',
             color: '#34495e',
             lineHeight: '1.4',
             width: '100%'
@@ -327,9 +327,9 @@ const FeedbackForm = ({
             margin: '0 auto',
             display: 'flex',
             flexDirection: 'column',
-            gap: '15px',
+            gap: '1.5vh',
             position: 'relative',
-            height: feedbackSubmitted || showProcessing ? '300px' : 'auto'
+            height: feedbackSubmitted || showProcessing ? '30vh' : 'auto'
           }}>
             {!feedbackSubmitted && !showProcessing ? (
               <form 
@@ -338,7 +338,7 @@ const FeedbackForm = ({
                   width: '100%',
                   display: 'flex',
                   flexDirection: 'column',
-                  gap: '15px'
+                  gap: '1.5vh'
                 }}
                 onSubmit={handleFormSubmit}
               >
@@ -348,14 +348,14 @@ const FeedbackForm = ({
                   onChange={(e) => setFeedback(e.target.value)}
                   style={{
                     width: '100%',
-                    height: '120px',
-                    padding: '12px',
+                    height: '15vh',
+                    padding: '1.2vh 1.2%',
                     border: '1px solid #ccc',
                     borderRadius: '6px',
-                    marginBottom: '5px',
+                    marginBottom: '0.5vh',
                     resize: 'none',
                     backgroundColor: 'rgba(255,255,255,0.8)',
-                    fontSize: '14px',
+                    fontSize: 'clamp(12px, 1.4vw, 14px)',
                     boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.05)',
                     fontFamily: 'inherit',
                     lineHeight: '1.5',
@@ -551,7 +551,7 @@ const FeedbackForm = ({
                     boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
                     width: '100%',
                     maxWidth: '200px',
-                    margin: '0 auto'
+                    margin: '2vh auto 4vh auto'
                   }}
                 >
                   {isSubmitting ? (

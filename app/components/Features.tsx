@@ -1,32 +1,59 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaUserFriends, FaSlidersH, FaLock, FaGift } from 'react-icons/fa';
 
 const Features: React.FC = () => {
+  // Track different screen sizes for better responsiveness
+  const [screenSize, setScreenSize] = useState({
+    isSmallMobile: false,  // < 480px
+    isMobile: false,       // < 768px
+    isTablet: false        // < 1024px
+  });
+
+  // Handle responsive layout
+  useEffect(() => {
+    const handleResize = () => {
+      const width = window.innerWidth;
+      setScreenSize({
+        isSmallMobile: width < 480,
+        isMobile: width < 768,
+        isTablet: width < 1024
+      });
+    };
+    
+    // Set initial value
+    handleResize();
+    
+    // Add event listener
+    window.addEventListener('resize', handleResize);
+    
+    // Clean up
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
-    <div style={{
+    <div className="features-section" style={{
       width: '100%',
-      height: '280px',
-      padding: '15px 20px 15px 20px',
+      padding: '1.5vh 2%',
       boxSizing: 'border-box',
       display: 'flex',
       flexDirection: 'column',
       position: 'relative',
-      zIndex: 2,
-      overflow: 'hidden'
+      zIndex: 10,
+      backgroundColor: '#dae1f0'
     }}>
       {/* AI-created info banner */}
       <div style={{
-        width: 'calc(100% - 20px)',
+        width: 'calc(100% - 2%)',
         margin: '0 auto',
-        padding: '5px 10px',
+        padding: '0.5vh 1%',
         backgroundColor: 'rgba(255,255,255,0.7)',
         borderRadius: '5px',
         textAlign: 'center',
-        fontSize: '13px',
+        fontSize: 'clamp(11px, 1.3vw, 13px)',
         color: '#555',
-        marginBottom: '10px',
+        marginBottom: '1vh',
         boxSizing: 'border-box',
         wordWrap: 'break-word',
         maxWidth: '100%'
@@ -38,9 +65,9 @@ const Features: React.FC = () => {
       
       <h2 style={{
         textAlign: 'center',
-        margin: '0 0 10px 0',
+        margin: '0 0 1.5vh 0',
         color: '#333',
-        fontSize: '22px',
+        fontSize: 'clamp(18px, 2.2vw, 22px)',
         fontWeight: '600',
         letterSpacing: '0.5px'
       }}>
@@ -51,32 +78,37 @@ const Features: React.FC = () => {
         display: 'flex',
         flexWrap: 'wrap',
         justifyContent: 'space-between',
-        gap: '12px',
-        height: '170px',
-        overflow: 'visible'
+        gap: screenSize.isSmallMobile ? '2vh' : '1.5vh',
+        height: 'auto',
+        overflow: 'visible',
+        marginBottom: '1.5vh'
       }}>
         <FeatureCard 
           icon={<FaUserFriends size={24} color="#4a6741" />}
           title="Easy to Use"
           description="Add note space to your PDFs with just a few clicks. Perfect for students, researchers, and anyone who takes notes."
+          screenSize={screenSize}
         />
         
         <FeatureCard 
           icon={<FaSlidersH size={24} color="#4a6741" />}
           title="Make It Your Own"
           description="Choose where you want your note space and how it looks. Pick the width, position, and color that works best for you."
+          screenSize={screenSize}
         />
         
         <FeatureCard 
           icon={<FaLock size={24} color="#4a6741" />}
           title="Your Documents Stay Private"
           description="Everything happens on your computer. Your documents never get uploaded to any server, keeping your information safe."
+          screenSize={screenSize}
         />
         
         <FeatureCard 
           icon={<FaGift size={24} color="#4a6741" />}
           title="Always Free"
           description="Use this tool as much as you want without paying anything. No sign-ups, no subscriptions, no hidden costs."
+          screenSize={screenSize}
         />
       </div>
     </div>
@@ -87,41 +119,55 @@ interface FeatureCardProps {
   icon: React.ReactNode;
   title: string;
   description: string;
+  screenSize: {
+    isSmallMobile: boolean;
+    isMobile: boolean;
+    isTablet: boolean;
+  };
 }
 
-const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description }) => {
+const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description, screenSize }) => {
+  // Calculate flex basis based on screen size
+  const getFlexBasis = () => {
+    if (screenSize.isSmallMobile) return '100%';
+    if (screenSize.isMobile) return 'calc(50% - 1.5vh)';
+    return 'calc(25% - 1.5vh)';
+  };
+
   return (
-    <div style={{
-      flex: 1,
-      backgroundColor: 'rgba(255,255,255,0.7)',
-      padding: '12px',
-      borderRadius: '8px',
-      height: '140px',
-      overflow: 'visible',
-      marginBottom: '8px',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
-      transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-      cursor: 'default',
-      minWidth: '200px',
-      display: 'flex',
-      flexDirection: 'column'
+    <div className="feature-card" style={{
+      flex: `1 1 ${getFlexBasis()}`,
+      padding: screenSize.isSmallMobile ? '2.5vh 3%' : '2vh 1.5%',
+      height: 'auto',
+      minHeight: screenSize.isSmallMobile ? '12vh' : '16vh',
+      marginBottom: screenSize.isSmallMobile ? '1.5vh' : '1vh',
+      minWidth: screenSize.isSmallMobile ? '100%' : '150px',
+      backgroundColor: 'white',
+      boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
     }}>
       <div style={{ 
         display: 'flex', 
         alignItems: 'center', 
-        marginBottom: '12px',
-        height: '32px' 
+        marginBottom: '1.8vh',
+        height: '3.2vh'
       }}>
-        <div style={{ marginRight: '10px' }}>{icon}</div>
-        <h3 style={{ margin: '0', fontSize: '18px', fontWeight: '600', color: '#2c3e50' }}>{title}</h3>
+        <div style={{ marginRight: '1%' }}>{icon}</div>
+        <h3 style={{ 
+          margin: '0', 
+          fontSize: 'clamp(16px, 1.8vw, 18px)',
+          fontWeight: '600', 
+          color: '#2c3e50' 
+        }}>
+          {title}
+        </h3>
       </div>
       <p style={{ 
         margin: '0', 
-        fontSize: '14px', 
-        lineHeight: '1.4', 
+        fontSize: 'clamp(12px, 1.4vw, 14px)',
+        lineHeight: '1.5', 
         color: '#34495e',
         flex: 1,
-        paddingTop: '4px'
+        paddingTop: '0.4vh'
       }}>
         {description}
       </p>
