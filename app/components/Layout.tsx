@@ -127,6 +127,7 @@ const Layout = ({ children, feedbackSectionNeedsExtraHeight, feedbackSubmitted =
           ></div>
           
           {/* Green section with dynamic height */}
+          {/* Green section with dynamic height - COMMENTED OUT to avoid duplication with #greenSectionFinal
           <div id="greenSection" style={{
             position: 'absolute',
             top: `calc(${headerHeight} + ${featuresHeight})`,
@@ -134,11 +135,12 @@ const Layout = ({ children, feedbackSectionNeedsExtraHeight, feedbackSubmitted =
             width: `calc(100% - (${sideBoxWidth} * 2))`,
             height: greenSectionHeight,
             minHeight: minGreenSectionHeight,
-            backgroundColor: '#c7edd4', /* Original green color for the preview section */
+            backgroundColor: '#c7edd4',
             zIndex: 3,
-            overflow: 'hidden', /* Add overflow hidden to prevent content from extending outside */
+            overflow: 'hidden',
             boxSizing: 'border-box'
           }}></div>
+          */}
           
           <div className="feedback-section" style={{
             position: 'absolute',
@@ -147,7 +149,7 @@ const Layout = ({ children, feedbackSectionNeedsExtraHeight, feedbackSubmitted =
             width: `calc(100% - (${sideBoxWidth} * 2))`,
             height: feedbackHeight,
             zIndex: 2,
-            backgroundColor: '#c7b5e8', /* Add explicit background color to feedback section */
+            backgroundColor: '#f2c4aa', /* Match side column color */
             borderBottomLeftRadius: '30px',
             borderBottomRightRadius: '30px',
             overflow: 'hidden'

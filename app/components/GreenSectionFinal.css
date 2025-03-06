@@ -2,18 +2,20 @@
 #greenSectionFinal {
   margin-top: 0 !important;
   padding-top: 0 !important;
-  z-index: 1 !important;
+  z-index: 3 !important;
   background-color: #c7edd4 !important;
   position: relative !important;
   overflow: visible !important;
   min-height: 95vh !important;
   display: flex !important;
   flex-direction: row !important;
-  width: 100% !important;
+  width: 100% !important; /* Match the width of other sections */
   max-width: 100% !important;
   box-sizing: border-box !important;
   border: none !important;
   -webkit-overflow-scrolling: touch !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
 }
 
 /* Preview section - takes up 60% of the width */
@@ -53,6 +55,7 @@
   #greenSectionFinal {
     flex-direction: row !important; /* Force row layout */
     flex-wrap: nowrap !important;
+    width: calc(100% - (5% * 2)) !important; /* Adjust for smaller side boxes on mobile */
   }
   
   #greenSectionFinal > div:first-of-type {
@@ -80,6 +83,7 @@
 @media (max-width: 480px) {
   #greenSectionFinal {
     flex-direction: column !important;
+    width: calc(100% - (5% * 2)) !important; /* Maintain consistent width */
   }
   
   #greenSectionFinal > div:first-of-type,
@@ -102,4 +106,54 @@
 #greenSectionFinal > div:first-of-type,
 #greenSectionFinal > div:last-of-type {
   -webkit-overflow-scrolling: touch !important;
+}
+
+@media (max-width: 768px) {
+  #greenSectionFinal {
+    flex-direction: row !important; /* Force row layout */
+    flex-wrap: nowrap !important;
+    width: 100% !important; /* Match the width of other sections */
+  }
+  
+  #greenSectionFinal > div:first-of-type {
+    width: 60% !important; /* Force 60% width */
+    flex: 0 0 60% !important;
+    max-width: 60% !important;
+  }
+  
+  #greenSectionFinal > div:last-of-type {
+    width: 40% !important; /* Force 40% width */
+    flex: 0 0 40% !important;
+    max-width: 40% !important;
+  }
+  
+  #greenSectionFinal > div:nth-child(2) {
+    width: 1px !important; /* Keep divider as vertical line */
+    height: auto !important;
+    flex: 0 0 1px !important;
+    min-width: 1px !important;
+    max-width: 1px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  #greenSectionFinal {
+    flex-direction: column !important;
+    width: 100% !important; /* Match the width of other sections */
+  }
+  
+  #greenSectionFinal > div:first-of-type,
+  #greenSectionFinal > div:last-of-type {
+    width: 100% !important;
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+  }
+  
+  #greenSectionFinal > div:nth-child(2) {
+    height: 1px !important;
+    width: 100% !important;
+    flex: 0 0 1px !important;
+    min-height: 1px !important;
+    max-height: 1px !important;
+  }
 } 
