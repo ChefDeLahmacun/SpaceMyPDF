@@ -41,11 +41,11 @@
 
 /* Controls section - takes up 40% of the width */
 #greenSectionFinal > div:last-of-type {
-  width: 40% !important;
+  width: 39.9% !important; /* Slightly reduced to prevent overflow */
   overflow: auto !important;
   box-sizing: border-box !important;
-  flex: 0 0 40% !important;
-  max-width: 40% !important;
+  flex: 0 0 39.9% !important; /* Slightly reduced to prevent overflow */
+  max-width: 39.9% !important; /* Slightly reduced to prevent overflow */
   border: none !important;
   -webkit-overflow-scrolling: touch !important;
 }
@@ -65,9 +65,9 @@
   }
   
   #greenSectionFinal > div:last-of-type {
-    width: 40% !important; /* Force 40% width */
-    flex: 0 0 40% !important;
-    max-width: 40% !important;
+    width: 39.9% !important; /* Slightly reduced to prevent overflow */
+    flex: 0 0 39.9% !important; /* Slightly reduced to prevent overflow */
+    max-width: 39.9% !important; /* Slightly reduced to prevent overflow */
   }
   
   #greenSectionFinal > div:nth-child(2) {
@@ -122,9 +122,9 @@
   }
   
   #greenSectionFinal > div:last-of-type {
-    width: 40% !important; /* Force 40% width */
-    flex: 0 0 40% !important;
-    max-width: 40% !important;
+    width: 39.9% !important; /* Slightly reduced to prevent overflow */
+    flex: 0 0 39.9% !important; /* Slightly reduced to prevent overflow */
+    max-width: 39.9% !important; /* Slightly reduced to prevent overflow */
   }
   
   #greenSectionFinal > div:nth-child(2) {

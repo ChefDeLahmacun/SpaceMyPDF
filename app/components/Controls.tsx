@@ -71,7 +71,7 @@ const Controls: React.FC<ControlsProps> = ({
 
   return (
     <div style={{
-      padding: '2% 5%',
+      padding: '2% 3%',
       backgroundColor: '#c7edd4',
       height: '100%',
       overflow: 'auto',
@@ -240,7 +240,7 @@ const Controls: React.FC<ControlsProps> = ({
             
             {/* Preset size buttons */}
             <div style={{ marginTop: '15px', width: '100%' }}>
-              <p style={{ fontSize: 'clamp(12px, 1.4vw, 14px)', marginBottom: '10px' }}>Preset Sizes:</p>
+              <p style={{ fontSize: 'clamp(12px, 1.4vw, 14px)', marginBottom: '8px' }}>Quick Presets:</p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2%', width: '100%' }}>
                 <button
                   onClick={() => setNoteSpaceWidth(30)}
@@ -366,6 +366,7 @@ const Controls: React.FC<ControlsProps> = ({
                 borderRadius: '4px',
                 backgroundColor: 'white',
                 padding: '10px',
+                marginBottom: '10px',
                 width: '100%',
                 cursor: 'pointer'
               }}
@@ -431,6 +432,7 @@ const Controls: React.FC<ControlsProps> = ({
                 borderRadius: '4px',
                 backgroundColor: 'white',
                 padding: '10px',
+                marginBottom: '10px',
                 width: '100%',
                 cursor: 'pointer'
               }}
@@ -653,16 +655,20 @@ const Controls: React.FC<ControlsProps> = ({
             <div style={{ marginBottom: '3%', width: '100%' }}>
               <button
                 onClick={handleDownload}
-                disabled={downloadIsProcessing}
+                disabled={!file || downloadIsProcessing}
                 style={{
-                  width: '100%',
-                  padding: '2%',
-                  backgroundColor: 'white',
-                  border: '1px solid black',
+                  backgroundColor: file ? '#4a6741' : '#ccc',
+                  color: 'white',
+                  border: 'none',
                   borderRadius: '4px',
-                  cursor: downloadIsProcessing ? 'default' : 'pointer',
-                  opacity: downloadIsProcessing ? 0.7 : 1,
-                  fontSize: 'clamp(14px, 1.6vw, 16px)'
+                  padding: '10px',
+                  cursor: file ? 'pointer' : 'not-allowed',
+                  width: '100%',
+                  fontSize: 'clamp(14px, 1.6vw, 16px)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '10px'
                 }}
               >
                 {downloadIsProcessing ? 'Processing...' : 'Download PDF'}
