@@ -849,7 +849,6 @@ const DonationsBox = () => {
       transition: 'min-height 0.3s ease-in-out',
       width: '100%',
       maxWidth: '100%',
-      boxSizing: 'border-box'
     }}>
       <Script 
         id="paypal-script"
@@ -1056,7 +1055,9 @@ const DonationsBox = () => {
             border: '1px solid rgba(0, 0, 0, 0.1)',
             width: '90%',
             maxWidth: '350px',
-            boxSizing: 'border-box'
+            boxSizing: 'border-box',
+            marginLeft: 'auto',
+            marginRight: 'auto'
           }}>
             {/* Add currency selector */}
             <div style={{
@@ -1186,6 +1187,8 @@ const DonationsBox = () => {
               maxWidth: '300px',
               position: 'relative',
               marginTop: '-10px',
+              marginLeft: 'auto',
+              marginRight: 'auto',
               boxSizing: 'border-box'
             }}
           >

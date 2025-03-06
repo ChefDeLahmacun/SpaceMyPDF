@@ -62,7 +62,7 @@ body {
 
 /* Add a new class for the gap between feedback and donations sections */
 .section-gap {
-  height: 12vh; /* Doubled from 6vh to 12vh */
+  height: 9vh; /* Reduced to 75% of previous value (12vh * 0.75 = 9vh) */
   background-color: transparent;
   position: relative;
   z-index: 4;
