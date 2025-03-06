@@ -11,6 +11,7 @@ import Preview from './components/Preview';
 import FeedbackForm from './components/FeedbackForm';
 import WhiteBox from './components/WhiteBox';
 import DonationsBox from './components/DonationsBox';
+import MobileOrientationMessage from './components/MobileOrientationMessage';
 import { useAnalytics } from './utils/useAnalytics';
 import './components/GreenSectionFinal.css';
 
@@ -658,6 +659,7 @@ export default function Home() {
           transition: 'opacity 0.1s ease-in' // Smooth transition
         }}
       >
+        <MobileOrientationMessage />
         <Header />
         <Features />
         

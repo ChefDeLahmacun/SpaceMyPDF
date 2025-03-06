@@ -1,4 +1,5 @@
 import React, { ReactNode, useState, useEffect, useRef, createContext, useLayoutEffect } from 'react';
+import MobileOrientationMessage from './MobileOrientationMessage';
 
 // Create a context to pass the ref to children
 export const GreenContentRefContext = createContext<React.RefObject<HTMLDivElement> | null>(null);
@@ -86,15 +87,10 @@ const Layout = ({ children, feedbackSectionNeedsExtraHeight, feedbackSubmitted =
   return (
     <GreenContentRefContext.Provider value={greenContentRef}>
       <div style={{ 
-        width: '100%', 
-        minHeight: '100vh',
         position: 'relative',
-        overflow: 'hidden', // Changed from visible to hidden to prevent content from extending
-        backgroundColor: '#f2c4aa',
-        border: 'none',
-        outline: 'none',
-        display: 'flex',
-        justifyContent: 'center' // Center the content horizontally
+        minHeight: '100vh',
+        width: '100%',
+        overflow: 'hidden'
       }}>
         <div style={{
           position: 'relative',
