@@ -78,7 +78,7 @@ const Features: React.FC = () => {
         display: 'flex',
         flexWrap: 'wrap',
         justifyContent: 'space-between',
-        gap: screenSize.isSmallMobile ? '2vh' : '1.5vh',
+        gap: screenSize.isSmallMobile ? '1vh' : '1.5vh',
         height: 'auto',
         overflow: 'visible',
         marginBottom: '1.5vh',
@@ -130,7 +130,7 @@ interface FeatureCardProps {
 const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description, screenSize }) => {
   // Calculate flex basis based on screen size
   const getFlexBasis = () => {
-    if (screenSize.isSmallMobile) return '100%';
+    if (screenSize.isSmallMobile) return 'calc(50% - 1vh)';
     if (screenSize.isMobile) return 'calc(50% - 1.5vh)';
     return 'calc(25% - 1.5vh)';
   };
@@ -156,11 +156,11 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description, scr
   return (
     <div className="feature-card" style={{
       flex: `1 1 ${getFlexBasis()}`,
-      padding: screenSize.isSmallMobile ? '2.5vh 3%' : '2vh 1.5%',
+      padding: screenSize.isSmallMobile ? '1.5vh 2%' : '2vh 1.5%',
       height: 'auto',
-      minHeight: screenSize.isSmallMobile ? '12vh' : '16vh',
-      marginBottom: screenSize.isSmallMobile ? '1.5vh' : '1vh',
-      minWidth: screenSize.isSmallMobile ? '100%' : '150px',
+      minHeight: screenSize.isSmallMobile ? '10vh' : '16vh',
+      marginBottom: screenSize.isSmallMobile ? '1vh' : '1vh',
+      minWidth: screenSize.isSmallMobile ? 'calc(50% - 1vh)' : '150px',
       backgroundColor: 'white',
       boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
       display: 'flex',
@@ -169,11 +169,11 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description, scr
       <div style={{ 
         display: 'flex', 
         alignItems: 'flex-start', 
-        marginBottom: '1vh', // Reduced from 1.8vh
+        marginBottom: screenSize.isSmallMobile ? '0.5vh' : '1vh', // Reduced margin for small mobile
         flexWrap: screenSize.isSmallMobile ? 'wrap' : 'nowrap',
-        gap: '8px',
-        height: (isPrivacyTitle && isLandscape) ? 'auto' : (screenSize.isSmallMobile ? 'auto' : '40px'), // Dynamic height for privacy title
-        minHeight: (isPrivacyTitle && isLandscape) ? '35px' : (screenSize.isSmallMobile ? '30px' : '40px') // Adjusted for privacy title
+        gap: screenSize.isSmallMobile ? '4px' : '8px', // Reduced gap for small mobile
+        height: (isPrivacyTitle && isLandscape) ? 'auto' : (screenSize.isSmallMobile ? 'auto' : '40px'),
+        minHeight: (isPrivacyTitle && isLandscape) ? '35px' : (screenSize.isSmallMobile ? '25px' : '40px') // Reduced min-height for small mobile
       }}>
         <div style={{ 
           marginRight: screenSize.isSmallMobile ? '0' : '1%',
@@ -183,21 +183,21 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description, scr
         </div>
         <h3 style={{ 
           margin: '0', 
-          fontSize: 'clamp(13px, 1.4vw, 16px)',
+          fontSize: screenSize.isSmallMobile ? 'clamp(12px, 1.3vw, 14px)' : 'clamp(13px, 1.4vw, 16px)', // Smaller font for small mobile
           fontWeight: '600', 
           color: '#2c3e50',
-          lineHeight: '1.2', // Tighter line height
+          lineHeight: '1.2',
           wordWrap: 'break-word',
           hyphens: 'auto',
           // Special handling for "Your Documents Stay Private" on horizontal phones
           ...(isPrivacyTitle && isLandscape && {
             fontSize: 'clamp(13px, 1.4vw, 16px)',
-            lineHeight: '1.1', // Even tighter line height
-            whiteSpace: 'normal', // Allow wrapping
-            overflow: 'visible', // Don't hide overflow
-            display: 'flex', // Use flex to help with layout
-            flexDirection: 'column', // Stack words if needed
-            justifyContent: 'center' // Center vertically
+            lineHeight: '1.1',
+            whiteSpace: 'normal',
+            overflow: 'visible',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center'
           })
         }}>
           {isPrivacyTitle && isLandscape ? (
@@ -212,11 +212,11 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description, scr
       </div>
       <p style={{ 
         margin: '0', 
-        fontSize: 'clamp(12px, 1.4vw, 14px)',
-        lineHeight: '1.4', // Slightly tighter line height
+        fontSize: screenSize.isSmallMobile ? 'clamp(11px, 1.2vw, 13px)' : 'clamp(12px, 1.4vw, 14px)', // Smaller font for small mobile
+        lineHeight: screenSize.isSmallMobile ? '1.3' : '1.4', // Tighter line height for small mobile
         color: '#34495e',
         flex: 1,
-        paddingTop: '0' // Removed padding
+        paddingTop: '0'
       }}>
         {description}
       </p>
