@@ -135,6 +135,24 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description, scr
     return 'calc(25% - 1.5vh)';
   };
 
+  // Determine if we need to adjust the title for "Your Documents Stay Private"
+  const isPrivacyTitle = title.includes("Private");
+  const [isLandscape, setIsLandscape] = useState(false);
+  
+  // Check for landscape orientation
+  useEffect(() => {
+    const checkOrientation = () => {
+      if (typeof window !== 'undefined') {
+        setIsLandscape(window.innerWidth > window.innerHeight);
+      }
+    };
+    
+    checkOrientation();
+    window.addEventListener('resize', checkOrientation);
+    
+    return () => window.removeEventListener('resize', checkOrientation);
+  }, []);
+  
   return (
     <div className="feature-card" style={{
       flex: `1 1 ${getFlexBasis()}`,
@@ -144,14 +162,18 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description, scr
       marginBottom: screenSize.isSmallMobile ? '1.5vh' : '1vh',
       minWidth: screenSize.isSmallMobile ? '100%' : '150px',
       backgroundColor: 'white',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+      boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+      display: 'flex',
+      flexDirection: 'column'
     }}>
       <div style={{ 
         display: 'flex', 
         alignItems: 'flex-start', 
-        marginBottom: '1.8vh',
+        marginBottom: '1vh', // Reduced from 1.8vh
         flexWrap: screenSize.isSmallMobile ? 'wrap' : 'nowrap',
-        gap: '8px'
+        gap: '8px',
+        height: (isPrivacyTitle && isLandscape) ? 'auto' : (screenSize.isSmallMobile ? 'auto' : '40px'), // Dynamic height for privacy title
+        minHeight: (isPrivacyTitle && isLandscape) ? '35px' : (screenSize.isSmallMobile ? '30px' : '40px') // Adjusted for privacy title
       }}>
         <div style={{ 
           marginRight: screenSize.isSmallMobile ? '0' : '1%',
@@ -161,23 +183,40 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description, scr
         </div>
         <h3 style={{ 
           margin: '0', 
-          fontSize: screenSize.isSmallMobile ? '16px' : 'clamp(15px, 1.6vw, 18px)',
+          fontSize: 'clamp(13px, 1.4vw, 16px)',
           fontWeight: '600', 
           color: '#2c3e50',
-          lineHeight: '1.3',
+          lineHeight: '1.2', // Tighter line height
           wordWrap: 'break-word',
-          hyphens: 'auto'
+          hyphens: 'auto',
+          // Special handling for "Your Documents Stay Private" on horizontal phones
+          ...(isPrivacyTitle && isLandscape && {
+            fontSize: 'clamp(13px, 1.4vw, 16px)',
+            lineHeight: '1.1', // Even tighter line height
+            whiteSpace: 'normal', // Allow wrapping
+            overflow: 'visible', // Don't hide overflow
+            display: 'flex', // Use flex to help with layout
+            flexDirection: 'column', // Stack words if needed
+            justifyContent: 'center' // Center vertically
+          })
         }}>
-          {title}
+          {isPrivacyTitle && isLandscape ? (
+            <>
+              <span>Your Documents</span>
+              <span>Stay Private</span>
+            </>
+          ) : (
+            title
+          )}
         </h3>
       </div>
       <p style={{ 
         margin: '0', 
         fontSize: 'clamp(12px, 1.4vw, 14px)',
-        lineHeight: '1.5', 
+        lineHeight: '1.4', // Slightly tighter line height
         color: '#34495e',
         flex: 1,
-        paddingTop: '0.4vh'
+        paddingTop: '0' // Removed padding
       }}>
         {description}
       </p>
