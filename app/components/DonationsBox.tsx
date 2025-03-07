@@ -1173,6 +1173,16 @@ const DonationsBox = () => {
             }}>
               Min: {getCurrencySymbol()}0.01 - Max: {getCurrencySymbol()}10,000
             </p>
+            <p style={{
+              fontSize: 'clamp(10px, 3vw, 12px)',
+              color: '#e67e22',
+              margin: '5px 0 0 0',
+              fontStyle: 'italic',
+              width: '100%',
+              textAlign: 'center'
+            }}>
+              Please wait a moment after changing the amount to ensure it updates properly.
+            </p>
           </div>
           
           {/* PayPal button container */}
