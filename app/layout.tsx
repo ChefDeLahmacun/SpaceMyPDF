@@ -21,8 +21,16 @@ import { GoogleAnalytics } from '@next/third-parties/google'
 import { GA_MEASUREMENT_ID } from './utils/analytics';
 
 export const metadata: Metadata = {
-  title: "PDF Note Space Extender",
-  description: "A simple tool for adding note space to PDFs, making learning and work easier",
+  title: "SpaceMyPDF",
+  description: "Add note space to your PDFs easily",
+  icons: {
+    icon: [
+      { url: '/images/Logo.png' },
+    ],
+    apple: [
+      { url: '/images/Logo.png' },
+    ],
+  },
 };
 
 export default function RootLayout({
@@ -40,6 +48,10 @@ export default function RootLayout({
         {/* External JS is now loaded with Next.js Script component */}
         <Script src="/scripts/font-loader.js" strategy="beforeInteractive" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/images/Logo.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/images/Logo.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/images/Logo.png" />
+        <meta name="theme-color" content="#ffffff" />
       </head>
       <body suppressHydrationWarning style={{ WebkitOverflowScrolling: 'touch' }}>
         <Navigation />
