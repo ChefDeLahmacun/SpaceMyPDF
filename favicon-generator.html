@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Favicon Generator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    canvas {
+      border: 1px solid #ccc;
+      margin: 20px 0;
+    }
+    button {
+      padding: 10px 15px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .instructions {
+      background-color: #f8f8f8;
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Favicon Generator</h1>
+  
+  <div class="instructions">
+    <h3>Instructions:</h3>
+    <ol>
+      <li>Click "Select Logo" to choose your logo image</li>
+      <li>The image will be resized to 32x32 pixels (standard favicon size)</li>
+      <li>Click "Generate Favicon" to create the favicon</li>
+      <li>Right-click on the generated favicon and select "Save Image As..."</li>
+      <li>Save it as "favicon.ico" in your project's public folder</li>
+    </ol>
+  </div>
+  
+  <input type="file" id="imageInput" accept="image/*" style="display: none;">
+  <button onclick="document.getElementById('imageInput').click()">Select Logo</button>
+  <button id="generateBtn" onclick="generateFavicon()" disabled>Generate Favicon</button>
+  
+  <div>
+    <h3>Original Image:</h3>
+    <img id="originalImage" style="max-width: 200px; display: none;">
+  </div>
+  
+  <div>
+    <h3>Favicon Preview (32x32):</h3>
+    <canvas id="faviconCanvas" width="32" height="32"></canvas>
+  </div>
+  
+  <div id="downloadContainer" style="display: none;">
+    <h3>Download:</h3>
+    <p>Right-click on the image below and select "Save Image As..." to save as favicon.ico</p>
+    <img id="faviconImage">
+  </div>
+  
+  <script>
+    const imageInput = document.getElementById('imageInput');
+    const originalImage = document.getElementById('originalImage');
+    const faviconCanvas = document.getElementById('faviconCanvas');
+    const generateBtn = document.getElementById('generateBtn');
+    const downloadContainer = document.getElementById('downloadContainer');
+    const faviconImage = document.getElementById('faviconImage');
+    const ctx = faviconCanvas.getContext('2d');
+    
+    // Clear canvas with white background
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, faviconCanvas.width, faviconCanvas.height);
+    
+    imageInput.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          originalImage.src = event.target.result;
+          originalImage.style.display = 'block';
+          originalImage.onload = function() {
+            // Draw image on canvas
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, faviconCanvas.width, faviconCanvas.height);
+            ctx.drawImage(originalImage, 0, 0, 32, 32);
+            generateBtn.disabled = false;
+          };
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+    
+    function generateFavicon() {
+      // Convert canvas to data URL
+      const dataUrl = faviconCanvas.toDataURL('image/png');
+      
+      // Display the favicon image for download
+      faviconImage.src = dataUrl;
+      downloadContainer.style.display = 'block';
+      
+      // Create a download link
+      const downloadLink = document.createElement('a');
+      downloadLink.href = dataUrl;
+      downloadLink.download = 'favicon.ico';
+      downloadLink.textContent = 'Download Favicon';
+      downloadLink.style.display = 'block';
+      downloadLink.style.marginTop = '10px';
+      downloadLink.style.marginBottom = '20px';
+      downloadContainer.appendChild(downloadLink);
+    }
+  </script>
+</body>
+</html> 

@@ -23,14 +23,6 @@ import { GA_MEASUREMENT_ID } from './utils/analytics';
 export const metadata: Metadata = {
   title: "SpaceMyPDF",
   description: "Add note space to your PDFs easily",
-  icons: {
-    icon: [
-      { url: '/images/Logo.png' },
-    ],
-    apple: [
-      { url: '/images/Logo.png' },
-    ],
-  },
 };
 
 export default function RootLayout({
@@ -48,9 +40,13 @@ export default function RootLayout({
         {/* External JS is now loaded with Next.js Script component */}
         <Script src="/scripts/font-loader.js" strategy="beforeInteractive" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/images/Logo.png" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/images/Logo.png" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/images/Logo.png" />
+        
+        {/* Favicon */}
+        <link rel="icon" href="/favicon.png" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png" />
+        <link rel="manifest" href="/site.webmanifest" />
         <meta name="theme-color" content="#ffffff" />
       </head>
       <body suppressHydrationWarning style={{ WebkitOverflowScrolling: 'touch' }}>
