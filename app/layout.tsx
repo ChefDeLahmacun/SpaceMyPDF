@@ -21,8 +21,47 @@ import { GoogleAnalytics } from '@next/third-parties/google'
 import { GA_MEASUREMENT_ID } from './utils/analytics';
 
 export const metadata: Metadata = {
-  title: "SpaceMyPDF",
-  description: "Add note space to your PDFs easily",
+  title: "SpaceMyPDF - Add Note Space to PDF Documents",
+  description: "Free online tool to add customizable note-taking space to your PDF documents. No upload required, works in your browser with complete privacy.",
+  keywords: "PDF note space, PDF margin extension, PDF note-taking, PDF editor, document annotation, PDF tools, free PDF editor",
+  openGraph: {
+    title: "SpaceMyPDF - Add Note Space to PDF Documents",
+    description: "Free online tool to add customizable note-taking space to your PDF documents. No upload required, works in your browser with complete privacy.",
+    type: "website",
+    url: "https://www.spacemypdf.com",
+    images: [
+      {
+        url: "/images/Logo.png",
+        width: 60,
+        height: 60,
+        alt: "SpaceMyPDF Logo"
+      }
+    ],
+    siteName: "SpaceMyPDF"
+  },
+  twitter: {
+    card: "summary",
+    title: "SpaceMyPDF - Add Note Space to PDF Documents",
+    description: "Free online tool to add customizable note-taking space to your PDF documents. No upload required, works in your browser with complete privacy.",
+    images: ["/images/Logo.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  verification: {
+    google: "zAU4nyWIZ0lJgHFikZEcViImwePtQAc9T39mJ4n6vRY"
+  },
+  alternates: {
+    canonical: "https://www.spacemypdf.com"
+  }
 };
 
 export default function RootLayout({

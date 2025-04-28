@@ -654,9 +654,9 @@ export default function Home() {
       <div 
         style={{ 
           width: '100%',
-          visibility: isMounted ? 'visible' : 'hidden', // Hide content until ready
-          opacity: isMounted ? 1 : 0, // Fade in when ready
-          transition: 'opacity 0.1s ease-in' // Smooth transition
+          visibility: isMounted ? 'visible' : 'hidden',
+          opacity: isMounted ? 1 : 0,
+          transition: 'opacity 0.1s ease-in'
         }}
       >
         <MobileOrientationMessage />
@@ -703,7 +703,7 @@ export default function Home() {
           width: '100%', 
           display: 'flex', 
           flexDirection: 'column',
-          backgroundColor: '#f2c4aa', // Match side column color
+          backgroundColor: '#f2c4aa',
           borderTopLeftRadius: '0',
           borderTopRightRadius: '0',
           overflow: 'hidden',
@@ -726,6 +726,32 @@ export default function Home() {
           <DonationsBox />
         </div>
       </div>
+      <script 
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebApplication",
+            "name": "SpaceMyPDF",
+            "description": "Free online tool to add customizable note-taking space to your PDF documents. No upload required, works in your browser with complete privacy.",
+            "url": "https://www.spacemypdf.com",
+            "applicationCategory": "Productivity Software",
+            "operatingSystem": "All",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD"
+            },
+            "featureList": [
+              "Add customizable note space to PDFs",
+              "Choose width, position, and color of note space",
+              "Client-side processing for privacy",
+              "No registration required",
+              "Free to use"
+            ]
+          })
+        }}
+      />
     </Layout>
   );
 }
