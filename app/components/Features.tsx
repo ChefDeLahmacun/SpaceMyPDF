@@ -59,7 +59,7 @@ const Features: React.FC = () => {
         maxWidth: '100%'
       }}>
         <p style={{ margin: '0', maxWidth: '100%' }}>
-          <strong>About this tool:</strong> We created this to help you take better notes on your PDFs. We'd love to hear what you think!
+          <strong>Welcome!</strong> Need more space for notes on your PDFs? You're in the right place. Give it a try and let us know what you think!
         </p>
       </div>
       
@@ -71,7 +71,7 @@ const Features: React.FC = () => {
         fontWeight: '600',
         letterSpacing: '0.5px'
       }}>
-        How This Tool Helps You
+        What Makes This Tool Great
       </h2>
       
       <div style={{
@@ -86,29 +86,29 @@ const Features: React.FC = () => {
       }}>
         <FeatureCard 
           icon={<FaUserFriends size={24} color="#4a6741" />}
-          title="Easy to Use"
-          description="Add note space to your PDFs with just a few clicks. Perfect for students, researchers, and anyone who takes notes."
+          title="Simple & Quick"
+          description="Just upload your PDF, choose where you want notes, and you're done! Perfect for students and professionals."
           screenSize={screenSize}
         />
         
         <FeatureCard 
           icon={<FaSlidersH size={24} color="#4a6741" />}
-          title="Make It Your Own"
-          description="Choose where you want your note space and how it looks. Pick the width, position, and color that works best for you."
+          title="Customize It"
+          description="Put note space where you need it - left, right, top, or bottom. Choose your preferred width and color."
           screenSize={screenSize}
         />
         
         <FeatureCard 
           icon={<FaLock size={24} color="#4a6741" />}
-          title="Your Documents Stay Private"
-          description="Everything happens on your computer. Your documents never get uploaded to any server, keeping your information safe."
+          title="100% Private"
+          description="Your files stay on your computer. Nothing gets uploaded to our servers - your documents remain yours."
           screenSize={screenSize}
         />
         
         <FeatureCard 
           icon={<FaGift size={24} color="#4a6741" />}
-          title="Always Free"
-          description="Use this tool as much as you want without paying anything. No sign-ups, no subscriptions, no hidden costs."
+          title="Completely Free"
+          description="No cost, no sign-up, no limits. Use it as much as you want, whenever you want."
           screenSize={screenSize}
         />
       </div>

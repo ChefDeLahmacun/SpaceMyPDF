@@ -21,12 +21,12 @@ import { GoogleAnalytics } from '@next/third-parties/google'
 import { GA_MEASUREMENT_ID } from './utils/analytics';
 
 export const metadata: Metadata = {
-  title: "SpaceMyPDF - Add Note Space to PDF Documents",
-  description: "Free online tool to add customizable note-taking space to your PDF documents. No upload required, works in your browser with complete privacy.",
-  keywords: "PDF note space, PDF margin extension, PDF note-taking, PDF editor, document annotation, PDF tools, free PDF editor",
+  title: "SpaceMyPDF | Add Note Space to PDFs - Free & Easy PDF Tool",
+  description: "Need space for notes in your PDF? SpaceMyPDF lets you add note-taking space to any PDF document. Free, private, and works instantly in your browser. Perfect for students and professionals.",
+  keywords: "add space to PDF, PDF note space, PDF margin space, PDF notes, PDF editor free, add margins to PDF, PDF annotation space, space my pdf, spacemypdf, pdf note taking space",
   openGraph: {
-    title: "SpaceMyPDF - Add Note Space to PDF Documents",
-    description: "Free online tool to add customizable note-taking space to your PDF documents. No upload required, works in your browser with complete privacy.",
+    title: "SpaceMyPDF | Add Note Space to PDFs - Free & Easy PDF Tool",
+    description: "Need space for notes in your PDF? SpaceMyPDF lets you add note-taking space to any PDF document. Free, private, and works instantly in your browser. Perfect for students and professionals.",
     type: "website",
     url: "https://www.spacemypdf.com",
     images: [
@@ -41,8 +41,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title: "SpaceMyPDF - Add Note Space to PDF Documents",
-    description: "Free online tool to add customizable note-taking space to your PDF documents. No upload required, works in your browser with complete privacy.",
+    title: "SpaceMyPDF | Add Note Space to PDFs - Free & Easy PDF Tool",
+    description: "Need space for notes in your PDF? SpaceMyPDF lets you add note-taking space to any PDF document. Free, private, and works instantly in your browser.",
     images: ["/images/Logo.png"],
   },
   robots: {
