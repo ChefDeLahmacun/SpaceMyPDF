@@ -8,6 +8,8 @@ const nextConfig = {
         hostname: '**',
       },
     ],
+    domains: ['www.spacemypdf.com'],
+    formats: ['image/avif', 'image/webp'],
   },
   experimental: {
     serverComponentsExternalPackages: ['pdf-lib'],
@@ -65,6 +67,14 @@ const nextConfig = {
     
     return config;
   },
+  // Add compression
+  compress: true,
+  // Add PWA support
+  pwa: {
+    dest: 'public',
+    register: true,
+    skipWaiting: true,
+  }
 }
 
 module.exports = nextConfig 

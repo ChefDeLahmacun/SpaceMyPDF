@@ -752,6 +752,32 @@ export default function Home() {
           })
         }}
       />
+      <script 
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [{
+              "@type": "Question",
+              "name": "How do I add note space to my PDF?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Upload your PDF, adjust the note space width and position, then download the modified PDF. The process is instant and completely private."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Is SpaceMyPDF free to use?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes, SpaceMyPDF is completely free to use with no registration required."
+              }
+            }]
+            // Add more FAQ items as needed
+          })
+        }}
+      />
     </Layout>
   );
 }
