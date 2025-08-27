@@ -11,6 +11,10 @@ A modern web application for manipulating PDF files directly in your browser.
   - Delete pages
   - Reorder pages
   - Add spacing between pages
+- **Note Space Customization**:
+  - Add note space to any side (left, right, top, bottom)
+  - Customize width and color
+  - Add helpful patterns (lines, grid, dots) for better note-taking
 - **PDF Download**: Download your modified PDFs
 - **PDF Merging**: Combine multiple PDFs into one document
 

@@ -12,6 +12,14 @@ interface ControlsProps {
   setColorOption: (option: string) => void;
   customColor: string;
   setCustomColor: (color: string) => void;
+  notePattern: string;
+  setNotePattern: (pattern: string) => void;
+  lineSpacing: number;
+  setLineSpacing: (spacing: number) => void;
+  gridSpacing: number;
+  setGridSpacing: (spacing: number) => void;
+  dotSpacing: number;
+  setDotSpacing: (spacing: number) => void;
   baseFileName: string;
   handleBaseFileNameChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   includeWithNotes: boolean;
@@ -38,6 +46,14 @@ const Controls: React.FC<ControlsProps> = ({
   setColorOption,
   customColor,
   setCustomColor,
+  notePattern,
+  setNotePattern,
+  lineSpacing,
+  setLineSpacing,
+  gridSpacing,
+  setGridSpacing,
+  dotSpacing,
+  setDotSpacing,
   baseFileName,
   handleBaseFileNameChange,
   includeWithNotes,
@@ -499,6 +515,173 @@ const Controls: React.FC<ControlsProps> = ({
             )}
           </div>
         </div>
+        
+        {/* Note Space Pattern section */}
+        <div style={{ marginBottom: '2vh', width: '100%' }}>
+          <p style={{ fontWeight: '600', marginBottom: '1vh', color: '#2c3e50', fontSize: 'clamp(13px, 1.5vw, 15px)' }}>Note Space Pattern</p>
+          
+          <div style={{ width: '100%' }}>
+            <div 
+              style={{ 
+                border: '1px solid black',
+                borderRadius: '4px',
+                backgroundColor: 'white',
+                padding: '10px',
+                marginBottom: '10px',
+                width: '100%',
+                cursor: 'pointer'
+              }}
+              onClick={() => setNotePattern('none')}
+            >
+              <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', width: '100%' }}>
+                <input 
+                  type="radio"
+                  id="patternNone"
+                  name="notePattern"
+                  checked={notePattern === 'none'}
+                  onChange={() => setNotePattern('none')}
+                  style={{ cursor: 'pointer', marginRight: '8px' }}
+                />
+                <span style={{ fontSize: 'clamp(12px, 1.4vw, 14px)' }}>No Pattern (Plain)</span>
+              </label>
+            </div>
+            
+            <div 
+              style={{ 
+                border: '1px solid black',
+                borderRadius: '4px',
+                backgroundColor: 'white',
+                padding: '10px',
+                marginBottom: '10px',
+                width: '100%',
+                cursor: 'pointer'
+              }}
+              onClick={() => setNotePattern('lines')}
+            >
+              <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', width: '100%' }}>
+                <input 
+                  type="radio"
+                  id="patternLines"
+                  name="notePattern"
+                  checked={notePattern === 'lines'}
+                  onChange={() => setNotePattern('lines')}
+                  style={{ cursor: 'pointer', marginRight: '8px' }}
+                />
+                <span style={{ fontSize: 'clamp(12px, 1.4vw, 14px)' }}>Lines</span>
+              </label>
+            </div>
+            
+            <div 
+              style={{ 
+                border: '1px solid black',
+                borderRadius: '4px',
+                backgroundColor: 'white',
+                padding: '10px',
+                marginBottom: '10px',
+                width: '100%',
+                cursor: 'pointer'
+              }}
+              onClick={() => setNotePattern('grid')}
+            >
+              <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', width: '100%' }}>
+                <input 
+                  type="radio"
+                  id="patternGrid"
+                  name="notePattern"
+                  checked={notePattern === 'grid'}
+                  onChange={() => setNotePattern('grid')}
+                  style={{ cursor: 'pointer', marginRight: '8px' }}
+                />
+                <span style={{ fontSize: 'clamp(12px, 1.4vw, 14px)' }}>Grid</span>
+              </label>
+            </div>
+            
+            <div 
+              style={{ 
+                border: '1px solid black',
+                borderRadius: '4px',
+                backgroundColor: 'white',
+                padding: '10px',
+                marginBottom: '10px',
+                width: '100%',
+                cursor: 'pointer'
+              }}
+              onClick={() => setNotePattern('dots')}
+            >
+              <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', width: '100%' }}>
+                <input 
+                  type="radio"
+                  id="patternDots"
+                  name="notePattern"
+                  checked={notePattern === 'dots'}
+                  onChange={() => setNotePattern('dots')}
+                  style={{ cursor: 'pointer', marginRight: '8px' }}
+                />
+                <span style={{ fontSize: 'clamp(12px, 1.4vw, 14px)' }}>Dots</span>
+              </label>
+            </div>
+          </div>
+          
+          <p style={{ fontSize: 'clamp(10px, 1.2vw, 12px)', margin: '1vh 0 0 0' }}>
+            Choose the pattern for the note space (lines, grid, dots, or plain)
+          </p>
+        </div>
+        
+        {/* Pattern Spacing section - only show when a pattern is selected */}
+        {(notePattern === 'lines' || notePattern === 'grid' || notePattern === 'dots') && (
+          <div style={{ marginBottom: '2vh', width: '100%' }}>
+            <p style={{ fontWeight: '600', marginBottom: '1vh', color: '#2c3e50', fontSize: 'clamp(13px, 1.5vw, 15px)' }}>
+              {notePattern === 'lines' ? 'Line Spacing' : notePattern === 'grid' ? 'Grid Spacing' : 'Dot Spacing'}
+            </p>
+            
+            <div style={{ width: '100%' }}>
+              {[10, 15, 20, 25, 30].map((spacing) => (
+                <div 
+                  key={spacing}
+                  style={{ 
+                    border: '1px solid black',
+                    borderRadius: '4px',
+                    backgroundColor: 'white',
+                    padding: '10px',
+                    marginBottom: '10px',
+                    width: '100%',
+                    cursor: 'pointer'
+                  }}
+                  onClick={() => {
+                    if (notePattern === 'lines') setLineSpacing(spacing);
+                    else if (notePattern === 'grid') setGridSpacing(spacing);
+                    else if (notePattern === 'dots') setDotSpacing(spacing);
+                  }}
+                >
+                  <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', width: '100%' }}>
+                    <input 
+                      type="radio"
+                      name={`spacing${notePattern}`}
+                      checked={
+                        (notePattern === 'lines' && lineSpacing === spacing) ||
+                        (notePattern === 'grid' && gridSpacing === spacing) ||
+                        (notePattern === 'dots' && dotSpacing === spacing)
+                      }
+                      onChange={() => {
+                        if (notePattern === 'lines') setLineSpacing(spacing);
+                        else if (notePattern === 'grid') setGridSpacing(spacing);
+                        else if (notePattern === 'dots') setDotSpacing(spacing);
+                      }}
+                      style={{ cursor: 'pointer', marginRight: '8px' }}
+                    />
+                    <span style={{ fontSize: 'clamp(12px, 1.4vw, 14px)' }}>
+                      {spacing}pt spacing
+                    </span>
+                  </label>
+                </div>
+              ))}
+            </div>
+            
+            <p style={{ fontSize: 'clamp(10px, 1.2vw, 12px)', margin: '1vh 0 0 0' }}>
+              Choose the spacing for the {notePattern} pattern
+            </p>
+          </div>
+        )}
         
         {/* Output Filename section */}
         <div style={{ marginBottom: '2vh', width: '100%' }}>

@@ -36,6 +36,13 @@ export default function Home() {
   const [colorOption, setColorOption] = useState('white'); // 'white', 'custom'
   const [customColor, setCustomColor] = useState('#ffffff'); // Default white
   const [noteSpacePosition, setNoteSpacePosition] = useState('right'); // 'right', 'left', 'top', 'bottom'
+  
+  // New state variables for note patterns
+  const [notePattern, setNotePattern] = useState('none'); // 'none', 'lines', 'grid', 'dots'
+  const [lineSpacing, setLineSpacing] = useState(20); // Default 20pt spacing
+  const [gridSpacing, setGridSpacing] = useState(20); // Default 20pt spacing
+  const [dotSpacing, setDotSpacing] = useState(20); // Default 20pt spacing
+  
   const predefinedColors = [
     { name: 'White', value: '#ffffff' },
     { name: 'Light Gray', value: '#f0f0f0' },
@@ -267,6 +274,13 @@ export default function Home() {
                 height: rectHeight,
                 color: rgb(rgbColor.r, rgbColor.g, rgbColor.b)
               });
+
+              // Draw the note pattern if specified
+              if (notePattern !== 'none') {
+                const noteSpaceRect = { x, y, width: rectWidth, height: rectHeight };
+                const spacing = notePattern === 'lines' ? lineSpacing : notePattern === 'grid' ? gridSpacing : dotSpacing;
+                drawNotePattern(newPage, noteSpaceRect, notePattern, spacing);
+              }
             }
           } else {
             // If no note space is needed, just copy the original page
@@ -320,7 +334,7 @@ export default function Home() {
         }
       }
     };
-  }, [file, noteSpaceWidth, colorOption, customColor, noteSpacePosition]);
+  }, [file, noteSpaceWidth, colorOption, customColor, noteSpacePosition, notePattern, lineSpacing, gridSpacing, dotSpacing]);
 
   // Download functionality
   const handleDownload = async () => {
@@ -431,6 +445,13 @@ export default function Home() {
               height: rectHeight,
               color: rgb(rgbColor.r, rgbColor.g, rgbColor.b)
             });
+
+            // Draw the note pattern if specified
+            if (notePattern !== 'none') {
+              const noteSpaceRect = { x, y, width: rectWidth, height: rectHeight };
+              const spacing = notePattern === 'lines' ? lineSpacing : notePattern === 'grid' ? gridSpacing : dotSpacing;
+              drawNotePattern(newPage, noteSpaceRect, notePattern, spacing);
+            }
           }
         } else {
           // If no note space is needed, just copy the original page
@@ -540,6 +561,54 @@ export default function Home() {
       g: parseInt(result[2], 16) / 255,
       b: parseInt(result[3], 16) / 255
     } : null;
+  };
+
+  // Helper function to draw note patterns
+  const drawNotePattern = (page: any, noteSpaceRect: { x: number, y: number, width: number, height: number }, pattern: string, spacing: number) => {
+    const { x, y, width, height } = noteSpaceRect;
+    
+    if (pattern === 'lines') {
+      // Draw horizontal lines
+      for (let lineY = y; lineY <= y + height; lineY += spacing) {
+        page.drawLine({
+          start: { x, y: lineY },
+          end: { x: x + width, y: lineY },
+          thickness: 0.5,
+          color: rgb(0.7, 0.7, 0.7)
+        });
+      }
+    } else if (pattern === 'grid') {
+      // Draw horizontal lines
+      for (let lineY = y; lineY <= y + height; lineY += spacing) {
+        page.drawLine({
+          start: { x, y: lineY },
+          end: { x: x + width, y: lineY },
+          thickness: 0.5,
+          color: rgb(0.7, 0.7, 0.7)
+        });
+      }
+      // Draw vertical lines
+      for (let lineX = x; lineX <= x + width; lineX += spacing) {
+        page.drawLine({
+          start: { x: lineX, y },
+          end: { x: lineX, y: y + height },
+          thickness: 0.5,
+          color: rgb(0.7, 0.7, 0.7)
+        });
+      }
+    } else if (pattern === 'dots') {
+      // Draw dots in a grid pattern
+      for (let dotY = y; dotY <= y + height; dotY += spacing) {
+        for (let dotX = x; dotX <= x + width; dotX += spacing) {
+          page.drawCircle({
+            x: dotX,
+            y: dotY,
+            size: 1,
+            color: rgb(0.7, 0.7, 0.7)
+          });
+        }
+      }
+    }
   };
 
   // Handle feedback image upload
@@ -696,6 +765,14 @@ export default function Home() {
             specifyLocation={specifyLocation}
             setSpecifyLocation={setSpecifyLocation}
             successMessage={successMessage}
+            notePattern={notePattern}
+            setNotePattern={setNotePattern}
+            lineSpacing={lineSpacing}
+            setLineSpacing={setLineSpacing}
+            gridSpacing={gridSpacing}
+            setGridSpacing={setGridSpacing}
+            dotSpacing={dotSpacing}
+            setDotSpacing={setDotSpacing}
           />
         </GreenContentWrapper>
         
