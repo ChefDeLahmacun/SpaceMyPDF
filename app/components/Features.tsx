@@ -94,7 +94,7 @@ const Features: React.FC = () => {
         <FeatureCard 
           icon={<FaSlidersH size={24} color="#4a6741" />}
           title="Customize It"
-          description="Put note space where you need it - left, right, top, or bottom. Choose your preferred width, color, and add helpful patterns like lines, grid, or dots for better note-taking."
+          description="Put note space where you need it - left, right, top, bottom, or combine multiple sides! Choose your preferred width, color, and add helpful patterns like lines, grid, or dots for better note-taking."
           screenSize={screenSize}
         />
         

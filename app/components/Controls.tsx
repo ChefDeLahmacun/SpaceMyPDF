@@ -8,6 +8,8 @@ interface ControlsProps {
   setNoteSpaceWidth: (width: number) => void;
   noteSpacePosition: string;
   setNoteSpacePosition: (position: string) => void;
+  noteSpacePositions: string[];
+  setNoteSpacePositions: (positions: string[]) => void;
   colorOption: string;
   setColorOption: (option: string) => void;
   customColor: string;
@@ -42,6 +44,8 @@ const Controls: React.FC<ControlsProps> = ({
   setNoteSpaceWidth,
   noteSpacePosition,
   setNoteSpacePosition,
+  noteSpacePositions,
+  setNoteSpacePositions,
   colorOption,
   setColorOption,
   customColor,
@@ -317,13 +321,26 @@ const Controls: React.FC<ControlsProps> = ({
                 width: '100%',
                 cursor: 'pointer'
               }}
-              onClick={() => setNoteSpacePosition('right')}
+              onClick={() => {
+                const newPositions = noteSpacePositions.includes('right') 
+                  ? noteSpacePositions.filter(p => p !== 'right')
+                  : [...noteSpacePositions, 'right'];
+                setNoteSpacePositions(newPositions);
+                // Keep single position for backward compatibility
+                setNoteSpacePosition(newPositions.length > 0 ? newPositions[0] : 'right');
+              }}
             >
               <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', width: '100%' }}>
                 <input 
                   type="checkbox" 
-                  checked={noteSpacePosition === 'right'} 
-                  onChange={() => setNoteSpacePosition('right')} 
+                  checked={noteSpacePositions.includes('right')} 
+                  onChange={() => {
+                    const newPositions = noteSpacePositions.includes('right') 
+                      ? noteSpacePositions.filter(p => p !== 'right')
+                      : [...noteSpacePositions, 'right'];
+                    setNoteSpacePositions(newPositions);
+                    setNoteSpacePosition(newPositions.length > 0 ? newPositions[0] : 'right');
+                  }} 
                   style={{ marginRight: '10px' }}
                 />
                 Right
@@ -340,14 +357,26 @@ const Controls: React.FC<ControlsProps> = ({
                 width: '100%',
                 cursor: 'pointer'
               }}
-              onClick={() => setNoteSpacePosition('left')}
+              onClick={() => {
+                const newPositions = noteSpacePositions.includes('left') 
+                  ? noteSpacePositions.filter(p => p !== 'left')
+                  : [...noteSpacePositions, 'left'];
+                setNoteSpacePositions(newPositions);
+                setNoteSpacePosition(newPositions.length > 0 ? newPositions[0] : 'right');
+              }}
             >
               <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', width: '100%' }}>
                 <input 
                   type="checkbox" 
-                  checked={noteSpacePosition === 'left'} 
-                  onChange={() => setNoteSpacePosition('left')} 
-                  style={{ marginRight: '10px' }}
+                  checked={noteSpacePositions.includes('left')} 
+                  onChange={() => {
+                    const newPositions = noteSpacePositions.includes('left') 
+                      ? noteSpacePositions.filter(p => p !== 'left')
+                      : [...noteSpacePositions, 'left'];
+                    setNoteSpacePositions(newPositions);
+                    setNoteSpacePosition(newPositions.length > 0 ? newPositions[0] : 'right');
+                  }} 
+                  style={{ marginRight: '8px' }}
                 />
                 Left
               </label>
@@ -363,14 +392,26 @@ const Controls: React.FC<ControlsProps> = ({
                 width: '100%',
                 cursor: 'pointer'
               }}
-              onClick={() => setNoteSpacePosition('top')}
+              onClick={() => {
+                const newPositions = noteSpacePositions.includes('top') 
+                  ? noteSpacePositions.filter(p => p !== 'top')
+                  : [...noteSpacePositions, 'top'];
+                setNoteSpacePositions(newPositions);
+                setNoteSpacePosition(newPositions.length > 0 ? newPositions[0] : 'right');
+              }}
             >
               <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', width: '100%' }}>
                 <input 
                   type="checkbox" 
-                  checked={noteSpacePosition === 'top'} 
-                  onChange={() => setNoteSpacePosition('top')} 
-                  style={{ marginRight: '10px' }}
+                  checked={noteSpacePositions.includes('top')} 
+                  onChange={() => {
+                    const newPositions = noteSpacePositions.includes('top') 
+                      ? noteSpacePositions.filter(p => p !== 'top')
+                      : [...noteSpacePositions, 'top'];
+                    setNoteSpacePositions(newPositions);
+                    setNoteSpacePosition(newPositions.length > 0 ? newPositions[0] : 'right');
+                  }} 
+                  style={{ marginRight: '8px' }}
                 />
                 Top
               </label>
@@ -386,14 +427,26 @@ const Controls: React.FC<ControlsProps> = ({
                 width: '100%',
                 cursor: 'pointer'
               }}
-              onClick={() => setNoteSpacePosition('bottom')}
+              onClick={() => {
+                const newPositions = noteSpacePositions.includes('bottom') 
+                  ? noteSpacePositions.filter(p => p !== 'bottom')
+                  : [...noteSpacePositions, 'bottom'];
+                setNoteSpacePositions(newPositions);
+                setNoteSpacePosition(newPositions.length > 0 ? newPositions[0] : 'right');
+              }}
             >
               <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', width: '100%' }}>
                 <input 
                   type="checkbox" 
-                  checked={noteSpacePosition === 'bottom'} 
-                  onChange={() => setNoteSpacePosition('bottom')} 
-                  style={{ marginRight: '10px' }}
+                  checked={noteSpacePositions.includes('bottom')} 
+                  onChange={() => {
+                    const newPositions = noteSpacePositions.includes('bottom') 
+                      ? noteSpacePositions.filter(p => p !== 'bottom')
+                      : [...noteSpacePositions, 'bottom'];
+                    setNoteSpacePositions(newPositions);
+                    setNoteSpacePosition(newPositions.length > 0 ? newPositions[0] : 'right');
+                  }} 
+                  style={{ marginRight: '8px' }}
                 />
                 Bottom
               </label>
@@ -401,7 +454,7 @@ const Controls: React.FC<ControlsProps> = ({
           </div>
           
           <p style={{ fontSize: 'clamp(10px, 1.2vw, 12px)', margin: '1vh 0 0 0' }}>
-            Select where to add the note space on each page
+            Select one or multiple sides to add note space. You can combine positions like left + right, top + bottom, etc.
           </p>
         </div>
         

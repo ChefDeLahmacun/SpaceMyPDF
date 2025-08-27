@@ -37,6 +37,9 @@ export default function Home() {
   const [customColor, setCustomColor] = useState('#ffffff'); // Default white
   const [noteSpacePosition, setNoteSpacePosition] = useState('right'); // 'right', 'left', 'top', 'bottom'
   
+  // New state variables for multiple note space positions
+  const [noteSpacePositions, setNoteSpacePositions] = useState<string[]>(['right']); // Array of selected positions
+  
   // New state variables for note patterns
   const [notePattern, setNotePattern] = useState('none'); // 'none', 'lines', 'grid', 'dots'
   const [lineSpacing, setLineSpacing] = useState(20); // Default 20pt spacing
@@ -189,99 +192,237 @@ export default function Home() {
 
         // Copy pages to modified preview document
         for (let i = 0; i < pagesToPreview; i++) {
-          // If noteSpaceWidth is provided, create a new page with extended dimensions
-          if (noteSpaceWidth > 0) {
-            const originalPage = originalPdfDoc.getPage(i);
-            const { width, height } = originalPage.getSize();
-            
-            // Calculate actual note space width in points based on percentage
-            const actualNoteSpaceWidth = noteSpacePosition === 'right' || noteSpacePosition === 'left' 
-              ? (width * noteSpaceWidth / 100) 
-              : (height * noteSpaceWidth / 100);
-            
-            // Calculate new dimensions based on position
-            let newWidth = width;
-            let newHeight = height;
-            
-            if (noteSpacePosition === 'right' || noteSpacePosition === 'left') {
-              newWidth = width + actualNoteSpaceWidth;
-            } else { // top or bottom
-              newHeight = height + actualNoteSpaceWidth;
-            }
-            
-            // Create a new blank page with the new dimensions
-            const newPage = modifiedPreviewDoc.addPage([newWidth, newHeight]);
-            
-            // Embed the original page content
-            const embeddedPage = await modifiedPreviewDoc.embedPage(originalPage);
-            
-            // Calculate position for the embedded content
-            let contentX = 0;
-            let contentY = 0;
-            
-            if (noteSpacePosition === 'left') {
-              contentX = actualNoteSpaceWidth;
-            } else if (noteSpacePosition === 'bottom') {
-              contentY = actualNoteSpaceWidth;
-            }
-            
-            // Draw the embedded page at the correct position
-            newPage.drawPage(embeddedPage, {
-              x: contentX,
-              y: contentY
-            });
-            
-            // Apply color to the note space
-            const color = colorOption === 'custom' ? customColor : '#ffffff';
-            const rgbColor = hexToRgb(color);
-            if (rgbColor) {
-              // Position the rectangle based on the selected position
-              let x = 0, y = 0;
-              let rectWidth = 0, rectHeight = 0;
+                      // If noteSpaceWidth is provided, create a new page with extended dimensions
+            if (noteSpaceWidth > 0) {
+              const originalPage = originalPdfDoc.getPage(i);
+              const { width, height } = originalPage.getSize();
               
-              switch (noteSpacePosition) {
-                case 'right':
-                  x = width;
-                  y = 0;
-                  rectWidth = actualNoteSpaceWidth;
-                  rectHeight = height;
-                  break;
-                case 'left':
-                  x = 0;
-                  y = 0;
-                  rectWidth = actualNoteSpaceWidth;
-                  rectHeight = height;
-                  break;
-                case 'top':
-                  x = 0;
-                  y = height;
-                  rectWidth = width;
-                  rectHeight = actualNoteSpaceWidth;
-                  break;
-                case 'bottom':
-                  x = 0;
-                  y = 0;
-                  rectWidth = width;
-                  rectHeight = actualNoteSpaceWidth;
-                  break;
+              // Calculate new dimensions based on all selected positions
+              let newWidth = width;
+              let newHeight = height;
+              let contentX = 0;
+              let contentY = 0;
+              
+              // Calculate total space needed for all positions
+              if (noteSpacePositions.includes('right')) {
+                newWidth += (width * noteSpaceWidth / 100);
+              }
+              if (noteSpacePositions.includes('left')) {
+                newWidth += (width * noteSpaceWidth / 100);
+                contentX = (width * noteSpaceWidth / 100);
+              }
+              if (noteSpacePositions.includes('top')) {
+                newHeight += (height * noteSpaceWidth / 100);
+              }
+              if (noteSpacePositions.includes('bottom')) {
+                newHeight += (height * noteSpaceWidth / 100);
+                contentY = (height * noteSpaceWidth / 100);
               }
               
-              // Draw the rectangle
-              newPage.drawRectangle({
-                x,
-                y,
-                width: rectWidth,
-                height: rectHeight,
-                color: rgb(rgbColor.r, rgbColor.g, rgbColor.b)
+              // Create a new blank page with the new dimensions
+              const newPage = modifiedPreviewDoc.addPage([newWidth, newHeight]);
+              
+              // Embed the original page content
+              const embeddedPage = await modifiedPreviewDoc.embedPage(originalPage);
+              
+              // Draw the embedded page at the correct position
+              newPage.drawPage(embeddedPage, {
+                x: contentX,
+                y: contentY
               });
-
-              // Draw the note pattern if specified
-              if (notePattern !== 'none') {
-                const noteSpaceRect = { x, y, width: rectWidth, height: rectHeight };
-                const spacing = notePattern === 'lines' ? lineSpacing : notePattern === 'grid' ? gridSpacing : dotSpacing;
-                drawNotePattern(newPage, noteSpaceRect, notePattern, spacing);
+              
+              // Apply color and patterns to all note spaces
+              const color = colorOption === 'custom' ? customColor : '#ffffff';
+              const rgbColor = hexToRgb(color);
+              if (rgbColor) {
+                // Instead of drawing separate rectangles, fill the entire note space area
+                // This ensures no gaps in intersections
+                
+                // Fill left note space (if selected)
+                if (noteSpacePositions.includes('left')) {
+                  const x = 0;
+                  const y = 0;
+                  const rectWidth = (width * noteSpaceWidth / 100);
+                  const rectHeight = newHeight;
+                  
+                  newPage.drawRectangle({
+                    x,
+                    y,
+                    width: rectWidth,
+                    height: rectHeight,
+                    color: rgb(rgbColor.r, rgbColor.g, rgbColor.b)
+                  });
+                }
+                
+                // Fill right note space (if selected)
+                if (noteSpacePositions.includes('right')) {
+                  const x = contentX + width;
+                  const y = 0;
+                  const rectWidth = (width * noteSpaceWidth / 100);
+                  const rectHeight = newHeight;
+                  
+                  newPage.drawRectangle({
+                    x,
+                    y,
+                    width: rectWidth,
+                    height: rectHeight,
+                    color: rgb(rgbColor.r, rgbColor.g, rgbColor.b)
+                  });
+                }
+                
+                // Fill top note space (if selected)
+                if (noteSpacePositions.includes('top')) {
+                  const x = contentX;
+                  const y = contentY + height;
+                  const rectWidth = width;
+                  const rectHeight = (height * noteSpaceWidth / 100);
+                  
+                  newPage.drawRectangle({
+                    x,
+                    y,
+                    width: rectWidth,
+                    height: rectHeight,
+                    color: rgb(rgbColor.r, rgbColor.g, rgbColor.b)
+                  });
+                }
+                
+                // Fill bottom note space (if selected)
+                if (noteSpacePositions.includes('bottom')) {
+                  const x = contentX;
+                  const y = 0;
+                  const rectWidth = width;
+                  const rectHeight = (height * noteSpaceWidth / 100);
+                  
+                  newPage.drawRectangle({
+                    x,
+                    y,
+                    width: rectWidth,
+                    height: rectHeight,
+                    color: rgb(rgbColor.r, rgbColor.g, rgbColor.b)
+                  });
+                }
+                
+                // Draw proper seamless patterns by filling the entire note space area
+                if (notePattern !== 'none') {
+                  const spacing = notePattern === 'lines' ? lineSpacing : notePattern === 'grid' ? gridSpacing : dotSpacing;
+                  
+                  if (notePattern === 'lines') {
+                    // Draw horizontal lines that span the entire note space area
+                    for (let lineY = 0; lineY <= newHeight; lineY += spacing) {
+                      // Only draw if this line intersects with note space areas
+                      if (lineY < contentY || lineY >= contentY + height) {
+                        // This line is in top or bottom note space - draw full width
+                        newPage.drawLine({
+                          start: { x: 0, y: lineY },
+                          end: { x: newWidth, y: lineY },
+                          thickness: 0.5,
+                          color: rgb(0.7, 0.7, 0.7)
+                        });
+                      } else {
+                        // This line is at the same height as the PDF content
+                        // Draw left note space line
+                        if (noteSpacePositions.includes('left')) {
+                          newPage.drawLine({
+                            start: { x: 0, y: lineY },
+                            end: { x: contentX, y: lineY },
+                            thickness: 0.5,
+                            color: rgb(0.7, 0.7, 0.7)
+                          });
+                        }
+                        // Draw right note space line
+                        if (noteSpacePositions.includes('right')) {
+                          newPage.drawLine({
+                            start: { x: contentX + width, y: lineY },
+                            end: { x: newWidth, y: lineY },
+                            thickness: 0.5,
+                            color: rgb(0.7, 0.7, 0.7)
+                          });
+                        }
+                      }
+                    }
+                  } else if (notePattern === 'grid') {
+                    // Draw horizontal lines
+                    for (let lineY = 0; lineY <= newHeight; lineY += spacing) {
+                      if (lineY < contentY || lineY >= contentY + height) {
+                        // Full width line for top/bottom note spaces
+                        newPage.drawLine({
+                          start: { x: 0, y: lineY },
+                          end: { x: newWidth, y: lineY },
+                          thickness: 0.5,
+                          color: rgb(0.7, 0.7, 0.7)
+                        });
+                      } else {
+                        // Split line for left/right note spaces
+                        if (noteSpacePositions.includes('left')) {
+                          newPage.drawLine({
+                            start: { x: 0, y: lineY },
+                            end: { x: contentX, y: lineY },
+                            thickness: 0.5,
+                            color: rgb(0.7, 0.7, 0.7)
+                          });
+                        }
+                        if (noteSpacePositions.includes('right')) {
+                          newPage.drawLine({
+                            start: { x: contentX + width, y: lineY },
+                            end: { x: newWidth, y: lineY },
+                            thickness: 0.5,
+                            color: rgb(0.7, 0.7, 0.7)
+                          });
+                        }
+                      }
+                    }
+                    
+                    // Draw vertical lines
+                    for (let lineX = 0; lineX <= newWidth; lineX += spacing) {
+                      if (lineX < contentX || lineX >= contentX + width) {
+                        // Full height line for left/right note spaces
+                        newPage.drawLine({
+                          start: { x: lineX, y: 0 },
+                          end: { x: lineX, y: newHeight },
+                          thickness: 0.5,
+                          color: rgb(0.7, 0.7, 0.7)
+                        });
+                      } else {
+                        // Split line for top/bottom note spaces
+                        if (noteSpacePositions.includes('bottom')) {
+                          newPage.drawLine({
+                            start: { x: lineX, y: 0 },
+                            end: { x: lineX, y: contentY },
+                            thickness: 0.5,
+                            color: rgb(0.7, 0.7, 0.7)
+                          });
+                        }
+                        if (noteSpacePositions.includes('top')) {
+                          newPage.drawLine({
+                            start: { x: lineX, y: contentY + height },
+                            end: { x: lineX, y: newHeight },
+                            thickness: 0.5,
+                            color: rgb(0.7, 0.7, 0.7)
+                          });
+                        }
+                      }
+                    }
+                  } else if (notePattern === 'dots') {
+                    // Draw dots in a grid pattern across the entire note space area
+                    for (let dotY = 0; dotY <= newHeight; dotY += spacing) {
+                      for (let dotX = 0; dotX <= newWidth; dotX += spacing) {
+                        // Skip dots that would be inside the PDF content area
+                        if (dotX >= contentX && dotX < contentX + width && 
+                            dotY >= contentY && dotY < contentY + height) {
+                          continue;
+                        }
+                        
+                        newPage.drawCircle({
+                          x: dotX,
+                          y: dotY,
+                          size: 1,
+                          color: rgb(0.7, 0.7, 0.7)
+                        });
+                      }
+                    }
+                  }
+                }
               }
-            }
           } else {
             // If no note space is needed, just copy the original page
             const [page] = await modifiedPreviewDoc.copyPages(originalPdfDoc, [i]);
@@ -334,7 +475,7 @@ export default function Home() {
         }
       }
     };
-  }, [file, noteSpaceWidth, colorOption, customColor, noteSpacePosition, notePattern, lineSpacing, gridSpacing, dotSpacing]);
+  }, [file, noteSpaceWidth, colorOption, customColor, noteSpacePosition, noteSpacePositions, notePattern, lineSpacing, gridSpacing, dotSpacing]);
 
   // Download functionality
   const handleDownload = async () => {
@@ -365,19 +506,26 @@ export default function Home() {
         
         // If noteSpaceWidth is provided, create a new page with extended dimensions
         if (noteSpaceWidth > 0) {
-          // Calculate actual note space width in points based on percentage
-          const actualNoteSpaceWidth = noteSpacePosition === 'right' || noteSpacePosition === 'left' 
-            ? (width * noteSpaceWidth / 100) 
-            : (height * noteSpaceWidth / 100);
-          
-          // Calculate new dimensions based on position
+          // Calculate new dimensions based on all selected positions
           let newWidth = width;
           let newHeight = height;
+          let contentX = 0;
+          let contentY = 0;
           
-          if (noteSpacePosition === 'right' || noteSpacePosition === 'left') {
-            newWidth = width + actualNoteSpaceWidth;
-          } else { // top or bottom
-            newHeight = height + actualNoteSpaceWidth;
+          // Calculate total space needed for all positions
+          if (noteSpacePositions.includes('right')) {
+            newWidth += (width * noteSpaceWidth / 100);
+          }
+          if (noteSpacePositions.includes('left')) {
+            newWidth += (width * noteSpaceWidth / 100);
+            contentX = (width * noteSpaceWidth / 100);
+          }
+          if (noteSpacePositions.includes('top')) {
+            newHeight += (height * noteSpaceWidth / 100);
+          }
+          if (noteSpacePositions.includes('bottom')) {
+            newHeight += (height * noteSpaceWidth / 100);
+            contentY = (height * noteSpaceWidth / 100);
           }
           
           // Create a new blank page with the new dimensions
@@ -386,72 +534,203 @@ export default function Home() {
           // Embed the original page content
           const embeddedPage = await modifiedPdfDoc.embedPage(originalPage);
           
-          // Calculate position for the embedded content
-          let contentX = 0;
-          let contentY = 0;
-          
-          if (noteSpacePosition === 'left') {
-            contentX = actualNoteSpaceWidth;
-          } else if (noteSpacePosition === 'bottom') {
-            contentY = actualNoteSpaceWidth;
-          }
-          
           // Draw the embedded page at the correct position
           newPage.drawPage(embeddedPage, {
             x: contentX,
             y: contentY
           });
           
-          // Apply color to the note space
+          // Apply color and patterns to all note spaces
           const color = colorOption === 'custom' ? customColor : '#ffffff';
           const rgbColor = hexToRgb(color);
           if (rgbColor) {
-            // Position the rectangle based on the selected position
-            let x = 0, y = 0;
-            let rectWidth = 0, rectHeight = 0;
+            // Instead of drawing separate rectangles, fill the entire note space area
+            // This ensures no gaps in intersections
             
-            switch (noteSpacePosition) {
-              case 'right':
-                x = width;
-                y = 0;
-                rectWidth = actualNoteSpaceWidth;
-                rectHeight = height;
-                break;
-              case 'left':
-                x = 0;
-                y = 0;
-                rectWidth = actualNoteSpaceWidth;
-                rectHeight = height;
-                break;
-              case 'top':
-                x = 0;
-                y = height;
-                rectWidth = width;
-                rectHeight = actualNoteSpaceWidth;
-                break;
-              case 'bottom':
-                x = 0;
-                y = 0;
-                rectWidth = width;
-                rectHeight = actualNoteSpaceWidth;
-                break;
+            // Fill left note space (if selected)
+            if (noteSpacePositions.includes('left')) {
+              const x = 0;
+              const y = 0;
+              const rectWidth = (width * noteSpaceWidth / 100);
+              const rectHeight = newHeight;
+              
+              newPage.drawRectangle({
+                x,
+                y,
+                width: rectWidth,
+                height: rectHeight,
+                color: rgb(rgbColor.r, rgbColor.g, rgbColor.b)
+              });
             }
             
-            // Draw the colored rectangle
-            newPage.drawRectangle({
-              x,
-              y,
-              width: rectWidth,
-              height: rectHeight,
-              color: rgb(rgbColor.r, rgbColor.g, rgbColor.b)
-            });
-
-            // Draw the note pattern if specified
+            // Fill right note space (if selected)
+            if (noteSpacePositions.includes('right')) {
+              const x = contentX + width;
+              const y = 0;
+              const rectWidth = (width * noteSpaceWidth / 100);
+              const rectHeight = newHeight;
+              
+              newPage.drawRectangle({
+                x,
+                y,
+                width: rectWidth,
+                height: rectHeight,
+                color: rgb(rgbColor.r, rgbColor.g, rgbColor.b)
+              });
+            }
+            
+            // Fill top note space (if selected)
+            if (noteSpacePositions.includes('top')) {
+              const x = contentX;
+              const y = contentY + height;
+              const rectWidth = width;
+              const rectHeight = (height * noteSpaceWidth / 100);
+              
+              newPage.drawRectangle({
+                x,
+                y,
+                width: rectWidth,
+                height: rectHeight,
+                color: rgb(rgbColor.r, rgbColor.g, rgbColor.b)
+              });
+            }
+            
+            // Fill bottom note space (if selected)
+            if (noteSpacePositions.includes('bottom')) {
+              const x = contentX;
+              const y = 0;
+              const rectWidth = width;
+              const rectHeight = (height * noteSpaceWidth / 100);
+              
+              newPage.drawRectangle({
+                x,
+                y,
+                width: rectWidth,
+                height: rectHeight,
+                color: rgb(rgbColor.r, rgbColor.g, rgbColor.b)
+              });
+            }
+            
+            // Draw proper seamless patterns by filling the entire note space area
             if (notePattern !== 'none') {
-              const noteSpaceRect = { x, y, width: rectWidth, height: rectHeight };
               const spacing = notePattern === 'lines' ? lineSpacing : notePattern === 'grid' ? gridSpacing : dotSpacing;
-              drawNotePattern(newPage, noteSpaceRect, notePattern, spacing);
-            }
+              
+              if (notePattern === 'lines') {
+                // Draw horizontal lines that span the entire note space area
+                for (let lineY = 0; lineY <= newHeight; lineY += spacing) {
+                  // Only draw if this line intersects with note space areas
+                  if (lineY < contentY || lineY >= contentY + height) {
+                    // This line is in top or bottom note space - draw full width
+                    newPage.drawLine({
+                      start: { x: 0, y: lineY },
+                      end: { x: newWidth, y: lineY },
+                      thickness: 0.5,
+                      color: rgb(0.7, 0.7, 0.7)
+                    });
+                  } else {
+                    // This line is at the same height as the PDF content
+                    // Draw left note space line
+                    if (noteSpacePositions.includes('left')) {
+                      newPage.drawLine({
+                        start: { x: 0, y: lineY },
+                        end: { x: contentX, y: lineY },
+                        thickness: 0.5,
+                        color: rgb(0.7, 0.7, 0.7)
+                      });
+                    }
+                    // Draw right note space line
+                    if (noteSpacePositions.includes('right')) {
+                      newPage.drawLine({
+                        start: { x: contentX + width, y: lineY },
+                        end: { x: newWidth, y: lineY },
+                        thickness: 0.5,
+                        color: rgb(0.7, 0.7, 0.7)
+                      });
+                    }
+                  }
+                }
+              } else if (notePattern === 'grid') {
+                // Draw horizontal lines
+                for (let lineY = 0; lineY <= newHeight; lineY += spacing) {
+                  if (lineY < contentY || lineY >= contentY + height) {
+                    // Full width line for top/bottom note spaces
+                    newPage.drawLine({
+                      start: { x: 0, y: lineY },
+                      end: { x: newWidth, y: lineY },
+                      thickness: 0.5,
+                      color: rgb(0.7, 0.7, 0.7)
+                    });
+                  } else {
+                    // Split line for left/right note spaces
+                    if (noteSpacePositions.includes('left')) {
+                      newPage.drawLine({
+                        start: { x: 0, y: lineY },
+                        end: { x: contentX, y: lineY },
+                        thickness: 0.5,
+                        color: rgb(0.7, 0.7, 0.7)
+                      });
+                    }
+                    if (noteSpacePositions.includes('right')) {
+                      newPage.drawLine({
+                        start: { x: contentX + width, y: lineY },
+                        end: { x: newWidth, y: lineY },
+                        thickness: 0.5,
+                        color: rgb(0.7, 0.7, 0.7)
+                      });
+                    }
+                  }
+                }
+                
+                // Draw vertical lines
+                for (let lineX = 0; lineX <= newWidth; lineX += spacing) {
+                  if (lineX < contentX || lineX >= contentX + width) {
+                    // Full height line for left/right note spaces
+                    newPage.drawLine({
+                      start: { x: lineX, y: 0 },
+                      end: { x: lineX, y: newHeight },
+                      thickness: 0.5,
+                      color: rgb(0.7, 0.7, 0.7)
+                    });
+                  } else {
+                    // Split line for top/bottom note spaces
+                    if (noteSpacePositions.includes('bottom')) {
+                      newPage.drawLine({
+                        start: { x: lineX, y: 0 },
+                        end: { x: lineX, y: contentY },
+                        thickness: 0.5,
+                        color: rgb(0.7, 0.7, 0.7)
+                      });
+                    }
+                    if (noteSpacePositions.includes('top')) {
+                      newPage.drawLine({
+                        start: { x: lineX, y: contentY + height },
+                        end: { x: lineX, y: newHeight },
+                        thickness: 0.5,
+                        color: rgb(0.7, 0.7, 0.7)
+                      });
+                        }
+                      }
+                    }
+                  } else if (notePattern === 'dots') {
+                    // Draw dots in a grid pattern across the entire note space area
+                    for (let dotY = 0; dotY <= newHeight; dotY += spacing) {
+                      for (let dotX = 0; dotX <= newWidth; dotX += spacing) {
+                        // Skip dots that would be inside the PDF content area
+                        if (dotX >= contentX && dotX < contentX + width && 
+                            dotY >= contentY && dotY < contentY + height) {
+                          continue;
+                        }
+                        
+                        newPage.drawCircle({
+                          x: dotX,
+                          y: dotY,
+                          size: 1,
+                          color: rgb(0.7, 0.7, 0.7)
+                        });
+                      }
+                    }
+                  }
+                }
           }
         } else {
           // If no note space is needed, just copy the original page
@@ -773,6 +1052,8 @@ export default function Home() {
             setGridSpacing={setGridSpacing}
             dotSpacing={dotSpacing}
             setDotSpacing={setDotSpacing}
+            noteSpacePositions={noteSpacePositions}
+            setNoteSpacePositions={setNoteSpacePositions}
           />
         </GreenContentWrapper>
         

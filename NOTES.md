@@ -19,6 +19,7 @@ PDFextend is a web application that allows users to add note space to PDF docume
   - L: 600px
   - XL: 800px
 - **Mobile View**: Automatically reduces to 60px on mobile devices (screens < 768px)
+- **Multi-Side Support**: Choose one or multiple sides (left, right, top, bottom) for note space
 - **Patterns**: Optional note-taking patterns including lines, grid, and dots
 - **Spacing Options**: Configurable spacing for patterns (10pt, 15pt, 20pt, 25pt, 30pt)
 

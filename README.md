@@ -13,6 +13,7 @@ A modern web application for manipulating PDF files directly in your browser.
   - Add spacing between pages
 - **Note Space Customization**:
   - Add note space to any side (left, right, top, bottom)
+  - Combine multiple sides (e.g., left + right, top + bottom)
   - Customize width and color
   - Add helpful patterns (lines, grid, dots) for better note-taking
 - **PDF Download**: Download your modified PDFs
