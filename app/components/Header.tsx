@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { FaFileAlt } from 'react-icons/fa';
 import './Header.css';
 
@@ -28,6 +29,13 @@ const Header: React.FC = () => {
             Add note space to your PDFs easily
           </div>
         </div>
+        
+        {/* Navigation */}
+        <nav className="nav-container">
+          <Link href="/changelog" className="nav-link">
+            Changelog
+          </Link>
+        </nav>
       </div>
     </div>
   );

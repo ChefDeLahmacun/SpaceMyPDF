@@ -112,6 +112,8 @@ const Features: React.FC = () => {
           screenSize={screenSize}
         />
       </div>
+      
+
     </div>
   );
 };
