@@ -19,6 +19,9 @@ export default function Home() {
   const { trackEvent } = useAnalytics();
   const [file, setFile] = useState<File | null>(null);
   const [noteSpaceWidth, setNoteSpaceWidth] = useState(70);
+  const [horizontalNoteSpaceWidth, setHorizontalNoteSpaceWidth] = useState(70); // For left/right note spaces
+  const [verticalNoteSpaceWidth, setVerticalNoteSpaceWidth] = useState(70); // For top/bottom note spaces
+  const [useSeparateWidths, setUseSeparateWidths] = useState(false); // Toggle for separate width controls
   const [outputFileName, setOutputFileName] = useState('');
   const [baseFileName, setBaseFileName] = useState('');
   const [includeWithNotes, setIncludeWithNotes] = useState(false);
@@ -203,20 +206,24 @@ export default function Home() {
               let contentX = 0;
               let contentY = 0;
               
+              // Use separate widths if enabled and multiple sides are selected
+              const leftRightWidth = useSeparateWidths ? horizontalNoteSpaceWidth : noteSpaceWidth;
+              const topBottomWidth = useSeparateWidths ? verticalNoteSpaceWidth : noteSpaceWidth;
+              
               // Calculate total space needed for all positions
               if (noteSpacePositions.includes('right')) {
-                newWidth += (width * noteSpaceWidth / 100);
+                newWidth += (width * leftRightWidth / 100);
               }
               if (noteSpacePositions.includes('left')) {
-                newWidth += (width * noteSpaceWidth / 100);
-                contentX = (width * noteSpaceWidth / 100);
+                newWidth += (width * leftRightWidth / 100);
+                contentX = (width * leftRightWidth / 100);
               }
               if (noteSpacePositions.includes('top')) {
-                newHeight += (height * noteSpaceWidth / 100);
+                newHeight += (height * topBottomWidth / 100);
               }
               if (noteSpacePositions.includes('bottom')) {
-                newHeight += (height * noteSpaceWidth / 100);
-                contentY = (height * noteSpaceWidth / 100);
+                newHeight += (height * topBottomWidth / 100);
+                contentY = (height * topBottomWidth / 100);
               }
               
               // Create a new blank page with the new dimensions
@@ -242,7 +249,7 @@ export default function Home() {
                 if (noteSpacePositions.includes('left')) {
                   const x = 0;
                   const y = 0;
-                  const rectWidth = (width * noteSpaceWidth / 100);
+                  const rectWidth = (width * leftRightWidth / 100);
                   const rectHeight = newHeight;
                   
                   newPage.drawRectangle({
@@ -258,7 +265,7 @@ export default function Home() {
                 if (noteSpacePositions.includes('right')) {
                   const x = contentX + width;
                   const y = 0;
-                  const rectWidth = (width * noteSpaceWidth / 100);
+                  const rectWidth = (width * leftRightWidth / 100);
                   const rectHeight = newHeight;
                   
                   newPage.drawRectangle({
@@ -275,7 +282,7 @@ export default function Home() {
                   const x = contentX;
                   const y = contentY + height;
                   const rectWidth = width;
-                  const rectHeight = (height * noteSpaceWidth / 100);
+                  const rectHeight = (height * topBottomWidth / 100);
                   
                   newPage.drawRectangle({
                     x,
@@ -291,7 +298,7 @@ export default function Home() {
                   const x = contentX;
                   const y = 0;
                   const rectWidth = width;
-                  const rectHeight = (height * noteSpaceWidth / 100);
+                  const rectHeight = (height * topBottomWidth / 100);
                   
                   newPage.drawRectangle({
                     x,
@@ -475,7 +482,7 @@ export default function Home() {
         }
       }
     };
-  }, [file, noteSpaceWidth, colorOption, customColor, noteSpacePosition, noteSpacePositions, notePattern, lineSpacing, gridSpacing, dotSpacing]);
+  }, [file, noteSpaceWidth, colorOption, customColor, noteSpacePosition, noteSpacePositions, notePattern, lineSpacing, gridSpacing, dotSpacing, useSeparateWidths, horizontalNoteSpaceWidth, verticalNoteSpaceWidth]);
 
   // Download functionality
   const handleDownload = async () => {
@@ -512,20 +519,24 @@ export default function Home() {
           let contentX = 0;
           let contentY = 0;
           
+          // Use separate widths if enabled and multiple sides are selected
+          const leftRightWidth = useSeparateWidths ? horizontalNoteSpaceWidth : noteSpaceWidth;
+          const topBottomWidth = useSeparateWidths ? verticalNoteSpaceWidth : noteSpaceWidth;
+          
           // Calculate total space needed for all positions
           if (noteSpacePositions.includes('right')) {
-            newWidth += (width * noteSpaceWidth / 100);
+            newWidth += (width * leftRightWidth / 100);
           }
           if (noteSpacePositions.includes('left')) {
-            newWidth += (width * noteSpaceWidth / 100);
-            contentX = (width * noteSpaceWidth / 100);
+            newWidth += (width * leftRightWidth / 100);
+            contentX = (width * leftRightWidth / 100);
           }
           if (noteSpacePositions.includes('top')) {
-            newHeight += (height * noteSpaceWidth / 100);
+            newHeight += (height * topBottomWidth / 100);
           }
           if (noteSpacePositions.includes('bottom')) {
-            newHeight += (height * noteSpaceWidth / 100);
-            contentY = (height * noteSpaceWidth / 100);
+            newHeight += (height * topBottomWidth / 100);
+            contentY = (height * topBottomWidth / 100);
           }
           
           // Create a new blank page with the new dimensions
@@ -551,7 +562,7 @@ export default function Home() {
             if (noteSpacePositions.includes('left')) {
               const x = 0;
               const y = 0;
-              const rectWidth = (width * noteSpaceWidth / 100);
+              const rectWidth = (width * leftRightWidth / 100);
               const rectHeight = newHeight;
               
               newPage.drawRectangle({
@@ -567,7 +578,7 @@ export default function Home() {
             if (noteSpacePositions.includes('right')) {
               const x = contentX + width;
               const y = 0;
-              const rectWidth = (width * noteSpaceWidth / 100);
+              const rectWidth = (width * leftRightWidth / 100);
               const rectHeight = newHeight;
               
               newPage.drawRectangle({
@@ -584,7 +595,7 @@ export default function Home() {
               const x = contentX;
               const y = contentY + height;
               const rectWidth = width;
-              const rectHeight = (height * noteSpaceWidth / 100);
+              const rectHeight = (height * topBottomWidth / 100);
               
               newPage.drawRectangle({
                 x,
@@ -600,7 +611,7 @@ export default function Home() {
               const x = contentX;
               const y = 0;
               const rectWidth = width;
-              const rectHeight = (height * noteSpaceWidth / 100);
+              const rectHeight = (height * topBottomWidth / 100);
               
               newPage.drawRectangle({
                 x,
@@ -1024,6 +1035,12 @@ export default function Home() {
             file={file}
             noteSpaceWidth={noteSpaceWidth}
             setNoteSpaceWidth={setNoteSpaceWidth}
+            horizontalNoteSpaceWidth={horizontalNoteSpaceWidth}
+            setHorizontalNoteSpaceWidth={setHorizontalNoteSpaceWidth}
+            verticalNoteSpaceWidth={verticalNoteSpaceWidth}
+            setVerticalNoteSpaceWidth={setVerticalNoteSpaceWidth}
+            useSeparateWidths={useSeparateWidths}
+            setUseSeparateWidths={setUseSeparateWidths}
             noteSpacePosition={noteSpacePosition}
             setNoteSpacePosition={setNoteSpacePosition}
             colorOption={colorOption}

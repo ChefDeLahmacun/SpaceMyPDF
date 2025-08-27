@@ -7,8 +7,11 @@ const nextConfig = {
         protocol: 'https',
         hostname: '**',
       },
+      {
+        protocol: 'https',
+        hostname: 'www.spacemypdf.com',
+      },
     ],
-    domains: ['www.spacemypdf.com'],
     formats: ['image/avif', 'image/webp'],
   },
   experimental: {
@@ -68,13 +71,7 @@ const nextConfig = {
     return config;
   },
   // Add compression
-  compress: true,
-  // Add PWA support
-  pwa: {
-    dest: 'public',
-    register: true,
-    skipWaiting: true,
-  }
+  compress: true
 }
 
 module.exports = nextConfig 

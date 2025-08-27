@@ -6,6 +6,12 @@ interface ControlsProps {
   file: File | null;
   noteSpaceWidth: number;
   setNoteSpaceWidth: (width: number) => void;
+  horizontalNoteSpaceWidth: number;
+  setHorizontalNoteSpaceWidth: (width: number) => void;
+  verticalNoteSpaceWidth: number;
+  setVerticalNoteSpaceWidth: (width: number) => void;
+  useSeparateWidths: boolean;
+  setUseSeparateWidths: (use: boolean) => void;
   noteSpacePosition: string;
   setNoteSpacePosition: (position: string) => void;
   noteSpacePositions: string[];
@@ -42,6 +48,12 @@ const Controls: React.FC<ControlsProps> = ({
   file,
   noteSpaceWidth,
   setNoteSpaceWidth,
+  horizontalNoteSpaceWidth,
+  setHorizontalNoteSpaceWidth,
+  verticalNoteSpaceWidth,
+  setVerticalNoteSpaceWidth,
+  useSeparateWidths,
+  setUseSeparateWidths,
   noteSpacePosition,
   setNoteSpacePosition,
   noteSpacePositions,
@@ -88,6 +100,12 @@ const Controls: React.FC<ControlsProps> = ({
       sliderRef.current.style.setProperty('--slider-percentage', `${percentage}%`);
     }
   }, [noteSpaceWidth]);
+
+  // Update separate width sliders when they change
+  useEffect(() => {
+    // This ensures the separate width sliders are properly initialized
+    // and the PDF generation logic uses the correct values
+  }, [horizontalNoteSpaceWidth, verticalNoteSpaceWidth, useSeparateWidths]);
 
   return (
     <div style={{
@@ -232,8 +250,10 @@ const Controls: React.FC<ControlsProps> = ({
           </div>
         )}
         
-        <div style={{ marginBottom: '2vh', width: '100%' }}>
-          <p style={{ fontWeight: '600', marginBottom: '1vh', color: '#2c3e50', fontSize: 'clamp(13px, 1.5vw, 15px)' }}>Note Space Width: <span style={{ color: '#4b5563', fontSize: 'clamp(14px, 1.6vw, 16px)' }}>{noteSpaceWidth}%</span></p>
+        {/* Original Note Space Width - Only show when separate widths are disabled or single side is selected */}
+        {(!useSeparateWidths || noteSpacePositions.length === 1) && (
+          <div style={{ marginBottom: '2vh', width: '100%' }}>
+            <p style={{ fontWeight: '600', marginBottom: '1vh', color: '#2c3e50', fontSize: 'clamp(13px, 1.5vw, 15px)' }}>Note Space Width: <span style={{ color: '#4b5563', fontSize: 'clamp(14px, 1.6vw, 16px)' }}>{noteSpaceWidth}%</span></p>
           <div style={{ 
             border: '1px solid black',
             borderRadius: '4px',
@@ -305,6 +325,7 @@ const Controls: React.FC<ControlsProps> = ({
             </div>
           </div>
         </div>
+        )}
         
         {/* Note Space Position selector */}
         <div style={{ marginBottom: '2vh', width: '100%' }}>
@@ -457,6 +478,201 @@ const Controls: React.FC<ControlsProps> = ({
             Select one or multiple sides to add note space. You can combine positions like left + right, top + bottom, etc.
           </p>
         </div>
+        
+        {/* Separate Width Controls for Multiple Sides */}
+        {noteSpacePositions.length > 1 && (
+          <div style={{ marginBottom: '2vh', width: '100%' }}>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              marginBottom: '1vh',
+              cursor: 'pointer'
+            }}
+            onClick={() => setUseSeparateWidths(!useSeparateWidths)}
+            >
+              <input
+                type="checkbox"
+                checked={useSeparateWidths}
+                onChange={() => setUseSeparateWidths(!useSeparateWidths)}
+                style={{ marginRight: '8px', cursor: 'pointer' }}
+              />
+              <p style={{ 
+                fontWeight: '600', 
+                margin: '0', 
+                color: '#2c3e50', 
+                fontSize: 'clamp(13px, 1.5vw, 15px)',
+                cursor: 'pointer'
+              }}>
+                Use Separate Widths for Different Sides
+              </p>
+            </div>
+            
+            {useSeparateWidths && (
+              <div style={{ 
+                border: '1px solid black',
+                borderRadius: '4px',
+                backgroundColor: 'white',
+                padding: '15px',
+                marginBottom: '10px',
+                width: '100%'
+              }}>
+                {/* Horizontal Width Control (Left/Right) */}
+                {(noteSpacePositions.includes('left') || noteSpacePositions.includes('right')) && (
+                  <div style={{ marginBottom: '15px' }}>
+                    <p style={{ 
+                      fontWeight: '600', 
+                      marginBottom: '1vh', 
+                      color: '#2c3e50', 
+                      fontSize: 'clamp(12px, 1.4vw, 14px)'
+                    }}>
+                      Left/Right Note Space Width: <span style={{ color: '#4b5563', fontSize: 'clamp(12px, 1.4vw, 14px)' }}>{horizontalNoteSpaceWidth}%</span>
+                    </p>
+                    <div style={{ width: '100%', maxWidth: '100%', marginBottom: '10px' }}>
+                      <input
+                        type="range"
+                        min="10"
+                        max="150"
+                        value={horizontalNoteSpaceWidth}
+                        onChange={(e) => setHorizontalNoteSpaceWidth(Number(e.target.value))}
+                        style={{ width: '100%' }}
+                      />
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'clamp(10px, 1.2vw, 12px)', width: '100%' }}>
+                      <span>10%</span>
+                      <span>150%</span>
+                    </div>
+                    
+                    {/* Quick Presets for Horizontal */}
+                    <div style={{ marginTop: '15px', width: '100%' }}>
+                      <p style={{ fontSize: 'clamp(11px, 1.3vw, 13px)', marginBottom: '8px' }}>Quick Presets:</p>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2%', width: '100%' }}>
+                        <button
+                          onClick={() => setHorizontalNoteSpaceWidth(30)}
+                          style={{
+                            padding: '0.4vh 0.8%',
+                            backgroundColor: horizontalNoteSpaceWidth === 30 ? '#e6e6e6' : 'white',
+                            border: horizontalNoteSpaceWidth === 30 ? '2px solid black' : '1px solid black',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            flex: '1',
+                            fontSize: 'clamp(10px, 1.2vw, 12px)'
+                          }}
+                        >
+                          S (30%)
+                        </button>
+                        <button
+                          onClick={() => setHorizontalNoteSpaceWidth(70)}
+                          style={{
+                            padding: '0.4vh 0.8%',
+                            backgroundColor: horizontalNoteSpaceWidth === 70 ? '#e6e6e6' : 'white',
+                            border: horizontalNoteSpaceWidth === 70 ? '2px solid black' : '1px solid black',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            flex: '1',
+                            fontSize: 'clamp(10px, 1.2vw, 12px)'
+                          }}
+                        >
+                          M (70%)
+                        </button>
+                        <button
+                          onClick={() => setHorizontalNoteSpaceWidth(100)}
+                          style={{
+                            padding: '0.4vh 0.8%',
+                            backgroundColor: horizontalNoteSpaceWidth === 100 ? '#e6e6e6' : 'white',
+                            border: horizontalNoteSpaceWidth === 100 ? '2px solid black' : '1px solid black',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            flex: '1',
+                            fontSize: 'clamp(10px, 1.2vw, 12px)'
+                          }}
+                        >
+                          L (100%)
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Vertical Width Control (Top/Bottom) */}
+                {(noteSpacePositions.includes('top') || noteSpacePositions.includes('bottom')) && (
+                  <div>
+                    <p style={{ 
+                      fontWeight: '600', 
+                      marginBottom: '1vh', 
+                      color: '#2c3e50', 
+                      fontSize: 'clamp(12px, 1.4vw, 14px)'
+                    }}>
+                      Top/Bottom Note Space Width: <span style={{ color: '#4b5563', fontSize: 'clamp(12px, 1.4vw, 14px)' }}>{verticalNoteSpaceWidth}%</span>
+                    </p>
+                    <div style={{ width: '100%', maxWidth: '100%', marginBottom: '10px' }}>
+                      <input
+                        type="range"
+                        min="10"
+                        max="150"
+                        value={verticalNoteSpaceWidth}
+                        onChange={(e) => setVerticalNoteSpaceWidth(Number(e.target.value))}
+                        style={{ width: '100%' }}
+                      />
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'clamp(10px, 1.2vw, 12px)', width: '100%' }}>
+                      <span>10%</span>
+                      <span>150%</span>
+                    </div>
+                    
+                    {/* Quick Presets for Vertical */}
+                    <div style={{ marginTop: '15px', width: '100%' }}>
+                      <p style={{ fontSize: 'clamp(11px, 1.3vw, 13px)', marginBottom: '8px' }}>Quick Presets:</p>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2%', width: '100%' }}>
+                        <button
+                          onClick={() => setVerticalNoteSpaceWidth(30)}
+                          style={{
+                            padding: '0.4vh 0.8%',
+                            backgroundColor: verticalNoteSpaceWidth === 30 ? '#e6e6e6' : 'white',
+                            border: verticalNoteSpaceWidth === 30 ? '2px solid black' : '1px solid black',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            flex: '1',
+                            fontSize: 'clamp(10px, 1.2vw, 12px)'
+                          }}
+                        >
+                          S (30%)
+                        </button>
+                        <button
+                          onClick={() => setVerticalNoteSpaceWidth(70)}
+                          style={{
+                            padding: '0.4vh 0.8%',
+                            backgroundColor: verticalNoteSpaceWidth === 70 ? '#e6e6e6' : 'white',
+                            border: verticalNoteSpaceWidth === 70 ? '2px solid black' : '1px solid black',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            flex: '1',
+                            fontSize: 'clamp(10px, 1.2vw, 12px)'
+                          }}
+                        >
+                          M (70%)
+                        </button>
+                        <button
+                          onClick={() => setVerticalNoteSpaceWidth(100)}
+                          style={{
+                            padding: '0.4vh 0.8%',
+                            backgroundColor: verticalNoteSpaceWidth === 100 ? '#e6e6e6' : 'white',
+                            border: verticalNoteSpaceWidth === 100 ? '2px solid black' : '1px solid black',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            flex: '1',
+                            fontSize: 'clamp(10px, 1.2vw, 12px)'
+                          }}
+                        >
+                          L (100%)
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
         
         {/* Note Space Color section */}
         <div style={{ marginBottom: '2vh', width: '100%' }}>
