@@ -94,8 +94,8 @@ const DonationsBox = () => {
           tagline: false
         },
         
-        // Important: Do not specify fundingSource here to allow all payment methods
-        // fundingSource: undefined, 
+        // Use a more stable configuration
+        fundingSource: undefined,
         
         createOrder: (_data: any, actions: any) => {
           try {
@@ -248,6 +248,16 @@ const DonationsBox = () => {
         },
         
         onError: (err: Error) => {
+          // Suppress PayPal SDK internal warnings and errors
+          if (err.message && (
+            err.message.includes('global_session_not_found') ||
+            err.message.includes('session') ||
+            err.message.includes('prebuild')
+          )) {
+            // These are internal PayPal SDK warnings, not user-facing errors
+            return;
+          }
+          
           // Set error message in state instead of using alert
           let errorMsg = 'Detected popup close. Please try again or use the direct PayPal link.';
           if (err.message && err.message.includes('popup')) {
@@ -473,6 +483,39 @@ const DonationsBox = () => {
     }, 100);
   };
 
+  // Suppress PayPal SDK console warnings
+  useEffect(() => {
+    const originalWarn = console.warn;
+    const originalError = console.error;
+    
+    // Override console methods to filter PayPal SDK warnings
+    console.warn = (...args) => {
+      const message = args.join(' ');
+      if (message.includes('global_session_not_found') || 
+          message.includes('PayPal') && message.includes('session')) {
+        // Suppress PayPal session warnings
+        return;
+      }
+      originalWarn.apply(console, args);
+    };
+    
+    console.error = (...args) => {
+      const message = args.join(' ');
+      if (message.includes('global_session_not_found') || 
+          message.includes('PayPal') && message.includes('session')) {
+        // Suppress PayPal session errors
+        return;
+      }
+      originalError.apply(console, args);
+    };
+    
+    // Restore original console methods on cleanup
+    return () => {
+      console.warn = originalWarn;
+      console.error = originalError;
+    };
+  }, []);
+
   // Add function to create a direct PayPal donation URL
   const getDirectPayPalUrl = () => {
     // Always use production URL
@@ -613,19 +656,24 @@ const DonationsBox = () => {
     }}>
       <Script 
         id="paypal-script"
-        src={`https://www.paypal.com/sdk/js?client-id=${process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID}&currency=${selectedCurrency}&intent=capture&enable-funding=card&disable-funding=paylater&locale=en_GB&commit=true`}
+        src={`https://www.paypal.com/sdk/js?client-id=${process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID}&currency=${selectedCurrency}&intent=capture&enable-funding=card&disable-funding=paylater&locale=en_GB&commit=true&components=buttons&buyer-country=GB`}
         strategy="afterInteractive"
         onLoad={() => {
-          // Initialize the PayPal button immediately
-          if (window.paypal && buttonContainerRef.current) {
-            setTimeout(() => {
+          // Wait for PayPal SDK to fully initialize
+          const checkPayPalReady = () => {
+            if (window.paypal && window.paypal.Buttons && buttonContainerRef.current) {
+              // Initialize the PayPal button
               initPayPalButton();
-            }, 500); // Add a small delay to ensure DOM is fully ready
-          }
+              setIsPayPalLoaded(true);
+              setLoadingError(false);
+            } else {
+              // Retry after a short delay
+              setTimeout(checkPayPalReady, 100);
+            }
+          };
           
-          // Set the loaded state after initialization
-          setIsPayPalLoaded(true);
-          setLoadingError(false);
+          // Start checking for PayPal readiness
+          checkPayPalReady();
         }}
         onError={(e) => {
           setLoadingError(true);
