@@ -1,79 +1,82 @@
-import React from 'react';
+'use client';
+
+import React, { useEffect } from 'react';
 import Link from 'next/link';
+import './changelog.css';
 
 export default function ChangelogPage() {
+  // Override body background for this page
+  useEffect(() => {
+    const originalBackground = document.body.style.background;
+    document.body.style.background = 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)';
+    
+    return () => {
+      document.body.style.background = originalBackground;
+    };
+  }, []);
+
   const changelogEntries = [
     {
-      version: "1.3.0",
-      date: "2024-12-19",
-      title: "Multiple Side Note Space with Separate Width Controls",
-      features: [
-        "Added ability to select multiple sides simultaneously (left, right, top, bottom)",
-        "Implemented separate width controls for horizontal (left/right) and vertical (top/bottom) note spaces",
-        "Added checkbox to optionally enable separate width controls when multiple sides are selected",
-        "Real-time preview updates when adjusting separate width sliders",
-        "Smart conditional rendering - controls only appear when relevant sides are selected",
-        "Quick preset buttons (S: 30%, M: 70%, L: 100%) for both horizontal and vertical sliders"
-      ],
-      improvements: [
-        "Enhanced user experience with immediate visual feedback",
-        "Cleaner interface - original slider is replaced when separate widths are enabled",
-        "Better note space customization for complex layouts"
-      ]
-    },
-    {
       version: "1.2.0",
-      date: "2024-12-19",
-      title: "Note Space Patterns and Multi-Side Support",
+      date: "27 August 2025",
+      title: "Multi-Side Note Space & Patterns",
       features: [
-        "Added note space patterns: lines, grid, and dots",
-        "Configurable spacing options for each pattern type",
-        "Multi-side note space selection (left, right, top, bottom combinations)",
-        "Automatic intersection handling for overlapping note spaces",
-        "Pattern alignment across multiple sides"
+        "Multi-side note space selection (left, right, top, bottom)",
+        "Separate width controls for horizontal and vertical sides",
+        "Note patterns: lines, grid, dots with configurable spacing",
+        "Smart intersection handling for overlapping note spaces",
+        "Real-time preview updates for all controls"
       ],
       improvements: [
         "Enhanced note-taking experience with visual guides",
         "Better space utilization with multiple side options",
-        "Professional-looking note spaces with customizable patterns"
+        "Professional note spaces with customizable patterns"
       ]
     },
     {
       version: "1.1.0",
-      date: "2024-12-19",
-      title: "Enhanced PDF Processing and UI",
+      date: "29 April 2025",
+      title: "Enhanced PDF Processing & SEO",
       features: [
-        "Improved PDF preview generation",
+        "Improved PDF preview generation and display",
         "Better error handling and user feedback",
         "Enhanced file upload experience",
-        "Responsive design improvements"
+        "SEO improvements and Google Search Console integration"
       ],
       improvements: [
-        "More stable PDF processing",
-        "Better user experience across different devices"
+        "More stable PDF processing across devices",
+        "Better search engine visibility and user experience"
       ]
     },
     {
       version: "1.0.0",
-      date: "2024-12-19",
+      date: "5 March 2025",
       title: "Initial Release - Core PDF Extension",
       features: [
-        "PDF upload and processing",
+        "PDF upload and client-side processing",
         "Basic note space addition (single side)",
-        "Note space width customization",
-        "Color customization for note spaces",
-        "PDF download with extended dimensions"
+        "Note space width and color customization",
+        "PDF download with extended dimensions",
+        "Responsive design for mobile and desktop"
       ],
       improvements: [
         "Client-side PDF processing for privacy",
-        "Simple and intuitive interface"
+        "Simple and intuitive interface design"
       ]
     }
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
-      <div className="container mx-auto px-4 py-8">
+    <div 
+      className="changelog-page"
+      style={{
+        background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
+        minHeight: '100vh',
+        position: 'relative',
+        zIndex: 10
+      }}
+    >
+      <div className="changelog-container container mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-800 mb-4">
@@ -98,7 +101,7 @@ export default function ChangelogPage() {
           {changelogEntries.map((entry, index) => (
             <div 
               key={entry.version}
-              className="bg-white rounded-xl shadow-lg p-8 border border-gray-100 hover:shadow-xl transition-shadow duration-300"
+              className="changelog-entry bg-white rounded-xl shadow-lg p-8 border border-gray-100 hover:shadow-xl transition-shadow duration-300"
             >
               {/* Version Header */}
               <div className="flex items-center justify-between mb-6">

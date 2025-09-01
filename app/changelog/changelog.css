@@ -1,0 +1,56 @@
+/* Changelog page specific styles */
+.changelog-page {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%) !important;
+  min-height: 100vh;
+  position: relative;
+  z-index: 10;
+}
+
+.changelog-page::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  z-index: -1;
+}
+
+.changelog-container {
+  background: transparent;
+  min-height: 100vh;
+  position: relative;
+  z-index: 1;
+}
+
+/* Override any global background colors */
+.changelog-page body {
+  background: transparent !important;
+}
+
+/* Ensure proper spacing and layout */
+.changelog-entry {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(229, 231, 235, 0.8);
+  transition: all 0.3s ease;
+}
+
+.changelog-entry:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .changelog-page {
+    padding: 1rem;
+  }
+  
+  .changelog-entry {
+    margin: 1rem 0;
+    padding: 1.5rem;
+  }
+}
