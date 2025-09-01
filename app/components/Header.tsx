@@ -28,10 +28,17 @@ const Header: React.FC = () => {
           <div className="subtitle-text">
             Add note space to your PDFs easily
           </div>
+          
+          {/* Mobile: Button below title */}
+          <nav className="nav-container mobile-nav">
+            <Link href="/changelog" className="nav-link">
+              Changelog
+            </Link>
+          </nav>
         </div>
         
-        {/* Navigation */}
-        <nav className="nav-container">
+        {/* Desktop: Button to the right */}
+        <nav className="nav-container desktop-nav">
           <Link href="/changelog" className="nav-link">
             Changelog
           </Link>

@@ -13,7 +13,7 @@ const MobileOrientationMessage: React.FC = () => {
       // Check if mobile device
       const isMobileDevice = /android|webos|iphone|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
       // Check if NOT a tablet (exclude iPad and large screen devices)
-      const isNotTablet = !/ipad/i.test(userAgent) && window.innerWidth < 768;
+      const isNotTablet = !/ipad/i.test(userAgent) && window.innerWidth < 480;
       
       setIsPhone(isMobileDevice && isNotTablet);
     };
@@ -36,37 +36,37 @@ const MobileOrientationMessage: React.FC = () => {
     <div style={{
       width: '100%',
       backgroundColor: '#e8d7e8', // Pale Mauve background
-      padding: '8px 0',
+      padding: '2px 0',
       marginBottom: '0',
       borderBottom: '1px solid #ccc',
       boxSizing: 'border-box'
     }}>
       <div style={{
         backgroundColor: 'rgba(255,255,255,0.7)',
-        padding: '1vh 2%',
-        borderRadius: '8px',
+        padding: '0.3vh 1.5%',
+        borderRadius: '4px',
         margin: '0 auto',
         border: '1px solid #ddd',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+        boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
         display: 'flex',
         alignItems: 'center',
-        width: '90%',
-        maxWidth: '600px',
+        width: '95%',
+        maxWidth: '500px',
         boxSizing: 'border-box'
       }}>
         <div style={{ 
           display: 'flex', 
           alignItems: 'center', 
-          gap: '10px',
-          marginRight: '10px'
+          gap: '6px',
+          marginRight: '6px'
         }}>
-          <FaMobileAlt style={{ transform: 'rotate(90deg)', color: '#4a6741' }} />
-          <FaArrowsAltH style={{ color: '#4a6741' }} />
+          <FaMobileAlt style={{ transform: 'rotate(90deg)', color: '#4a6741', fontSize: '10px' }} />
+          <FaArrowsAltH style={{ color: '#4a6741', fontSize: '10px' }} />
         </div>
         <p style={{ 
-          fontSize: 'clamp(12px, 1.4vw, 14px)', 
+          fontSize: 'clamp(8px, 1vw, 10px)', 
           margin: '0', 
-          lineHeight: '1.5', 
+          lineHeight: '1.2', 
           color: '#34495e'
         }}>
           For the best experience, please use this website in landscape mode.
