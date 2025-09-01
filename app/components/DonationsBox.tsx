@@ -66,34 +66,27 @@ const DonationsBox = () => {
 
   const initPayPalButton = () => {
     if (!window.paypal) {
-      console.error('PayPal SDK not available');
       setLoadingError(true);
       setErrorMessage('PayPal SDK failed to load. Please refresh the page and try again.');
       return;
     }
     
     if (!buttonContainerRef.current) {
-      console.error('Button container ref not available');
       setErrorMessage('There was an error initializing the payment system. Please refresh the page.');
       return;
     }
 
-    console.log('Initializing PayPal button with currency:', selectedCurrency);
-    console.log('Button container exists:', !!buttonContainerRef.current);
-    console.log('PayPal object available:', !!window.paypal);
-    console.log('PayPal Buttons available:', !!window.paypal.Buttons);
+    // Initialize PayPal button silently
 
     try {
       // Cleanup previous instance if it exists
       if (buttonInstance.current) {
-        console.log('Closing previous button instance');
         buttonInstance.current.close();
         buttonInstance.current = null;
       }
 
       // Check if the PayPal Buttons function is available
       if (!window.paypal.Buttons) {
-        console.error('PayPal Buttons function is not available');
         setLoadingError(true);
         setErrorMessage('PayPal payment system is not available. Please try again later or use the direct PayPal link.');
         return;
@@ -118,13 +111,9 @@ const DonationsBox = () => {
             // This ensures we use the latest value even if the button wasn't re-rendered
             const formattedAmount = currentAmountRef.current;
             
-            console.log(`Creating order for ${formattedAmount} ${selectedCurrency}`);
-            console.log('Payment source:', _data?.fundingSource);
-            
             // For card payments, we need to ensure the order is created properly
             const isCardPayment = _data?.fundingSource === 'card';
             if (isCardPayment) {
-              console.log('Creating card payment order');
               
               // Store the payment source for later reference
               lastClickedButtonRef.current = 'card';
@@ -189,7 +178,6 @@ const DonationsBox = () => {
               }
             });
           } catch (error) {
-            console.error('Error creating order:', error);
             alert('There was an error creating your donation. Please try again or use the direct PayPal link.');
             throw error;
           }
@@ -197,109 +185,55 @@ const DonationsBox = () => {
         
         onApprove: async (_data: any, actions: any) => {
           try {
-            console.log('Payment approved, capturing order...');
-            
-            // Add more detailed logging
-            console.log('Payment data:', _data);
-            console.log('Payment source:', _data.fundingSource);
-            console.log('Order ID:', _data.orderID);
-            
             // Add a more robust capture with better error handling
             let order;
             try {
-              console.log('Attempting to capture order...');
-              
               // For card payments, we need to ensure we're using the correct capture method
               const isCardPayment = _data.fundingSource === 'card';
-              if (isCardPayment) {
-                console.log('Processing card payment capture');
-                console.log('Card payment details - Order ID:', _data.orderID);
-                
-                // For sandbox environment, add special note about card payments
-                if (process.env.NODE_ENV === 'development') {
-                  console.log('SANDBOX ENVIRONMENT NOTE: Card payments in sandbox may not actually transfer funds between accounts');
-                  console.log('The transaction may show as successful but funds might not move between sandbox accounts');
-                  console.log('This is a limitation of the PayPal sandbox environment');
-                }
-              }
               
               // Use a timeout to ensure the PayPal system has time to process the payment
               await new Promise(resolve => setTimeout(resolve, 1000));
               
               order = await actions.order.capture();
-              console.log('Order capture successful:', order);
               
               // For card payments, log additional details
               if (isCardPayment || (order.payment_source && order.payment_source.card)) {
-                console.log('CARD PAYMENT SUCCESSFUL');
-                console.log('Transaction ID:', order.id);
-                
-                // Log a special message for troubleshooting
-                console.log('NOTE: If this card payment is not appearing in your PayPal business account:');
-                console.log('1. Check the "Activity" tab instead of "Transactions"');
-                console.log('2. Look for "Pending" or "Processing" transactions');
-                console.log('3. It may take up to 24 hours for card payments to appear');
-                console.log('4. The transaction ID to look for is:', order.id);
-                
-                // Add sandbox-specific note
-                if (process.env.NODE_ENV === 'development') {
-                  console.log('SANDBOX LIMITATION: In the sandbox environment, card payments may not actually transfer funds');
-                  console.log('The payment is processed and approved, but funds might not move between sandbox accounts');
-                  console.log('This is normal behavior in the sandbox and does not indicate an issue with your implementation');
-                  console.log('In production, real card payments will properly transfer funds to your account');
-                }
+                // Card payment details handled
               }
             } catch (captureError) {
-              console.error('Error during order capture:', captureError);
-              
               // Try to get order details even if capture failed
               try {
-                console.log('Attempting to get order details after capture failure...');
                 const orderDetails = await actions.order.get();
-                console.log('Order details despite capture failure:', orderDetails);
                 
                 // For card payments, sometimes the capture fails but the payment still went through
                 // In this case, we'll treat it as a success if we can get the order details
                 if (_data.fundingSource === 'card' && orderDetails) {
-                  console.log('Using order details as fallback for card payment');
                   order = orderDetails;
                 } else {
                   throw captureError;
                 }
               } catch (getOrderError) {
-                console.error('Could not get order details:', getOrderError);
+                // Could not get order details
               }
             }
-            
-            // Log completion but remove sensitive data
-            console.log('Donation completed successfully');
             
             // Detect payment method with more detail
             let paymentMethodUsed = 'PayPal';
             let paymentDetails = '';
             
             if (order.payment_source) {
-              console.log('Payment source:', order.payment_source);
-              
               if (order.payment_source.card) {
                 const card = order.payment_source.card;
                 paymentMethodUsed = `Card (${card.brand || 'Unknown'} ${card.last_digits || 'xxxx'})`;
                 paymentDetails = `${card.brand || 'Card'} ending in ${card.last_digits || 'xxxx'}`;
-                console.log('Card payment detected:', paymentDetails);
               } else if (order.payment_source.paypal) {
                 const pp = order.payment_source.paypal;
                 paymentMethodUsed = `PayPal (${pp.email_address || 'Unknown'})`;
                 paymentDetails = pp.email_address || 'Unknown PayPal account';
-                console.log('PayPal payment detected:', paymentDetails);
-              } else {
-                console.log('Unknown payment source type:', order.payment_source);
               }
             } else if (_data.fundingSource === 'card') {
               // Fallback for card payments when payment_source is not available
               paymentMethodUsed = 'Credit/Debit Card';
-              console.log('Card payment detected via fundingSource');
-            } else {
-              console.log('No payment source information in the order');
             }
             
             // Update state with transaction details
@@ -308,16 +242,10 @@ const DonationsBox = () => {
             setTransactionId(order.id || _data.orderID || 'Unknown');
             setPaymentMethod(paymentMethodUsed);
             
-            // Log success state update
-            console.log('Updated UI with success state:', {
-              transactionId: order.id || _data.orderID,
-              paymentMethod: paymentMethodUsed
-            });
+            // Success state updated
             
             return order;
           } catch (error: any) {
-            console.error('Error capturing order:', error);
-            
             // Set error message in state instead of using alert
             setErrorMessage(`There was an error processing your donation: ${error.message || 'Unknown error'}. Please try again or use the direct PayPal link.`);
             setIsExpanded(false); // Collapse the expanded section
@@ -328,10 +256,6 @@ const DonationsBox = () => {
         },
         
         onError: (err: Error) => {
-          console.error('PayPal error:', err);
-          console.error('Error details:', err.message);
-          console.error('Error stack:', err.stack);
-          
           // Set error message in state instead of using alert
           let errorMsg = 'Detected popup close. Please try again or use the direct PayPal link.';
           if (err.message && err.message.includes('popup')) {
@@ -345,14 +269,9 @@ const DonationsBox = () => {
         },
 
         onInit: function(_data: any, actions: PayPalActions) {
-          console.log('PayPal button initialized');
-          
           // Check if card funding is eligible
           actions.getFundingEligibility().then((fundingEligibility: PayPalFundingEligibility) => {
-            console.log('Funding eligibility:', fundingEligibility);
-            
             if (fundingEligibility && fundingEligibility.card && fundingEligibility.card.eligible) {
-              console.log('Card funding is eligible');
               
               // Card funding is eligible, add event listener to track when card is selected
               const observer = new MutationObserver((mutations) => {
@@ -365,7 +284,7 @@ const DonationsBox = () => {
                     const isNowCardSelected = !!(cardButton || cardForm);
                     
                     if (isNowCardSelected && !isCardSelected) {
-                      console.log('Card payment method activated');
+                      // Card payment method activated
                     }
                     
                     setIsCardSelected(isNowCardSelected);
@@ -381,13 +300,13 @@ const DonationsBox = () => {
                   subtree: true 
                 });
                 
-                console.log('Observing button container for card selection');
+                // Observing button container for card selection
               }
             } else {
-              console.warn('Card funding is not eligible');
+              // Card funding is not eligible
             }
           }).catch(error => {
-            console.error('Error checking funding eligibility:', error);
+            // Error checking funding eligibility
           });
         },
 
@@ -395,25 +314,14 @@ const DonationsBox = () => {
           // Store which button was clicked
           if (data && data.fundingSource) {
             lastClickedButtonRef.current = data.fundingSource;
-            console.log('Payment method selected:', data.fundingSource);
-            
             // Set card selected state if card is the funding source
             if (data.fundingSource === 'card') {
               setIsCardSelected(true);
-              console.log('Card payment method selected');
-              
-              // Log additional information for card payments
-              console.log('Card payment flow initiated');
-              console.log('Current amount:', currentAmountRef.current);
-              console.log('Current currency:', selectedCurrency);
               
               // Force a small delay to ensure the card form is properly initialized
               setTimeout(() => {
-                console.log('Card form should be visible now');
-                
                 // Check if the card form is visible in the DOM
                 const cardForm = document.querySelector('.paypal-card-form');
-                console.log('Card form found in DOM:', !!cardForm);
               }, 1000);
             }
           }
@@ -424,7 +332,6 @@ const DonationsBox = () => {
             // Format the amount and update the ref
             const formatted = formatAmount(donationAmount);
             if (formatted !== currentAmountRef.current) {
-              console.log(`Updating amount on click: ${currentAmountRef.current} -> ${formatted}`);
               currentAmountRef.current = formatted;
               
               // Only update state if different to avoid unnecessary re-renders
@@ -446,13 +353,10 @@ const DonationsBox = () => {
         }
       });
 
-      console.log('Rendering PayPal button to container');
       const renderResult = buttonInstance.current.render(buttonContainerRef.current);
-      console.log('Render result:', renderResult);
       setIsPayPalLoaded(true);
 
     } catch (error) {
-      console.error('Error initializing PayPal button:', error);
       // Use error message state instead of alert
       setErrorMessage('There was an error loading the PayPal button. Please refresh the page and try again.');
       setLoadingError(true);
@@ -495,7 +399,6 @@ const DonationsBox = () => {
           
           // If the difference is significant or we're in card mode, force an update
           if (difference >= 0.01 || isCardSelected) {
-            console.log(`Amount changed significantly: ${currentAmountRef.current} -> ${formattedAmount}`);
             currentAmountRef.current = formattedAmount;
             setDonationAmount(formattedAmount);
             
@@ -505,7 +408,7 @@ const DonationsBox = () => {
                 buttonInstance.current.close();
                 buttonInstance.current = null;
               } catch (error) {
-                console.error('Error closing PayPal button:', error);
+                // Error closing PayPal button
               }
             }
             
@@ -581,7 +484,6 @@ const DonationsBox = () => {
 
   // Add function to manually reload PayPal
   const handleManualReload = () => {
-    console.log('Manual reload requested');
     // First unmount the PayPal button by setting a temporary flag
     setIsPayPalLoaded(false);
     
@@ -598,133 +500,27 @@ const DonationsBox = () => {
     // Always use production URL
     const businessEmail = process.env.NEXT_PUBLIC_PAYPAL_BUSINESS_EMAIL || 
         'your-business-email@example.com'; // Default placeholder, will be replaced by actual env var
-    console.log('Using production business email for direct link:', businessEmail);
     return `https://www.paypal.com/donate?business=${encodeURIComponent(businessEmail)}&amount=${donationAmount}&currency_code=${selectedCurrency}&item_name=Donation%20to%20SpaceMyPDF`;
   };
 
-  // Add function to check PayPal configuration
-  const checkPayPalConfiguration = () => {
-    console.log('Checking PayPal configuration...');
-    console.log('Environment:', process.env.NODE_ENV);
-    
-    const clientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
-    console.log('Client ID available:', !!clientId);
-    
-    // Check if client ID looks valid (should be a long string)
-    if (clientId) {
-      if (clientId.length < 20) {
-        console.error('WARNING: Client ID appears to be too short. It may not be valid.');
-      } else {
-        console.log('Client ID length looks valid:', clientId.length);
-      }
-    } else {
-      console.error('ERROR: No PayPal Client ID found. PayPal integration will not work.');
-    }
-    
-    console.log('Merchant ID available:', process.env.NEXT_PUBLIC_PAYPAL_MERCHANT_ID ? true : false);
-    
-    // Check if we're in development mode
-    if (process.env.NODE_ENV === 'development') {
-      console.log('In development mode - using sandbox');
-      console.log('Sandbox business email:', process.env.NEXT_PUBLIC_PAYPAL_SANDBOX_BUSINESS_EMAIL || 'Not configured');
-    } else {
-      console.log('In production mode');
-      console.log('Business email available:', process.env.NEXT_PUBLIC_PAYPAL_BUSINESS_EMAIL ? true : false);
-    }
-  };
+  // PayPal configuration is checked during initialization
 
-  // Add function to check if card payments are properly configured
-  const checkCardPaymentsConfiguration = () => {
-    console.log('Checking card payments configuration...');
-    
-    // Check if we're in development mode
-    if (process.env.NODE_ENV === 'development') {
-      console.log('In development mode - using sandbox for card payments');
-      
-      // Check if the PayPal SDK is configured for card payments
-      if (window.paypal) {
-        if (window.paypal.FUNDING && window.paypal.FUNDING.CARD) {
-          console.log('Card funding source is available in PayPal SDK');
-          
-          // Check if the card funding source is enabled
-          try {
-            const cardFunding = window.paypal.FUNDING.CARD;
-            console.log('Card funding source:', cardFunding);
-            
-            // Check if the card button is rendered
-            setTimeout(() => {
-              const cardButton = document.querySelector('[data-funding-source="card"]');
-              console.log('Card button found in DOM:', !!cardButton);
-              
-              if (!cardButton) {
-                console.warn('Card button not found in DOM. This may indicate that card payments are not available for your account or region.');
-                console.log('Try adding &debug=true to the PayPal SDK URL for more detailed information.');
-              }
-            }, 2000);
-          } catch (error) {
-            console.error('Error checking card funding source:', error);
-          }
-        } else {
-          console.warn('Card funding source may not be available in PayPal SDK');
-        }
-        
-        // Check if the Buttons component supports card payments
-        if (window.paypal.Buttons) {
-          try {
-            const isEligible = window.paypal.Buttons.isEligible({
-              fundingSource: window.paypal.FUNDING?.CARD
-            });
-            console.log('Card payments eligible:', isEligible);
-            
-            if (!isEligible) {
-              console.warn('Card payments are not eligible. This may be due to account restrictions or regional limitations.');
-            }
-          } catch (error) {
-            console.error('Error checking card payment eligibility:', error);
-          }
-        }
-      }
-    }
-  };
+  // Card payments configuration is handled automatically by PayPal SDK
 
   // Add function to check transaction status
   const checkTransactionStatus = (transactionId: string) => {
-    console.log('Checking transaction status for:', transactionId);
-    
     // In a real implementation, you would make an API call to PayPal to check the status
-    // For now, we'll just log the information and provide guidance
+    // For now, we'll just provide guidance
     
     if (process.env.NODE_ENV === 'development') {
-      console.log('SANDBOX ENVIRONMENT - Transaction ID:', transactionId);
-      
       // Check if it was a card payment
       const wasCardPayment = paymentMethod.includes('Card');
       if (wasCardPayment) {
-        console.log('This was a card payment in the sandbox environment');
-        console.log('IMPORTANT: Card payments in sandbox will NOT appear in transaction history');
-        console.log('This is a known limitation of the PayPal sandbox');
-        console.log('The payment was successfully processed (you received a valid Transaction ID)');
-        console.log('But it will not show up in either the personal or business sandbox account');
-        console.log('In production with real cards, payments will properly transfer funds');
-        
         return `Sandbox card payment (ID: ${transactionId}) was successfully processed. Note that sandbox card payments will not appear in transaction history due to PayPal sandbox limitations.`;
       } else {
-        console.log('This was a PayPal account payment in the sandbox environment');
-        console.log('It should appear in both the personal and business sandbox accounts');
-        console.log('Check the "Activity" section in your PayPal sandbox accounts');
-        
         return `Sandbox PayPal payment (ID: ${transactionId}). Check your PayPal sandbox accounts for details.`;
       }
     } else {
-      console.log('PRODUCTION ENVIRONMENT - Transaction ID:', transactionId);
-      console.log('To check this transaction in your PayPal account:');
-      console.log('1. Log in to your PayPal business account');
-      console.log('2. Go to the "Activity" section');
-      console.log('3. Look for transactions with this ID:', transactionId);
-      console.log('4. Check both "Completed" and "Pending" sections');
-      console.log('5. For card payments, also check the "Processing" section');
-      console.log('6. It may take up to 24 hours for card payments to appear in your account');
-      
       return `Transaction ID: ${transactionId}. Please check your PayPal account for details.`;
     }
   };
@@ -749,8 +545,6 @@ const DonationsBox = () => {
     // Only initialize if we're not in success state and PayPal is available
     // and the button hasn't been initialized yet by the script onLoad handler
     if (window.paypal && !donationSuccess && (forceUpdate || (!buttonInstance.current && isPayPalLoaded))) {
-      console.log('Initializing PayPal button from useEffect');
-      
       // Reset the force update flag
       if (forceUpdate) {
         setForceUpdate(false);
@@ -767,11 +561,10 @@ const DonationsBox = () => {
         // Clean up PayPal button instance if it exists
         if (buttonInstance.current) {
           try {
-            console.log('Cleaning up PayPal button instance');
             buttonInstance.current.close();
             buttonInstance.current = null;
           } catch (error) {
-            console.error('Error cleaning up PayPal button:', error);
+            // Error cleaning up PayPal button
           }
         }
       };
@@ -817,17 +610,7 @@ const DonationsBox = () => {
     };
   }, []);
 
-  // Call the check function when component mounts
-  useEffect(() => {
-    checkPayPalConfiguration();
-  }, []);
 
-  // Call the card payments check after PayPal is loaded
-  useEffect(() => {
-    if (isPayPalLoaded && window.paypal) {
-      checkCardPaymentsConfiguration();
-    }
-  }, [isPayPalLoaded]);
 
   return (
     <div style={{
@@ -858,12 +641,7 @@ const DonationsBox = () => {
           console.log('PayPal script loaded successfully');
           
           // Check if card funding is available
-          if (window.paypal && window.paypal.FUNDING) {
-            console.log('Card funding enabled:', window.paypal.FUNDING.CARD);
-            console.log('Available funding sources:', Object.keys(window.paypal.FUNDING).filter(key => 
-              window.paypal.FUNDING[key] !== undefined
-            ));
-          }
+          // PayPal SDK loaded successfully
           
           // Initialize the PayPal button immediately
           if (window.paypal && buttonContainerRef.current) {
@@ -877,13 +655,11 @@ const DonationsBox = () => {
           setLoadingError(false);
         }}
         onError={(e) => {
-          console.error('Error loading PayPal script:', e);
           setLoadingError(true);
           
           // Retry loading after a delay, up to 3 times
           if (loadAttempts < 3) {
             setTimeout(() => {
-              console.log(`Retrying PayPal script load (attempt ${loadAttempts + 1})`);
               setLoadAttempts(prev => prev + 1);
               setButtonKey(prev => prev + 1); // Force script reload
             }, 2000);
