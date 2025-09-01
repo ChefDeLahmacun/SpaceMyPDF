@@ -656,7 +656,7 @@ const DonationsBox = () => {
     }}>
       <Script 
         id="paypal-script"
-        src={`https://www.paypal.com/sdk/js?client-id=${process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID}&currency=${selectedCurrency}&intent=capture&enable-funding=card&disable-funding=paylater&locale=en_GB&commit=true&components=buttons&buyer-country=GB`}
+        src={`https://www.paypal.com/sdk/js?client-id=${process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID}&currency=${selectedCurrency}&intent=capture&enable-funding=card&disable-funding=paylater&locale=en_GB&commit=true`}
         strategy="afterInteractive"
         onLoad={() => {
           // Wait for PayPal SDK to fully initialize
