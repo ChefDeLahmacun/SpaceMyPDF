@@ -7,15 +7,7 @@ declare global {
   }
 }
 
-interface PayPalFundingEligibility {
-  card?: {
-    eligible: boolean;
-  };
-}
 
-interface PayPalActions {
-  getFundingEligibility(): Promise<PayPalFundingEligibility>;
-}
 
 const DonationsBox = () => {
   const [isPayPalLoaded, setIsPayPalLoaded] = useState(false);
@@ -268,46 +260,32 @@ const DonationsBox = () => {
           setIsExpanded(false); // Collapse the expanded section
         },
 
-        onInit: function(_data: any, actions: PayPalActions) {
-          // Check if card funding is eligible
-          actions.getFundingEligibility().then((fundingEligibility: PayPalFundingEligibility) => {
-            if (fundingEligibility && fundingEligibility.card && fundingEligibility.card.eligible) {
-              
-              // Card funding is eligible, add event listener to track when card is selected
-              const observer = new MutationObserver((mutations) => {
-                mutations.forEach((mutation) => {
-                  if (mutation.type === 'attributes' || mutation.type === 'childList') {
-                    // Check if card payment method is selected by looking for active card button
-                    const cardButton = document.querySelector('[data-funding-source="card"].paypal-button-active');
-                    const cardForm = document.querySelector('.paypal-card-form');
-                    
-                    const isNowCardSelected = !!(cardButton || cardForm);
-                    
-                    if (isNowCardSelected && !isCardSelected) {
-                      // Card payment method activated
-                    }
-                    
-                    setIsCardSelected(isNowCardSelected);
-                  }
-                });
-              });
-              
-              // Start observing the button container for changes
-              if (buttonContainerRef.current) {
-                observer.observe(buttonContainerRef.current, { 
-                  attributes: true, 
-                  childList: true,
-                  subtree: true 
-                });
+        onInit: function(_data: any, actions: any) {
+          // Modern PayPal SDK doesn't require getFundingEligibility check
+          // Card funding is automatically handled by the SDK
+          
+          // Set up observer to track card selection state
+          const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+              if (mutation.type === 'attributes' || mutation.type === 'childList') {
+                // Check if card payment method is selected by looking for active card button
+                const cardButton = document.querySelector('[data-funding-source="card"].paypal-button-active');
+                const cardForm = document.querySelector('.paypal-card-form');
                 
-                // Observing button container for card selection
+                const isNowCardSelected = !!(cardButton || cardForm);
+                setIsCardSelected(isNowCardSelected);
               }
-            } else {
-              // Card funding is not eligible
-            }
-          }).catch(error => {
-            // Error checking funding eligibility
+            });
           });
+          
+          // Start observing the button container for changes
+          if (buttonContainerRef.current) {
+            observer.observe(buttonContainerRef.current, { 
+              attributes: true, 
+              childList: true,
+              subtree: true 
+            });
+          }
         },
 
         onClick: (data: any) => {
@@ -635,14 +613,9 @@ const DonationsBox = () => {
     }}>
       <Script 
         id="paypal-script"
-        src={`https://www.paypal.com/sdk/js?client-id=${process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID}&currency=${selectedCurrency}&intent=capture&enable-funding=card&disable-funding=paylater&locale=en_GB&commit=true&vault=true`}
+        src={`https://www.paypal.com/sdk/js?client-id=${process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID}&currency=${selectedCurrency}&intent=capture&enable-funding=card&disable-funding=paylater&locale=en_GB&commit=true`}
         strategy="afterInteractive"
         onLoad={() => {
-          console.log('PayPal script loaded successfully');
-          
-          // Check if card funding is available
-          // PayPal SDK loaded successfully
-          
           // Initialize the PayPal button immediately
           if (window.paypal && buttonContainerRef.current) {
             setTimeout(() => {
