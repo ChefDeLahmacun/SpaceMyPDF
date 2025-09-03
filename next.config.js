@@ -26,7 +26,7 @@ const nextConfig = {
         headers: [
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.paypal.com https://www.google-analytics.com https://*.googletagmanager.com; connect-src 'self' https://www.paypal.com https://*.paypal.com https://www.google-analytics.com https://*.googletagmanager.com https://formsubmit.co https://*.formsubmit.co; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; frame-src https://www.paypal.com https://*.paypal.com blob: https://formsubmit.co https://*.formsubmit.co; object-src blob: 'self'; form-action 'self' https://formsubmit.co https://*.formsubmit.co;"
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.paypal.com https://www.google-analytics.com https://*.googletagmanager.com https://cdnjs.cloudflare.com; worker-src 'self' blob:; connect-src 'self' blob: https://www.paypal.com https://*.paypal.com https://www.google-analytics.com https://*.googletagmanager.com https://formsubmit.co https://*.formsubmit.co; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; frame-src https://www.paypal.com https://*.paypal.com blob: https://formsubmit.co https://*.formsubmit.co; object-src blob: 'self'; form-action 'self' https://formsubmit.co https://*.formsubmit.co;"
           },
           {
             key: 'X-Frame-Options',

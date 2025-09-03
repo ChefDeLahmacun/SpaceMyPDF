@@ -275,6 +275,9 @@ const Preview: React.FC<PreviewProps> = ({ file, isProcessing, pdfPreviewUrl }) 
                 <p style={{ margin: 0, fontSize: '13px' }}>
                   <strong>Preview Note:</strong> Only the first few pages are shown here. All pages will be processed.
                 </p>
+                <p style={{ margin: '8px 0 0 0', fontSize: '13px' }}>
+                  Preview doesn't work sometimes for some reason. Please try a different browser. This will hopefully be fixed at a later patch.
+                </p>
               </div>
             )}
           </div>
