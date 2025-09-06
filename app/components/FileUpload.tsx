@@ -15,6 +15,7 @@ const FileUpload = ({ file, handleFileUpload, clearFile, isProcessing }: FileUpl
       <p style={{ fontWeight: 'bold', marginBottom: '5px' }}>Upload PDF</p>
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
         <input
+          id="pdfFileUpload"
           type="file"
           accept=".pdf"
           onChange={(e) => {

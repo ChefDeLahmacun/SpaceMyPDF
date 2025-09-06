@@ -21,6 +21,7 @@ import { GoogleAnalytics } from '@next/third-parties/google'
 import { GA_MEASUREMENT_ID } from './utils/analytics';
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://www.spacemypdf.com'),
   title: "SpaceMyPDF | Add Note Space to PDFs - Free & Easy PDF Tool",
   description: "Need space for notes in your PDF? SpaceMyPDF lets you add note-taking space to any PDF document. Free, private, and works instantly in your browser. Perfect for students and professionals.",
   keywords: "add space to PDF, PDF note space, PDF margin space, PDF notes, PDF editor free, add margins to PDF, PDF annotation space, space my pdf, spacemypdf, pdf note taking space",
@@ -100,6 +101,35 @@ export default function RootLayout({
               if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
                 window.addEventListener('scroll', function() {}, { passive: true });
               }
+            });
+          `}
+        </Script>
+        <Script id="modern-analytics-events" strategy="afterInteractive">
+          {`
+            // Modern event listeners to replace deprecated unload events
+            document.addEventListener('DOMContentLoaded', function() {
+              // Use Page Visibility API instead of unload events
+              document.addEventListener('visibilitychange', function() {
+                if (document.visibilityState === 'hidden') {
+                  // Send analytics event when page becomes hidden
+                  if (typeof window !== 'undefined' && window.gtag) {
+                    window.gtag('event', 'page_hide', {
+                      event_category: 'engagement',
+                      event_label: 'page_visibility'
+                    });
+                  }
+                }
+              });
+              
+              // Use beforeunload for final cleanup (more reliable than unload)
+              window.addEventListener('beforeunload', function() {
+                if (typeof window !== 'undefined' && window.gtag) {
+                  window.gtag('event', 'page_unload', {
+                    event_category: 'engagement',
+                    event_label: 'page_unload'
+                  });
+                }
+              });
             });
           `}
         </Script>

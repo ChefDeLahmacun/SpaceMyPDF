@@ -263,9 +263,10 @@ const Controls: React.FC<ControlsProps> = ({
             width: '100%'
           }}>
             <div style={{ width: '100%', maxWidth: '100%', marginBottom: '10px' }}>
-              <input
-                ref={sliderRef}
-                type="range"
+                <input
+                  id="noteSpaceWidthSlider"
+                  ref={sliderRef}
+                  type="range"
                 min="10"
                 max="150"
                 value={noteSpaceWidth}
@@ -353,6 +354,7 @@ const Controls: React.FC<ControlsProps> = ({
             >
               <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', width: '100%' }}>
                 <input 
+                  id="noteSpaceRight"
                   type="checkbox" 
                   checked={noteSpacePositions.includes('right')} 
                   onChange={() => {
@@ -388,6 +390,7 @@ const Controls: React.FC<ControlsProps> = ({
             >
               <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', width: '100%' }}>
                 <input 
+                  id="noteSpaceLeft"
                   type="checkbox" 
                   checked={noteSpacePositions.includes('left')} 
                   onChange={() => {
@@ -423,6 +426,7 @@ const Controls: React.FC<ControlsProps> = ({
             >
               <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', width: '100%' }}>
                 <input 
+                  id="noteSpaceTop"
                   type="checkbox" 
                   checked={noteSpacePositions.includes('top')} 
                   onChange={() => {
@@ -458,6 +462,7 @@ const Controls: React.FC<ControlsProps> = ({
             >
               <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', width: '100%' }}>
                 <input 
+                  id="noteSpaceBottom"
                   type="checkbox" 
                   checked={noteSpacePositions.includes('bottom')} 
                   onChange={() => {
@@ -491,6 +496,7 @@ const Controls: React.FC<ControlsProps> = ({
             onClick={() => setUseSeparateWidths(!useSeparateWidths)}
             >
               <input
+                id="useSeparateWidths"
                 type="checkbox"
                 checked={useSeparateWidths}
                 onChange={() => setUseSeparateWidths(!useSeparateWidths)}
@@ -529,6 +535,7 @@ const Controls: React.FC<ControlsProps> = ({
                     </p>
                     <div style={{ width: '100%', maxWidth: '100%', marginBottom: '10px' }}>
                       <input
+                        id="horizontalNoteSpaceWidthSlider"
                         type="range"
                         min="10"
                         max="150"
@@ -606,6 +613,7 @@ const Controls: React.FC<ControlsProps> = ({
                     </p>
                     <div style={{ width: '100%', maxWidth: '100%', marginBottom: '10px' }}>
                       <input
+                        id="verticalNoteSpaceWidthSlider"
                         type="range"
                         min="10"
                         max="150"
@@ -758,12 +766,14 @@ const Controls: React.FC<ControlsProps> = ({
                 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '2%' }}>
                   <input
+                    id="customColorPicker"
                     type="color"
                     value={customColor}
                     onChange={(e) => setCustomColor(e.target.value)}
                     style={{ width: '40px', height: '30px', cursor: 'pointer' }}
                   />
                   <input
+                    id="customColorText"
                     type="text"
                     value={customColor}
                     onChange={(e) => {
@@ -974,6 +984,7 @@ const Controls: React.FC<ControlsProps> = ({
                 minHeight: '2.5rem'
               }}>
                 <input
+                  id="baseFileName"
                   type="text"
                   value={baseFileName}
                   onChange={handleBaseFileNameChange}

@@ -34,6 +34,7 @@ const DownloadOptions = ({
         <p style={{ fontWeight: 'bold', marginBottom: '5px' }}>Output File Name</p>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
           <input
+            id="downloadBaseFileName"
             type="text"
             value={baseFileName}
             onChange={handleBaseFileNameChange}
@@ -55,6 +56,7 @@ const DownloadOptions = ({
         </div>
         <label style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
           <input
+            id="includeWithNotesCheckbox"
             type="checkbox"
             checked={includeWithNotes}
             onChange={handleCheckboxChange}
