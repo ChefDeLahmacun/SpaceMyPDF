@@ -451,8 +451,7 @@ const DonationsBox = () => {
       }
     }
     
-    // Reset states
-    setIsPayPalLoaded(false);
+    // Reset states but keep isPayPalLoaded true so the useEffect can run
     setLoadingError(false);
     setErrorMessage(null);
     
@@ -574,7 +573,7 @@ const DonationsBox = () => {
   // Effect to initialize the PayPal button when the component mounts or when buttonKey or selectedCurrency changes
   useEffect(() => {
     // Only initialize if we're not in success state and PayPal is available
-    if (window.paypal && !donationSuccess && isPayPalLoaded && !buttonInstance.current) {
+    if (window.paypal && !donationSuccess && isPayPalLoaded) {
       // Reset the force update flag
       if (forceUpdate) {
         setForceUpdate(false);
@@ -583,7 +582,7 @@ const DonationsBox = () => {
       // Small delay to ensure the DOM is ready
       const timer = setTimeout(() => {
         initPayPalButton();
-      }, 200);
+      }, 300);
       
       // Cleanup function
       return () => {
@@ -591,6 +590,23 @@ const DonationsBox = () => {
       };
     }
   }, [buttonKey, selectedCurrency, donationSuccess, isPayPalLoaded, forceUpdate]);
+
+  // Add a specific effect to handle currency changes
+  useEffect(() => {
+    if (selectedCurrency && window.paypal && !donationSuccess) {
+      // When currency changes, we need to reload the PayPal SDK
+      // The script will reload automatically due to the key change
+      // Just ensure we clean up the old button
+      if (buttonInstance.current) {
+        try {
+          buttonInstance.current.close();
+          buttonInstance.current = null;
+        } catch (error) {
+          // Error closing PayPal button
+        }
+      }
+    }
+  }, [selectedCurrency, donationSuccess]);
 
   // Add an effect to monitor the card section state
   useEffect(() => {
@@ -663,6 +679,16 @@ const DonationsBox = () => {
           // Wait for PayPal SDK to fully initialize
           const checkPayPalReady = () => {
             if (window.paypal && window.paypal.Buttons && buttonContainerRef.current) {
+              // Clean up any existing button first
+              if (buttonInstance.current) {
+                try {
+                  buttonInstance.current.close();
+                  buttonInstance.current = null;
+                } catch (error) {
+                  // Error closing PayPal button
+                }
+              }
+              
               // Initialize the PayPal button
               initPayPalButton();
               setIsPayPalLoaded(true);
