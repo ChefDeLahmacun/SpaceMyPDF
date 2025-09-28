@@ -451,9 +451,10 @@ const DonationsBox = () => {
       }
     }
     
-    // Reset states but keep isPayPalLoaded true so the useEffect can run
+    // Reset states and force complete re-render
     setLoadingError(false);
     setErrorMessage(null);
+    setIsPayPalLoaded(false); // Reset PayPal loaded state
     
     // Force complete re-render with new currency
     setButtonKey(prevKey => prevKey + 1);
@@ -570,7 +571,7 @@ const DonationsBox = () => {
     setButtonKey(prev => prev + 1);
   };
   
-  // Effect to initialize the PayPal button when the component mounts or when buttonKey or selectedCurrency changes
+  // Effect to initialize the PayPal button when the component mounts or when buttonKey changes
   useEffect(() => {
     // Only initialize if we're not in success state and PayPal is available
     if (window.paypal && !donationSuccess && isPayPalLoaded) {
@@ -589,24 +590,7 @@ const DonationsBox = () => {
         clearTimeout(timer);
       };
     }
-  }, [buttonKey, selectedCurrency, donationSuccess, isPayPalLoaded, forceUpdate]);
-
-  // Add a specific effect to handle currency changes
-  useEffect(() => {
-    if (selectedCurrency && window.paypal && !donationSuccess) {
-      // When currency changes, we need to reload the PayPal SDK
-      // The script will reload automatically due to the key change
-      // Just ensure we clean up the old button
-      if (buttonInstance.current) {
-        try {
-          buttonInstance.current.close();
-          buttonInstance.current = null;
-        } catch (error) {
-          // Error closing PayPal button
-        }
-      }
-    }
-  }, [selectedCurrency, donationSuccess]);
+  }, [buttonKey, donationSuccess, isPayPalLoaded, forceUpdate]);
 
   // Add an effect to monitor the card section state
   useEffect(() => {
@@ -689,10 +673,14 @@ const DonationsBox = () => {
                 }
               }
               
-              // Initialize the PayPal button
-              initPayPalButton();
+              // Set PayPal as loaded first
               setIsPayPalLoaded(true);
               setLoadingError(false);
+              
+              // Initialize the PayPal button after a short delay
+              setTimeout(() => {
+                initPayPalButton();
+              }, 100);
             } else {
               // Retry after a short delay
               setTimeout(checkPayPalReady, 100);
