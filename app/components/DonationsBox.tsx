@@ -59,35 +59,24 @@ const DonationsBox = () => {
   };
 
   // Function to safely load PayPal SDK
-  const loadPayPalSDK = (currency: string = selectedCurrency): Promise<void> => {
+  const loadPayPalSDK = (currency: string): Promise<void> => {
     return new Promise((resolve, reject) => {
-      // If already loaded, resolve immediately
-      if (paypalSDKLoaded && window.paypal) {
-        resolve();
-        return;
-      }
+      // Always force reload when currency changes
+      // Reset global state to ensure clean reload
+      paypalSDKLoaded = false;
+      paypalSDKLoading = false;
+      paypalSDKPromise = null;
 
-      // If currently loading, return the existing promise
-      if (paypalSDKLoading && paypalSDKPromise) {
-        paypalSDKPromise.then(resolve).catch(reject);
-        return;
-      }
-
-      // If already loaded but window.paypal is not available, reset state
-      if (paypalSDKLoaded && !window.paypal) {
-        paypalSDKLoaded = false;
+      // Remove any existing script
+      const existingScript = document.querySelector('#paypal-script');
+      if (existingScript) {
+        existingScript.remove();
       }
 
       // Start loading
       paypalSDKLoading = true;
       paypalSDKPromise = new Promise((innerResolve, innerReject) => {
-        // Check if script already exists
-        const existingScript = document.querySelector('#paypal-script');
-        if (existingScript) {
-          existingScript.remove();
-        }
-
-        // Create new script element with dynamic currency
+        // Create new script element with the specified currency
         const script = document.createElement('script');
         script.id = 'paypal-script';
         script.src = `https://www.paypal.com/sdk/js?client-id=${process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID}&currency=${currency}&intent=capture&enable-funding=card&disable-funding=paylater&locale=en_US&commit=true`;
@@ -121,15 +110,7 @@ const DonationsBox = () => {
   };
 
   const initPayPalButton = async () => {
-    try {
-      // Load PayPal SDK if not already loaded with current currency
-      await loadPayPalSDK(selectedCurrency);
-    } catch (error) {
-      setLoadingError(true);
-      setErrorMessage('PayPal SDK failed to load. Please refresh the page and try again.');
-      return;
-    }
-    
+    // Check if PayPal SDK is loaded
     if (!window.paypal) {
       setLoadingError(true);
       setErrorMessage('PayPal SDK failed to load. Please refresh the page and try again.');
@@ -530,20 +511,10 @@ const DonationsBox = () => {
     setErrorMessage(null);
     setIsPayPalLoaded(false);
     
-    // Reset global PayPal SDK state to force reload with new currency
-    paypalSDKLoaded = false;
-    paypalSDKLoading = false;
-    paypalSDKPromise = null;
-    
-    // Remove existing PayPal script
-    const existingScript = document.querySelector('#paypal-script');
-    if (existingScript) {
-      existingScript.remove();
-    }
-    
-    // Reload PayPal SDK with new currency
+    // Reload PayPal SDK with new currency immediately
     setTimeout(async () => {
       try {
+        await loadPayPalSDK(newCurrency);
         await initPayPalButton();
         setIsPayPalLoaded(true);
         setLoadingError(false);
@@ -552,7 +523,7 @@ const DonationsBox = () => {
         setErrorMessage('Failed to switch currency. Please refresh the page.');
       }
       setIsChangingCurrency(false);
-    }, 500);
+    }, 100);
   };
 
   // Add function to reset donation success state
@@ -587,6 +558,7 @@ const DonationsBox = () => {
   useEffect(() => {
     const initializePayPal = async () => {
       try {
+        await loadPayPalSDK(selectedCurrency);
         await initPayPalButton();
         setIsPayPalLoaded(true);
         setLoadingError(false);
