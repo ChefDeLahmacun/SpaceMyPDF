@@ -39,6 +39,8 @@ const DonationsBox = () => {
   const [forceUpdate, setForceUpdate] = useState(false);
   // Add error message state
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  // Add state to track currency changes
+  const [isChangingCurrency, setIsChangingCurrency] = useState(false);
   
   // Currency options with symbols
   const currencies = [
@@ -439,6 +441,7 @@ const DonationsBox = () => {
   const handleCurrencyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newCurrency = e.target.value;
     setSelectedCurrency(newCurrency);
+    setIsChangingCurrency(true);
     
     // Currency changes require a complete reload of the PayPal SDK
     // First, clean up the existing button
@@ -451,30 +454,29 @@ const DonationsBox = () => {
       }
     }
     
-    // Reset states and force complete re-render
+    // Reset states completely
     setLoadingError(false);
     setErrorMessage(null);
-    setIsPayPalLoaded(false); // Reset PayPal loaded state
+    setIsPayPalLoaded(false);
+    
+    // Remove existing PayPal script and clear PayPal object
+    const existingScript = document.querySelector('[id^="paypal-script-"]');
+    if (existingScript) {
+      existingScript.remove();
+    }
+    
+    // Clear PayPal object
+    if (window.paypal) {
+      delete window.paypal;
+    }
     
     // Force complete re-render with new currency
     setButtonKey(prevKey => prevKey + 1);
     
-    // If PayPal is already loaded, reload the script with new currency
-    if (window.paypal) {
-      // Remove the existing script
-      const existingScript = document.getElementById('paypal-script');
-      if (existingScript) {
-        existingScript.remove();
-      }
-      
-      // Clear the PayPal object
-      delete window.paypal;
-      
-      // Force a small delay before reloading
-      setTimeout(() => {
-        setButtonKey(prevKey => prevKey + 1);
-      }, 100);
-    }
+    // Reset currency changing state after a delay
+    setTimeout(() => {
+      setIsChangingCurrency(false);
+    }, 1000);
   };
 
   // Add function to reset donation success state
@@ -590,8 +592,8 @@ const DonationsBox = () => {
   
   // Effect to initialize the PayPal button when the component mounts or when buttonKey changes
   useEffect(() => {
-    // Only initialize if we're not in success state and PayPal is available
-    if (window.paypal && !donationSuccess && isPayPalLoaded) {
+    // Only initialize if we're not in success state, PayPal is available, and not changing currency
+    if (window.paypal && !donationSuccess && isPayPalLoaded && !isChangingCurrency) {
       // Reset the force update flag
       if (forceUpdate) {
         setForceUpdate(false);
@@ -607,7 +609,7 @@ const DonationsBox = () => {
         clearTimeout(timer);
       };
     }
-  }, [buttonKey, donationSuccess, isPayPalLoaded, forceUpdate]);
+  }, [buttonKey, donationSuccess, isPayPalLoaded, forceUpdate, isChangingCurrency]);
 
   // Add an effect to monitor the card section state
   useEffect(() => {
@@ -662,7 +664,7 @@ const DonationsBox = () => {
       }
       
       // Remove PayPal script
-      const existingScript = document.getElementById('paypal-script');
+      const existingScript = document.querySelector('[id^="paypal-script-"]');
       if (existingScript) {
         existingScript.remove();
       }
@@ -699,10 +701,9 @@ const DonationsBox = () => {
       maxWidth: '100%',
     }}>
       <Script 
-        id="paypal-script"
+        id={`paypal-script-${selectedCurrency}-${buttonKey}`}
         src={`https://www.paypal.com/sdk/js?client-id=${process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID}&currency=${selectedCurrency}&intent=capture&enable-funding=card&disable-funding=paylater&locale=en_GB&commit=true`}
         strategy="afterInteractive"
-        key={`paypal-${selectedCurrency}-${buttonKey}`}
         onLoad={() => {
           // Wait for PayPal SDK to fully initialize
           const checkPayPalReady = () => {
@@ -1101,7 +1102,7 @@ const DonationsBox = () => {
                 boxSizing: 'border-box'
               }}
             >
-              {!isPayPalLoaded && !forceUpdate && (
+              {(!isPayPalLoaded || isChangingCurrency) && !forceUpdate && (
                 <div style={{
                   width: '100%',
                   height: '45px',
@@ -1113,7 +1114,7 @@ const DonationsBox = () => {
                   color: '#003087',
                   fontSize: '16px'
                 }}>
-                  Loading PayPal for {selectedCurrency}...
+                  {isChangingCurrency ? `Switching to ${selectedCurrency}...` : `Loading PayPal for ${selectedCurrency}...`}
                 </div>
               )}
             </div>
