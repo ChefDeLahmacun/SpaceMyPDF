@@ -458,6 +458,23 @@ const DonationsBox = () => {
     
     // Force complete re-render with new currency
     setButtonKey(prevKey => prevKey + 1);
+    
+    // If PayPal is already loaded, reload the script with new currency
+    if (window.paypal) {
+      // Remove the existing script
+      const existingScript = document.getElementById('paypal-script');
+      if (existingScript) {
+        existingScript.remove();
+      }
+      
+      // Clear the PayPal object
+      delete window.paypal;
+      
+      // Force a small delay before reloading
+      setTimeout(() => {
+        setButtonKey(prevKey => prevKey + 1);
+      }, 100);
+    }
   };
 
   // Add function to reset donation success state
@@ -631,6 +648,32 @@ const DonationsBox = () => {
     };
   }, []);
 
+  // Clean up PayPal script on unmount
+  useEffect(() => {
+    return () => {
+      // Clean up PayPal button
+      if (buttonInstance.current) {
+        try {
+          buttonInstance.current.close();
+          buttonInstance.current = null;
+        } catch (error) {
+          // Error closing PayPal button
+        }
+      }
+      
+      // Remove PayPal script
+      const existingScript = document.getElementById('paypal-script');
+      if (existingScript) {
+        existingScript.remove();
+      }
+      
+      // Clear PayPal object
+      if (window.paypal) {
+        delete window.paypal;
+      }
+    };
+  }, []);
+
 
 
 
@@ -656,9 +699,10 @@ const DonationsBox = () => {
       maxWidth: '100%',
     }}>
       <Script 
-        id={`paypal-script-${selectedCurrency}-${buttonKey}`}
+        id="paypal-script"
         src={`https://www.paypal.com/sdk/js?client-id=${process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID}&currency=${selectedCurrency}&intent=capture&enable-funding=card&disable-funding=paylater&locale=en_GB&commit=true`}
         strategy="afterInteractive"
+        key={`paypal-${selectedCurrency}-${buttonKey}`}
         onLoad={() => {
           // Wait for PayPal SDK to fully initialize
           const checkPayPalReady = () => {
