@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useRef } from 'react';
-import Script from 'next/script';
 
 declare global {
   interface Window {
@@ -8,6 +7,11 @@ declare global {
 }
 
 
+
+// Global PayPal SDK state management
+let paypalSDKLoaded = false;
+let paypalSDKLoading = false;
+let paypalSDKPromise: Promise<void> | null = null;
 
 const DonationsBox = () => {
   const [isPayPalLoaded, setIsPayPalLoaded] = useState(false);
@@ -54,7 +58,78 @@ const DonationsBox = () => {
     return currency ? currency.symbol : '£';
   };
 
-  const initPayPalButton = () => {
+  // Function to safely load PayPal SDK
+  const loadPayPalSDK = (): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      // If already loaded, resolve immediately
+      if (paypalSDKLoaded && window.paypal) {
+        resolve();
+        return;
+      }
+
+      // If currently loading, return the existing promise
+      if (paypalSDKLoading && paypalSDKPromise) {
+        paypalSDKPromise.then(resolve).catch(reject);
+        return;
+      }
+
+      // If already loaded but window.paypal is not available, reset state
+      if (paypalSDKLoaded && !window.paypal) {
+        paypalSDKLoaded = false;
+      }
+
+      // Start loading
+      paypalSDKLoading = true;
+      paypalSDKPromise = new Promise((innerResolve, innerReject) => {
+        // Check if script already exists
+        const existingScript = document.querySelector('#paypal-script');
+        if (existingScript) {
+          existingScript.remove();
+        }
+
+        // Create new script element
+        const script = document.createElement('script');
+        script.id = 'paypal-script';
+        script.src = `https://www.paypal.com/sdk/js?client-id=${process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID}&intent=capture&enable-funding=card&disable-funding=paylater&locale=en_US&commit=true`;
+        script.async = true;
+        script.defer = true;
+
+        script.onload = () => {
+          // Wait a bit for PayPal to fully initialize
+          setTimeout(() => {
+            if (window.paypal && window.paypal.Buttons) {
+              paypalSDKLoaded = true;
+              paypalSDKLoading = false;
+              innerResolve();
+            } else {
+              paypalSDKLoading = false;
+              innerReject(new Error('PayPal SDK failed to initialize'));
+            }
+          }, 100);
+        };
+
+        script.onerror = () => {
+          paypalSDKLoading = false;
+          innerReject(new Error('Failed to load PayPal SDK'));
+        };
+
+        document.head.appendChild(script);
+      });
+
+      paypalSDKPromise.then(resolve).catch(reject);
+    });
+  };
+
+  const initPayPalButton = async () => {
+    try {
+      // Load PayPal SDK if not already loaded
+      await loadPayPalSDK();
+    } catch (error) {
+      setLoadingError(true);
+      setErrorMessage('PayPal SDK failed to load. Please refresh the page and try again.');
+      return;
+    }
+    
     if (!window.paypal) {
       setLoadingError(true);
       setErrorMessage('PayPal SDK failed to load. Please refresh the page and try again.');
@@ -67,11 +142,14 @@ const DonationsBox = () => {
     }
 
     // Initialize PayPal button silently
-
     try {
       // Cleanup previous instance if it exists
       if (buttonInstance.current) {
-        buttonInstance.current.close();
+        try {
+          buttonInstance.current.close();
+        } catch (error) {
+          // Ignore cleanup errors
+        }
         buttonInstance.current = null;
       }
 
@@ -497,6 +575,27 @@ const DonationsBox = () => {
     }, 100);
   };
 
+  // Initialize PayPal button on component mount
+  useEffect(() => {
+    const initializePayPal = async () => {
+      try {
+        await initPayPalButton();
+        setIsPayPalLoaded(true);
+        setLoadingError(false);
+      } catch (error) {
+        setLoadingError(true);
+        setErrorMessage('Failed to initialize PayPal. Please refresh the page and try again.');
+      }
+    };
+
+    // Initialize after a short delay to ensure DOM is ready
+    const timer = setTimeout(initializePayPal, 100);
+    
+    return () => {
+      clearTimeout(timer);
+    };
+  }, []);
+
   // Suppress PayPal SDK console warnings
   useEffect(() => {
     const originalWarn = console.warn;
@@ -506,8 +605,9 @@ const DonationsBox = () => {
     console.warn = (...args) => {
       const message = args.join(' ');
       if (message.includes('global_session_not_found') || 
-          message.includes('PayPal') && message.includes('session')) {
-        // Suppress PayPal session warnings
+          message.includes('PayPal') && message.includes('session') ||
+          message.includes('zoid_allow_delegate_three_domain_secure')) {
+        // Suppress PayPal session warnings and zoid errors
         return;
       }
       originalWarn.apply(console, args);
@@ -516,8 +616,9 @@ const DonationsBox = () => {
     console.error = (...args) => {
       const message = args.join(' ');
       if (message.includes('global_session_not_found') || 
-          message.includes('PayPal') && message.includes('session')) {
-        // Suppress PayPal session errors
+          message.includes('PayPal') && message.includes('session') ||
+          message.includes('zoid_allow_delegate_three_domain_secure')) {
+        // Suppress PayPal session errors and zoid errors
         return;
       }
       originalError.apply(console, args);
@@ -589,17 +690,17 @@ const DonationsBox = () => {
   
   // Effect to handle force updates
   useEffect(() => {
-    if (forceUpdate && window.paypal && !donationSuccess && !isChangingCurrency) {
+    if (forceUpdate && !donationSuccess && !isChangingCurrency) {
       setForceUpdate(false);
-      setTimeout(() => {
-        initPayPalButton();
+      setTimeout(async () => {
+        await initPayPalButton();
       }, 200);
     }
   }, [forceUpdate, donationSuccess, isChangingCurrency]);
 
   // Effect to reinitialize PayPal button when currency changes
   useEffect(() => {
-    if (window.paypal && window.paypal.Buttons && !donationSuccess && !isChangingCurrency && isPayPalLoaded) {
+    if (!donationSuccess && !isChangingCurrency && isPayPalLoaded) {
       // Clean up existing button
       if (buttonInstance.current) {
         try {
@@ -611,9 +712,9 @@ const DonationsBox = () => {
       }
       
       // Reinitialize with new currency
-      setTimeout(() => {
+      setTimeout(async () => {
         try {
-          initPayPalButton();
+          await initPayPalButton();
         } catch (error) {
           // Error reinitializing PayPal button for currency change
         }
@@ -673,21 +774,16 @@ const DonationsBox = () => {
         }
       }
       
-      // Remove ALL PayPal scripts
-      const allPayPalScripts = document.querySelectorAll('[id^="paypal-script"]');
-      allPayPalScripts.forEach(script => script.remove());
-      
-      // Clear PayPal object and all related state
-      if (window.paypal) {
-        try {
-          if (window.paypal.Buttons) {
-            delete window.paypal.Buttons;
-          }
-          delete window.paypal;
-        } catch (error) {
-          // Error cleaning PayPal state on unmount
-        }
+      // Remove PayPal script
+      const paypalScript = document.querySelector('#paypal-script');
+      if (paypalScript) {
+        paypalScript.remove();
       }
+      
+      // Reset global state
+      paypalSDKLoaded = false;
+      paypalSDKLoading = false;
+      paypalSDKPromise = null;
     };
   }, []);
 
@@ -715,55 +811,6 @@ const DonationsBox = () => {
       width: '100%',
       maxWidth: '100%',
     }}>
-      <Script 
-        id="paypal-script"
-        src={`https://www.paypal.com/sdk/js?client-id=${process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID}&intent=capture&enable-funding=card&disable-funding=paylater&locale=en_US&commit=true`}
-        strategy="afterInteractive"
-        onLoad={() => {
-          // Wait for PayPal to be fully ready
-          const initPayPal = () => {
-            if (window.paypal && window.paypal.Buttons && buttonContainerRef.current) {
-              // Clean up any existing button
-              if (buttonInstance.current) {
-                try {
-                  buttonInstance.current.close();
-                  buttonInstance.current = null;
-                } catch (error) {
-                  // Error closing existing button
-                }
-              }
-              
-              // Initialize the button
-              try {
-                initPayPalButton();
-                setIsPayPalLoaded(true);
-                setLoadingError(false);
-              } catch (error) {
-                setLoadingError(true);
-                setErrorMessage('Failed to initialize PayPal button. Please try again.');
-              }
-            } else {
-              // Retry after a short delay
-              setTimeout(initPayPal, 200);
-            }
-          };
-          
-          // Start initialization
-          setTimeout(initPayPal, 100);
-        }}
-        onError={(e) => {
-          setLoadingError(true);
-          setErrorMessage('Failed to load PayPal. Please check your connection and try again.');
-          
-          // Retry loading after a delay, up to 3 times
-          if (loadAttempts < 3) {
-            setTimeout(() => {
-              setLoadAttempts(prev => prev + 1);
-              setButtonKey(prev => prev + 1);
-            }, 3000);
-          }
-        }}
-      />
       
       <h2 style={{
         fontSize: 'clamp(18px, 5vw, 22px)',
