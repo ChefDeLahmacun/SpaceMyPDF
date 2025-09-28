@@ -30,7 +30,7 @@ const nextConfig = {
           },
           {
             key: 'Permissions-Policy',
-            value: "geolocation=(), microphone=(), camera=(), payment=(self), usb=(), magnetometer=(), gyroscope=(), accelerometer=(), fullscreen=(self)"
+            value: "geolocation=(), microphone=(), camera=(), payment=(self), usb=(), magnetometer=(), gyroscope=(), accelerometer=(), fullscreen=(self), interest-cohort=()"
           },
           {
             key: 'X-Frame-Options',

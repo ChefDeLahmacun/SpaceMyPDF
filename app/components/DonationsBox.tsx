@@ -109,8 +109,6 @@ const DonationsBox = () => {
               currentAmountRef.current = formattedAmount;
             }
             
-            // Debug log to verify the amount being used
-            console.log('PayPal createOrder - Amount being used:', formattedAmount, 'Currency:', selectedCurrency);
             
             // For card payments, we need to ensure the order is created properly
             const isCardPayment = _data?.fundingSource === 'card';
@@ -373,30 +371,33 @@ const DonationsBox = () => {
         clearTimeout(updateTimeoutRef.current);
       }
       
-      // Use a shorter timeout (500ms) for faster updates
+      // Use a longer timeout (2 seconds) to allow user to finish typing
       updateTimeoutRef.current = setTimeout(() => {
         if (validateAmount(value)) {
           const formattedAmount = formatAmount(value);
           
-          // Always update the ref
-          currentAmountRef.current = formattedAmount;
-          setDonationAmount(formattedAmount);
-          
-          // FORCE complete PayPal button recreation
-          if (buttonInstance.current) {
-            try {
-              buttonInstance.current.close();
-              buttonInstance.current = null;
-            } catch (error) {
-              // Error closing PayPal button
+          // Only update if the amount has actually changed
+          if (formattedAmount !== currentAmountRef.current) {
+            // Always update the ref
+            currentAmountRef.current = formattedAmount;
+            setDonationAmount(formattedAmount);
+            
+            // FORCE complete PayPal button recreation
+            if (buttonInstance.current) {
+              try {
+                buttonInstance.current.close();
+                buttonInstance.current = null;
+              } catch (error) {
+                // Error closing PayPal button
+              }
             }
+            
+            // Force complete re-render
+            setForceUpdate(true);
+            setButtonKey(prevKey => prevKey + 1);
           }
-          
-          // Force complete re-render
-          setForceUpdate(true);
-          setButtonKey(prevKey => prevKey + 1);
         }
-      }, 500);
+      }, 2000);
     }
   };
 
@@ -573,9 +574,7 @@ const DonationsBox = () => {
   // Effect to initialize the PayPal button when the component mounts or when buttonKey or selectedCurrency changes
   useEffect(() => {
     // Only initialize if we're not in success state and PayPal is available
-    if (window.paypal && !donationSuccess && isPayPalLoaded) {
-      console.log('Initializing PayPal button for currency:', selectedCurrency, 'buttonKey:', buttonKey);
-      
+    if (window.paypal && !donationSuccess && isPayPalLoaded && !buttonInstance.current) {
       // Reset the force update flag
       if (forceUpdate) {
         setForceUpdate(false);
@@ -589,18 +588,9 @@ const DonationsBox = () => {
       // Cleanup function
       return () => {
         clearTimeout(timer);
-        // Clean up PayPal button instance if it exists
-        if (buttonInstance.current) {
-          try {
-            buttonInstance.current.close();
-            buttonInstance.current = null;
-          } catch (error) {
-            // Error cleaning up PayPal button
-          }
-        }
       };
     }
-  }, [buttonKey, selectedCurrency, donationSuccess, loadAttempts, isPayPalLoaded, forceUpdate]);
+  }, [buttonKey, selectedCurrency, donationSuccess, isPayPalLoaded, forceUpdate]);
 
   // Add an effect to monitor the card section state
   useEffect(() => {
@@ -641,31 +631,6 @@ const DonationsBox = () => {
     };
   }, []);
 
-  // Add effect to watch for amount changes and force PayPal button update
-  useEffect(() => {
-    if (donationAmount && validateAmount(donationAmount)) {
-      const formattedAmount = formatAmount(donationAmount);
-      
-      // Only update if the amount has actually changed
-      if (formattedAmount !== currentAmountRef.current) {
-        currentAmountRef.current = formattedAmount;
-        
-        // Force PayPal button recreation if it exists
-        if (buttonInstance.current && isPayPalLoaded) {
-          try {
-            buttonInstance.current.close();
-            buttonInstance.current = null;
-          } catch (error) {
-            // Error closing PayPal button
-          }
-          
-          // Force re-render
-          setForceUpdate(true);
-          setButtonKey(prevKey => prevKey + 1);
-        }
-      }
-    }
-  }, [donationAmount, isPayPalLoaded]);
 
 
 
@@ -695,12 +660,9 @@ const DonationsBox = () => {
         src={`https://www.paypal.com/sdk/js?client-id=${process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID}&currency=${selectedCurrency}&intent=capture&enable-funding=card&disable-funding=paylater&locale=en_GB&commit=true`}
         strategy="afterInteractive"
         onLoad={() => {
-          console.log('PayPal SDK loaded for currency:', selectedCurrency);
-          
           // Wait for PayPal SDK to fully initialize
           const checkPayPalReady = () => {
             if (window.paypal && window.paypal.Buttons && buttonContainerRef.current) {
-              console.log('PayPal SDK ready, initializing button');
               // Initialize the PayPal button
               initPayPalButton();
               setIsPayPalLoaded(true);
@@ -715,7 +677,6 @@ const DonationsBox = () => {
           checkPayPalReady();
         }}
         onError={(e) => {
-          console.error('PayPal SDK load error:', e);
           setLoadingError(true);
           
           // Retry loading after a delay, up to 3 times
