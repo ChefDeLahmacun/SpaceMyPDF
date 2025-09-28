@@ -439,8 +439,23 @@ const DonationsBox = () => {
     const newCurrency = e.target.value;
     setSelectedCurrency(newCurrency);
     
-    // Currency changes require a reload of the PayPal SDK
-    // But we'll make it as seamless as possible
+    // Currency changes require a complete reload of the PayPal SDK
+    // First, clean up the existing button
+    if (buttonInstance.current) {
+      try {
+        buttonInstance.current.close();
+        buttonInstance.current = null;
+      } catch (error) {
+        // Error closing PayPal button
+      }
+    }
+    
+    // Reset states
+    setIsPayPalLoaded(false);
+    setLoadingError(false);
+    setErrorMessage(null);
+    
+    // Force complete re-render with new currency
     setButtonKey(prevKey => prevKey + 1);
   };
 
@@ -558,8 +573,9 @@ const DonationsBox = () => {
   // Effect to initialize the PayPal button when the component mounts or when buttonKey or selectedCurrency changes
   useEffect(() => {
     // Only initialize if we're not in success state and PayPal is available
-    // and the button hasn't been initialized yet by the script onLoad handler
-    if (window.paypal && !donationSuccess && (forceUpdate || (!buttonInstance.current && isPayPalLoaded))) {
+    if (window.paypal && !donationSuccess && isPayPalLoaded) {
+      console.log('Initializing PayPal button for currency:', selectedCurrency, 'buttonKey:', buttonKey);
+      
       // Reset the force update flag
       if (forceUpdate) {
         setForceUpdate(false);
@@ -568,7 +584,7 @@ const DonationsBox = () => {
       // Small delay to ensure the DOM is ready
       const timer = setTimeout(() => {
         initPayPalButton();
-      }, 100);
+      }, 200);
       
       // Cleanup function
       return () => {
@@ -675,13 +691,16 @@ const DonationsBox = () => {
       maxWidth: '100%',
     }}>
       <Script 
-        id="paypal-script"
+        id={`paypal-script-${selectedCurrency}-${buttonKey}`}
         src={`https://www.paypal.com/sdk/js?client-id=${process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID}&currency=${selectedCurrency}&intent=capture&enable-funding=card&disable-funding=paylater&locale=en_GB&commit=true`}
         strategy="afterInteractive"
         onLoad={() => {
+          console.log('PayPal SDK loaded for currency:', selectedCurrency);
+          
           // Wait for PayPal SDK to fully initialize
           const checkPayPalReady = () => {
             if (window.paypal && window.paypal.Buttons && buttonContainerRef.current) {
+              console.log('PayPal SDK ready, initializing button');
               // Initialize the PayPal button
               initPayPalButton();
               setIsPayPalLoaded(true);
@@ -696,6 +715,7 @@ const DonationsBox = () => {
           checkPayPalReady();
         }}
         onError={(e) => {
+          console.error('PayPal SDK load error:', e);
           setLoadingError(true);
           
           // Retry loading after a delay, up to 3 times
@@ -706,7 +726,6 @@ const DonationsBox = () => {
             }, 2000);
           }
         }}
-        key={`paypal-script-${selectedCurrency}-${buttonKey}-${loadAttempts}`} // Add loadAttempts to force reload
       />
       
       <h2 style={{
@@ -1075,7 +1094,7 @@ const DonationsBox = () => {
                   color: '#003087',
                   fontSize: '16px'
                 }}>
-                  Loading PayPal...
+                  Loading PayPal for {selectedCurrency}...
                 </div>
               )}
             </div>
