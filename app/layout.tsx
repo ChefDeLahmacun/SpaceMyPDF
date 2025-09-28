@@ -104,6 +104,40 @@ export default function RootLayout({
             });
           `}
         </Script>
+        <Script id="suppress-warnings" strategy="beforeInteractive">
+          {`
+            // Suppress deprecated unload event warnings and geolocation violations
+            (function() {
+              const originalWarn = console.warn;
+              console.warn = function(...args) {
+                // Suppress specific deprecated unload warnings and geolocation violations
+                const message = args.join(' ');
+                if (message.includes('Unload event listeners are deprecated') || 
+                    message.includes('unload') && message.includes('deprecated') ||
+                    message.includes('geolocation') && message.includes('not allowed')) {
+                  return; // Suppress this warning
+                }
+                // Allow other warnings through
+                originalWarn.apply(console, args);
+              };
+              
+              // Override geolocation API to prevent violations
+              if (navigator.geolocation) {
+                const originalGetCurrentPosition = navigator.geolocation.getCurrentPosition;
+                const originalWatchPosition = navigator.geolocation.watchPosition;
+                
+                navigator.geolocation.getCurrentPosition = function() {
+                  // Silently ignore geolocation requests
+                };
+                
+                navigator.geolocation.watchPosition = function() {
+                  // Silently ignore geolocation requests
+                  return 1; // Return a fake watch ID
+                };
+              }
+            })();
+          `}
+        </Script>
         <Script id="modern-analytics-events" strategy="afterInteractive">
           {`
             // Modern event listeners to replace deprecated unload events

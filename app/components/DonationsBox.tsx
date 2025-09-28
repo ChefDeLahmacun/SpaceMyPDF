@@ -371,7 +371,7 @@ const DonationsBox = () => {
         clearTimeout(updateTimeoutRef.current);
       }
       
-      // Use a longer timeout (2 seconds) to allow user to finish typing
+      // Use a reasonable timeout (1 second) to allow user to finish typing
       updateTimeoutRef.current = setTimeout(() => {
         if (validateAmount(value)) {
           const formattedAmount = formatAmount(value);
@@ -397,7 +397,7 @@ const DonationsBox = () => {
             setButtonKey(prevKey => prevKey + 1);
           }
         }
-      }, 2000);
+      }, 1000);
     }
   };
 
