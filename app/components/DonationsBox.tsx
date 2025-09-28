@@ -445,7 +445,7 @@ const DonationsBox = () => {
         buttonInstance.current.close();
         buttonInstance.current = null;
       } catch (error) {
-        // Error closing PayPal button
+        console.log('Error closing PayPal button:', error);
       }
     }
     
@@ -454,22 +454,23 @@ const DonationsBox = () => {
     setErrorMessage(null);
     setIsPayPalLoaded(false);
     
-    // Remove ALL PayPal scripts
-    const allPayPalScripts = document.querySelectorAll('[id^="paypal-script"]');
-    allPayPalScripts.forEach(script => script.remove());
-    
-    // Clear PayPal object completely
-    if (window.paypal) {
-      delete window.paypal;
-    }
-    
-    // Force complete re-render
-    setButtonKey(prevKey => prevKey + 1);
-    
-    // Reset currency changing state
+    // Instead of reloading, just reinitialize with new currency
+    // The PayPal SDK should handle currency changes dynamically
     setTimeout(() => {
+      if (window.paypal && window.paypal.Buttons) {
+        try {
+          initPayPalButton();
+          setIsPayPalLoaded(true);
+          setLoadingError(false);
+          console.log(`PayPal button reinitialized for ${newCurrency}`);
+        } catch (error) {
+          console.error('Error reinitializing PayPal button:', error);
+          setLoadingError(true);
+          setErrorMessage('Failed to switch currency. Please refresh the page.');
+        }
+      }
       setIsChangingCurrency(false);
-    }, 1500);
+    }, 500);
   };
 
   // Add function to reset donation success state
@@ -599,6 +600,31 @@ const DonationsBox = () => {
     }
   }, [forceUpdate, donationSuccess, isChangingCurrency]);
 
+  // Effect to reinitialize PayPal button when currency changes
+  useEffect(() => {
+    if (window.paypal && window.paypal.Buttons && !donationSuccess && !isChangingCurrency && isPayPalLoaded) {
+      // Clean up existing button
+      if (buttonInstance.current) {
+        try {
+          buttonInstance.current.close();
+          buttonInstance.current = null;
+        } catch (error) {
+          console.log('Error closing existing button for currency change:', error);
+        }
+      }
+      
+      // Reinitialize with new currency
+      setTimeout(() => {
+        try {
+          initPayPalButton();
+          console.log(`PayPal button reinitialized for currency: ${selectedCurrency}`);
+        } catch (error) {
+          console.error('Error reinitializing PayPal button for currency change:', error);
+        }
+      }, 100);
+    }
+  }, [selectedCurrency, donationSuccess, isChangingCurrency, isPayPalLoaded]);
+
   // Add an effect to monitor the card section state
   useEffect(() => {
     // Function to check if the card section is open
@@ -647,19 +673,24 @@ const DonationsBox = () => {
           buttonInstance.current.close();
           buttonInstance.current = null;
         } catch (error) {
-          // Error closing PayPal button
+          console.log('Error closing PayPal button on unmount:', error);
         }
       }
       
-      // Remove PayPal script
-      const existingScript = document.querySelector('[id^="paypal-script-"]');
-      if (existingScript) {
-        existingScript.remove();
-      }
+      // Remove ALL PayPal scripts
+      const allPayPalScripts = document.querySelectorAll('[id^="paypal-script"]');
+      allPayPalScripts.forEach(script => script.remove());
       
-      // Clear PayPal object
+      // Clear PayPal object and all related state
       if (window.paypal) {
-        delete window.paypal;
+        try {
+          if (window.paypal.Buttons) {
+            delete window.paypal.Buttons;
+          }
+          delete window.paypal;
+        } catch (error) {
+          console.log('Error cleaning PayPal state on unmount:', error);
+        }
       }
     };
   }, []);
@@ -688,64 +719,62 @@ const DonationsBox = () => {
       width: '100%',
       maxWidth: '100%',
     }}>
-      {!isChangingCurrency && (
-        <Script 
-          id={`paypal-script-${selectedCurrency}-${buttonKey}`}
-          src={`https://www.paypal.com/sdk/js?client-id=${process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID}&currency=${selectedCurrency}&intent=capture&enable-funding=card&disable-funding=paylater&locale=en_US&commit=true`}
-          strategy="afterInteractive"
-          onLoad={() => {
-            console.log(`PayPal SDK loaded for currency: ${selectedCurrency}`);
-            
-            // Wait for PayPal to be fully ready
-            const initPayPal = () => {
-              if (window.paypal && window.paypal.Buttons && buttonContainerRef.current) {
-                console.log(`Initializing PayPal button for currency: ${selectedCurrency}`);
-                
-                // Clean up any existing button
-                if (buttonInstance.current) {
-                  try {
-                    buttonInstance.current.close();
-                    buttonInstance.current = null;
-                  } catch (error) {
-                    console.log('Error closing existing button:', error);
-                  }
-                }
-                
-                // Initialize the button
+      <Script 
+        id="paypal-script"
+        src={`https://www.paypal.com/sdk/js?client-id=${process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID}&intent=capture&enable-funding=card&disable-funding=paylater&locale=en_US&commit=true`}
+        strategy="afterInteractive"
+        onLoad={() => {
+          console.log('PayPal SDK loaded');
+          
+          // Wait for PayPal to be fully ready
+          const initPayPal = () => {
+            if (window.paypal && window.paypal.Buttons && buttonContainerRef.current) {
+              console.log(`Initializing PayPal button for currency: ${selectedCurrency}`);
+              
+              // Clean up any existing button
+              if (buttonInstance.current) {
                 try {
-                  initPayPalButton();
-                  setIsPayPalLoaded(true);
-                  setLoadingError(false);
-                  console.log(`PayPal button initialized successfully for ${selectedCurrency}`);
+                  buttonInstance.current.close();
+                  buttonInstance.current = null;
                 } catch (error) {
-                  console.error('Error initializing PayPal button:', error);
-                  setLoadingError(true);
-                  setErrorMessage('Failed to initialize PayPal button. Please try again.');
+                  console.log('Error closing existing button:', error);
                 }
-              } else {
-                // Retry after a short delay
-                setTimeout(initPayPal, 200);
               }
-            };
-            
-            // Start initialization
-            setTimeout(initPayPal, 100);
-          }}
-          onError={(e) => {
-            console.error('PayPal script loading error:', e);
-            setLoadingError(true);
-            setErrorMessage('Failed to load PayPal. Please check your connection and try again.');
-            
-            // Retry loading after a delay, up to 3 times
-            if (loadAttempts < 3) {
-              setTimeout(() => {
-                setLoadAttempts(prev => prev + 1);
-                setButtonKey(prev => prev + 1);
-              }, 3000);
+              
+              // Initialize the button
+              try {
+                initPayPalButton();
+                setIsPayPalLoaded(true);
+                setLoadingError(false);
+                console.log(`PayPal button initialized successfully for ${selectedCurrency}`);
+              } catch (error) {
+                console.error('Error initializing PayPal button:', error);
+                setLoadingError(true);
+                setErrorMessage('Failed to initialize PayPal button. Please try again.');
+              }
+            } else {
+              // Retry after a short delay
+              setTimeout(initPayPal, 200);
             }
-          }}
-        />
-      )}
+          };
+          
+          // Start initialization
+          setTimeout(initPayPal, 100);
+        }}
+        onError={(e) => {
+          console.error('PayPal script loading error:', e);
+          setLoadingError(true);
+          setErrorMessage('Failed to load PayPal. Please check your connection and try again.');
+          
+          // Retry loading after a delay, up to 3 times
+          if (loadAttempts < 3) {
+            setTimeout(() => {
+              setLoadAttempts(prev => prev + 1);
+              setButtonKey(prev => prev + 1);
+            }, 3000);
+          }
+        }}
+      />
       
       <h2 style={{
         fontSize: 'clamp(18px, 5vw, 22px)',
