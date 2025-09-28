@@ -87,10 +87,10 @@ const DonationsBox = () => {
           existingScript.remove();
         }
 
-        // Create new script element
+        // Create new script element with dynamic currency
         const script = document.createElement('script');
         script.id = 'paypal-script';
-        script.src = `https://www.paypal.com/sdk/js?client-id=${process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID}&intent=capture&enable-funding=card&disable-funding=paylater&locale=en_US&commit=true`;
+        script.src = `https://www.paypal.com/sdk/js?client-id=${process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID}&currency=${selectedCurrency}&intent=capture&enable-funding=card&disable-funding=paylater&locale=en_US&commit=true`;
         script.async = true;
         script.defer = true;
 
@@ -530,18 +530,26 @@ const DonationsBox = () => {
     setErrorMessage(null);
     setIsPayPalLoaded(false);
     
-    // Instead of reloading, just reinitialize with new currency
-    // The PayPal SDK should handle currency changes dynamically
-    setTimeout(() => {
-      if (window.paypal && window.paypal.Buttons) {
-        try {
-          initPayPalButton();
-          setIsPayPalLoaded(true);
-          setLoadingError(false);
-        } catch (error) {
-          setLoadingError(true);
-          setErrorMessage('Failed to switch currency. Please refresh the page.');
-        }
+    // Reset global PayPal SDK state to force reload with new currency
+    paypalSDKLoaded = false;
+    paypalSDKLoading = false;
+    paypalSDKPromise = null;
+    
+    // Remove existing PayPal script
+    const existingScript = document.querySelector('#paypal-script');
+    if (existingScript) {
+      existingScript.remove();
+    }
+    
+    // Reload PayPal SDK with new currency
+    setTimeout(async () => {
+      try {
+        await initPayPalButton();
+        setIsPayPalLoaded(true);
+        setLoadingError(false);
+      } catch (error) {
+        setLoadingError(true);
+        setErrorMessage('Failed to switch currency. Please refresh the page.');
       }
       setIsChangingCurrency(false);
     }, 500);
