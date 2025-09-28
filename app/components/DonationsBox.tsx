@@ -101,7 +101,13 @@ const DonationsBox = () => {
           try {
             // Always get the current donation amount from the ref at the time of order creation
             // This ensures we use the latest value even if the button wasn't re-rendered
-            const formattedAmount = currentAmountRef.current;
+            let formattedAmount = currentAmountRef.current;
+            
+            // Double-check: if the ref is empty or invalid, use the state value
+            if (!formattedAmount || !validateAmount(formattedAmount)) {
+              formattedAmount = validateAmount(donationAmount) ? formatAmount(donationAmount) : '1.00';
+              currentAmountRef.current = formattedAmount;
+            }
             
             // For card payments, we need to ensure the order is created properly
             const isCardPayment = _data?.fundingSource === 'card';
@@ -314,23 +320,17 @@ const DonationsBox = () => {
             }
           }
           
-          // Update the order amount when the button is clicked
-          // This ensures we use the current value without needing to re-render the button
-          if (validateAmount(donationAmount)) {
-            // Format the amount and update the ref
-            const formatted = formatAmount(donationAmount);
-            if (formatted !== currentAmountRef.current) {
-              currentAmountRef.current = formatted;
-              
-              // Only update state if different to avoid unnecessary re-renders
-              if (donationAmount !== formatted) {
-                setDonationAmount(formatted);
-              }
-            }
-          } else {
-            // If invalid, set to default
-            currentAmountRef.current = '1.00';
-            setDonationAmount('1.00');
+          // CRITICAL: Always update the current amount ref with the latest donation amount
+          // This ensures the createOrder function gets the most recent value
+          const currentAmount = donationAmount || '1.00';
+          const formattedAmount = validateAmount(currentAmount) ? formatAmount(currentAmount) : '1.00';
+          
+          // Update the ref immediately
+          currentAmountRef.current = formattedAmount;
+          
+          // Update state if different
+          if (donationAmount !== formattedAmount) {
+            setDonationAmount(formattedAmount);
           }
           
           setIsExpanded(true);
@@ -367,6 +367,12 @@ const DonationsBox = () => {
     if (isValid) {
       setDonationAmount(value);
       
+      // IMMEDIATELY update the ref with the current value for immediate use
+      if (validateAmount(value)) {
+        const formattedAmount = formatAmount(value);
+        currentAmountRef.current = formattedAmount;
+      }
+      
       // If the value is valid and significantly different from the current amount,
       // we need to force an update of the PayPal button
       if (validateAmount(value)) {
@@ -375,7 +381,7 @@ const DonationsBox = () => {
           clearTimeout(updateTimeoutRef.current);
         }
         
-        // Use a longer timeout (2 seconds) to avoid formatting while the user is still typing
+        // Use a shorter timeout (1 second) for faster updates
         updateTimeoutRef.current = setTimeout(() => {
           const formattedAmount = formatAmount(value);
           
@@ -406,7 +412,7 @@ const DonationsBox = () => {
             // Force re-render with new key
             setButtonKey(prevKey => prevKey + 1);
           }
-        }, 2000);
+        }, 1000);
       }
     }
   };
