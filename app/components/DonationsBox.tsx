@@ -160,9 +160,17 @@ const DonationsBox = () => {
             // This ensures we use the latest value even if the button wasn't re-rendered
             let formattedAmount = currentAmountRef.current;
             
-            // Triple-check: if the ref is empty or invalid, use the state value
+            // If ref is empty or invalid, use the current state value
             if (!formattedAmount || !validateAmount(formattedAmount)) {
-              formattedAmount = validateAmount(donationAmount) ? formatAmount(donationAmount) : '1.00';
+              const stateAmount = donationAmount || '1.00';
+              formattedAmount = validateAmount(stateAmount) ? formatAmount(stateAmount) : '1.00';
+              // Update the ref to keep it in sync
+              currentAmountRef.current = formattedAmount;
+            }
+            
+            // Final validation - ensure we have a valid amount
+            if (!formattedAmount || !validateAmount(formattedAmount)) {
+              formattedAmount = '1.00';
               currentAmountRef.current = formattedAmount;
             }
             
@@ -378,19 +386,8 @@ const DonationsBox = () => {
             }
           }
           
-          // CRITICAL: Always update the current amount ref with the latest donation amount
-          // This ensures the createOrder function gets the most recent value
-          const currentAmount = donationAmount || '1.00';
-          const formattedAmount = validateAmount(currentAmount) ? formatAmount(currentAmount) : '1.00';
-          
-          // Update the ref immediately
-          currentAmountRef.current = formattedAmount;
-          
-          // Update state if different
-          if (donationAmount !== formattedAmount) {
-            setDonationAmount(formattedAmount);
-          }
-          
+          // Don't override the current amount - just use what's already in the ref
+          // The ref should already be up to date from handleAmountChange
           setIsExpanded(true);
         },
 
@@ -415,6 +412,7 @@ const DonationsBox = () => {
     // Allow empty values during typing
     if (value === '') {
       setDonationAmount('');
+      currentAmountRef.current = '';
       return;
     }
     
@@ -422,6 +420,8 @@ const DonationsBox = () => {
     const isValid = /^\d*\.?\d{0,2}$/.test(value);
     if (isValid) {
       setDonationAmount(value);
+      // Update the ref immediately to keep it in sync
+      currentAmountRef.current = value;
       
       // Clear any existing timeout
       if (updateTimeoutRef.current) {
@@ -433,7 +433,7 @@ const DonationsBox = () => {
         if (validateAmount(value)) {
           const formattedAmount = formatAmount(value);
           
-          // Always update the ref
+          // Update both state and ref with formatted amount
           currentAmountRef.current = formattedAmount;
           setDonationAmount(formattedAmount);
           
@@ -451,6 +451,11 @@ const DonationsBox = () => {
               // Error closing PayPal button
             }
           }
+        } else {
+          // If validation fails, reset to 1.00
+          const defaultAmount = '1.00';
+          currentAmountRef.current = defaultAmount;
+          setDonationAmount(defaultAmount);
         }
       }, 1000);
     }
@@ -649,8 +654,12 @@ const DonationsBox = () => {
 
   // Add a function to handle quick amount selection
   const handleQuickAmountClick = (amount: string) => {
-    setDonationAmount(amount);
-    currentAmountRef.current = amount;
+    // Format the amount to ensure it's valid
+    const formattedAmount = validateAmount(amount) ? formatAmount(amount) : '1.00';
+    
+    // Update both state and ref
+    setDonationAmount(formattedAmount);
+    currentAmountRef.current = formattedAmount;
     
     // Reinitialize PayPal button with new amount
     if (window.paypal && window.paypal.Buttons && buttonInstance.current) {
