@@ -59,7 +59,7 @@ const DonationsBox = () => {
   };
 
   // Function to safely load PayPal SDK
-  const loadPayPalSDK = (): Promise<void> => {
+  const loadPayPalSDK = (currency: string = selectedCurrency): Promise<void> => {
     return new Promise((resolve, reject) => {
       // If already loaded, resolve immediately
       if (paypalSDKLoaded && window.paypal) {
@@ -90,7 +90,7 @@ const DonationsBox = () => {
         // Create new script element with dynamic currency
         const script = document.createElement('script');
         script.id = 'paypal-script';
-        script.src = `https://www.paypal.com/sdk/js?client-id=${process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID}&currency=${selectedCurrency}&intent=capture&enable-funding=card&disable-funding=paylater&locale=en_US&commit=true`;
+        script.src = `https://www.paypal.com/sdk/js?client-id=${process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID}&currency=${currency}&intent=capture&enable-funding=card&disable-funding=paylater&locale=en_US&commit=true`;
         script.async = true;
         script.defer = true;
 
@@ -122,8 +122,8 @@ const DonationsBox = () => {
 
   const initPayPalButton = async () => {
     try {
-      // Load PayPal SDK if not already loaded
-      await loadPayPalSDK();
+      // Load PayPal SDK if not already loaded with current currency
+      await loadPayPalSDK(selectedCurrency);
     } catch (error) {
       setLoadingError(true);
       setErrorMessage('PayPal SDK failed to load. Please refresh the page and try again.');
