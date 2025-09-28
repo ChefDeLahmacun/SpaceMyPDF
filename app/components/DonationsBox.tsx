@@ -103,11 +103,14 @@ const DonationsBox = () => {
             // This ensures we use the latest value even if the button wasn't re-rendered
             let formattedAmount = currentAmountRef.current;
             
-            // Double-check: if the ref is empty or invalid, use the state value
+            // Triple-check: if the ref is empty or invalid, use the state value
             if (!formattedAmount || !validateAmount(formattedAmount)) {
               formattedAmount = validateAmount(donationAmount) ? formatAmount(donationAmount) : '1.00';
               currentAmountRef.current = formattedAmount;
             }
+            
+            // Debug log to verify the amount being used
+            console.log('PayPal createOrder - Amount being used:', formattedAmount, 'Currency:', selectedCurrency);
             
             // For card payments, we need to ensure the order is created properly
             const isCardPayment = _data?.fundingSource === 'card';
@@ -357,8 +360,6 @@ const DonationsBox = () => {
     // Allow empty values during typing
     if (value === '') {
       setDonationAmount('');
-      // Don't update the ref or force any updates yet
-      // This allows the user to delete the entire value without it being reset
       return;
     }
     
@@ -367,53 +368,35 @@ const DonationsBox = () => {
     if (isValid) {
       setDonationAmount(value);
       
-      // IMMEDIATELY update the ref with the current value for immediate use
-      if (validateAmount(value)) {
-        const formattedAmount = formatAmount(value);
-        currentAmountRef.current = formattedAmount;
+      // Clear any existing timeout
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current);
       }
       
-      // If the value is valid and significantly different from the current amount,
-      // we need to force an update of the PayPal button
-      if (validateAmount(value)) {
-        // Clear any existing timeout
-        if (updateTimeoutRef.current) {
-          clearTimeout(updateTimeoutRef.current);
-        }
-        
-        // Use a shorter timeout (1 second) for faster updates
-        updateTimeoutRef.current = setTimeout(() => {
+      // Use a shorter timeout (500ms) for faster updates
+      updateTimeoutRef.current = setTimeout(() => {
+        if (validateAmount(value)) {
           const formattedAmount = formatAmount(value);
           
-          // Check if the amount has changed significantly (more than just formatting)
-          // This prevents unnecessary updates for small formatting changes
-          const currentAmountFloat = parseFloat(currentAmountRef.current);
-          const newAmountFloat = parseFloat(formattedAmount);
-          const difference = Math.abs(currentAmountFloat - newAmountFloat);
+          // Always update the ref
+          currentAmountRef.current = formattedAmount;
+          setDonationAmount(formattedAmount);
           
-          // If the difference is significant or we're in card mode, force an update
-          if (difference >= 0.01 || isCardSelected) {
-            currentAmountRef.current = formattedAmount;
-            setDonationAmount(formattedAmount);
-            
-            // Force a complete re-render of the PayPal button
-            if (buttonInstance.current) {
-              try {
-                buttonInstance.current.close();
-                buttonInstance.current = null;
-              } catch (error) {
-                // Error closing PayPal button
-              }
+          // FORCE complete PayPal button recreation
+          if (buttonInstance.current) {
+            try {
+              buttonInstance.current.close();
+              buttonInstance.current = null;
+            } catch (error) {
+              // Error closing PayPal button
             }
-            
-            // Set the force update flag to true
-            setForceUpdate(true);
-            
-            // Force re-render with new key
-            setButtonKey(prevKey => prevKey + 1);
           }
-        }, 1000);
-      }
+          
+          // Force complete re-render
+          setForceUpdate(true);
+          setButtonKey(prevKey => prevKey + 1);
+        }
+      }, 500);
     }
   };
 
@@ -557,14 +540,19 @@ const DonationsBox = () => {
     setDonationAmount(amount);
     currentAmountRef.current = amount;
     
-    // Force update the button if needed
+    // FORCE complete PayPal button recreation
     if (buttonInstance.current) {
-      setForceUpdate(true);
-      setTimeout(() => {
-        setForceUpdate(false);
-        setButtonKey(prev => prev + 1);
-      }, 300);
+      try {
+        buttonInstance.current.close();
+        buttonInstance.current = null;
+      } catch (error) {
+        // Error closing PayPal button
+      }
     }
+    
+    // Force complete re-render
+    setForceUpdate(true);
+    setButtonKey(prev => prev + 1);
   };
   
   // Effect to initialize the PayPal button when the component mounts or when buttonKey or selectedCurrency changes
@@ -636,6 +624,32 @@ const DonationsBox = () => {
       }
     };
   }, []);
+
+  // Add effect to watch for amount changes and force PayPal button update
+  useEffect(() => {
+    if (donationAmount && validateAmount(donationAmount)) {
+      const formattedAmount = formatAmount(donationAmount);
+      
+      // Only update if the amount has actually changed
+      if (formattedAmount !== currentAmountRef.current) {
+        currentAmountRef.current = formattedAmount;
+        
+        // Force PayPal button recreation if it exists
+        if (buttonInstance.current && isPayPalLoaded) {
+          try {
+            buttonInstance.current.close();
+            buttonInstance.current = null;
+          } catch (error) {
+            // Error closing PayPal button
+          }
+          
+          // Force re-render
+          setForceUpdate(true);
+          setButtonKey(prevKey => prevKey + 1);
+        }
+      }
+    }
+  }, [donationAmount, isPayPalLoaded]);
 
 
 
