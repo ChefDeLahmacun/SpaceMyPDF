@@ -591,8 +591,11 @@ const DonationsBox = () => {
       const message = args.join(' ');
       if (message.includes('global_session_not_found') || 
           message.includes('PayPal') && message.includes('session') ||
-          message.includes('zoid_allow_delegate_three_domain_secure')) {
-        // Suppress PayPal session warnings and zoid errors
+          message.includes('zoid_allow_delegate_three_domain_secure') ||
+          message.includes('Unload event listeners are deprecated') ||
+          message.includes('Quirks Mode') ||
+          message.includes('Page layout may be unexpected')) {
+        // Suppress PayPal session warnings, zoid errors, deprecation warnings, and quirks mode warnings
         return;
       }
       originalWarn.apply(console, args);

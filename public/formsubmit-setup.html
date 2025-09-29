@@ -162,7 +162,7 @@
     <ol>
       <li>Check your spam/junk folder for emails from FormSubmit.co</li>
       <li>Try submitting the form again</li>
-      <li>The activation email will be sent to <code>code.canogullari@gmail.com</code></li>
+      <li>The activation email will be sent to your configured email address</li>
     </ol>
   </div>
   
@@ -239,7 +239,7 @@
   
   <div class="step">
     <h2>Step 1: First-Time Setup</h2>
-    <p>The first time someone submits the form, you'll receive an activation email from FormSubmit.co at <code>code.canogullari@gmail.com</code>.</p>
+    <p>The first time someone submits the form, you'll receive an activation email from FormSubmit.co at your configured email address.</p>
     <ol>
       <li>Check your email for a message from FormSubmit.co</li>
       <li>Click the activation link in the email</li>
@@ -261,7 +261,7 @@ formData.append('_subject', `PDFextend Feedback - ${new Date().toLocaleString()}
 formData.append('_captcha', 'false');
 
 // Send to FormSubmit via fetch to prevent page redirect
-const response = await fetch('https://formsubmit.co/ajax/code.canogullari@gmail.com', {
+const response = await fetch(`https://formsubmit.co/ajax/${process.env.NEXT_PUBLIC_FEEDBACK_EMAIL || 'your-email@example.com'}`, {
   method: 'POST',
   body: formData,
   headers: {
@@ -284,7 +284,7 @@ if (!iframe) {
 // Create a hidden form for submission
 const hiddenForm = document.createElement('form');
 hiddenForm.method = 'POST';
-hiddenForm.action = 'https://formsubmit.co/code.canogullari@gmail.com';
+hiddenForm.action = `https://formsubmit.co/${process.env.NEXT_PUBLIC_FEEDBACK_EMAIL || 'your-email@example.com'}`;
 hiddenForm.enctype = 'multipart/form-data';
 hiddenForm.style.display = 'none';
 hiddenForm.target = 'hidden_iframe'; // Target the hidden iframe
@@ -343,7 +343,7 @@ hiddenForm.submit();</pre>
   </div>
   
   <h2>That's it!</h2>
-  <p>Your feedback form is now configured to send emails to <code>code.canogullari@gmail.com</code> with a unique subject line for each submission and all attached images. The implementation is secure, prevents spam, and works reliably with unlimited submissions - all without redirecting users away from your site or opening new windows.</p>
+  <p>Your feedback form is now configured to send emails to your configured email address with a unique subject line for each submission and all attached images. The implementation is secure, prevents spam, and works reliably with unlimited submissions - all without redirecting users away from your site or opening new windows.</p>
   
   <p>Just remember to check your email for the activation link after the first submission!</p>
 </body>
