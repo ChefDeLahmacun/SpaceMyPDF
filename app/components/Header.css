@@ -17,12 +17,13 @@
 .header-content {
   display: flex;
   align-items: center;
-  gap: clamp(8px, 2%, 20px);
+  gap: clamp(8px, 1%, 16px);
   max-width: 95%;
   width: 100%;
-  justify-content: center;
+  justify-content: space-between;
   flex-wrap: nowrap;
   position: relative;
+  min-height: 60px;
 }
 
 .logo-container {
@@ -110,24 +111,54 @@
   }
 }
 
+/* Center container for logo and title */
+.center-container {
+  display: flex;
+  align-items: center;
+  gap: clamp(6px, 1.5%, 16px);
+  flex: 1;
+  justify-content: center;
+  position: relative;
+  min-width: 0;
+  max-width: 40%;
+}
+
+/* Left navigation styles */
+.left-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 1;
+  position: relative;
+  flex-shrink: 0;
+  min-width: 0;
+}
+
+/* Right navigation styles */
+.right-nav {
+  display: flex;
+  align-items: center;
+  z-index: 1;
+  position: relative;
+  flex-shrink: 0;
+  min-width: 0;
+  max-width: 35%;
+}
+
 /* Navigation styles */
 .nav-container {
   display: flex;
   align-items: center;
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 1;
+  gap: 8px;
 }
 
 .nav-link {
   color: #2c3e50;
   text-decoration: none;
-  font-size: clamp(11px, 1.2vw, 14px);
+  font-size: clamp(10px, 1vw, 12px);
   font-weight: 500;
-  padding: 6px 14px;
-  border-radius: 20px;
+  padding: 4px 10px;
+  border-radius: 16px;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1.5px solid #2c3e50;
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%);
@@ -136,6 +167,8 @@
   letter-spacing: 0.3px;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .nav-link:hover {
@@ -151,45 +184,113 @@
   box-shadow: 0 1px 3px rgba(44, 62, 80, 0.2);
 }
 
-/* Mobile and desktop navigation visibility */
-.mobile-nav {
-  display: none;
-}
-
-.desktop-nav {
-  display: flex;
+/* Tablet styles */
+@media (max-width: 1024px) {
+  .header-content {
+    gap: clamp(4px, 0.5%, 12px);
+  }
+  
+  .center-container {
+    max-width: 40%;
+  }
+  
+  .right-nav {
+    max-width: 30%;
+  }
+  
+  .title-text {
+    font-size: clamp(16px, 3vw, 22px);
+  }
+  
+  .subtitle-text {
+    font-size: clamp(6px, 1.2vw, 8px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+  
+  .nav-link {
+    font-size: clamp(9px, 1vw, 11px);
+    padding: 3px 8px;
+  }
 }
 
 /* Mobile styles */
 @media (max-width: 768px) {
+  .header-container {
+    height: auto;
+    min-height: 60px;
+    padding: 6px 0;
+  }
+  
+  .header-content {
+    flex-direction: row;
+    gap: 10px;
+    min-height: auto;
+    padding: 0 12px;
+    align-items: center;
+  }
+  
+  .center-container {
+    order: 2;
+    flex-direction: row;
+    text-align: center;
+    position: static;
+    transform: none;
+    left: auto;
+    max-width: 45%;
+    width: auto;
+    flex: 1;
+    justify-content: center;
+  }
+  
+  .left-nav {
+    order: 1;
+    justify-content: flex-start;
+    width: auto;
+    max-width: 30%;
+    gap: 6px;
+  }
+  
+  .right-nav {
+    order: 3;
+    justify-content: flex-end;
+    width: auto;
+    max-width: 30%;
+  }
+  
   .title-container {
-    margin-top: 8px;
+    margin-top: 0;
+    width: auto;
   }
   
   .title-text {
-    font-size: clamp(12px, 3vw, 16px);
+    font-size: clamp(18px, 4.5vw, 24px);
+    text-align: center;
   }
   
   .subtitle-text {
-    font-size: clamp(8px, 2vw, 10px);
+    font-size: clamp(5px, 1.2vw, 7px);
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
   }
   
-  .mobile-nav {
-    display: flex;
-    position: static !important;
-    transform: none !important;
-    margin-top: 4px;
-    justify-content: center;
-    width: 100%;
+  .nav-link {
+    font-size: clamp(9px, 2vw, 11px);
+    padding: 4px 10px;
+    flex: none;
+    text-align: center;
+    max-width: 80px;
+    white-space: nowrap;
   }
   
-  .desktop-nav {
-    display: none;
-  }
-  
-  .mobile-nav .nav-link {
-    font-size: clamp(8px, 2vw, 10px);
-    padding: 4px 12px;
+  .logo-container {
+    width: clamp(45px, 9vw, 60px);
+    height: clamp(45px, 9vw, 60px);
   }
 }
 
@@ -201,5 +302,141 @@
   
   .header-content {
     gap: 8px;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+  .header-container {
+    padding: 4px 0;
+    min-height: 50px;
+  }
+  
+  .header-content {
+    gap: 6px;
+    padding: 0 8px;
+  }
+  
+  .center-container {
+    gap: 4px;
+    max-width: 50%;
+  }
+  
+  .left-nav {
+    max-width: 25%;
+    gap: 3px;
+  }
+  
+  .right-nav {
+    max-width: 25%;
+  }
+  
+  .logo-container {
+    width: clamp(40px, 8vw, 50px);
+    height: clamp(40px, 8vw, 50px);
+  }
+  
+  .title-text {
+    font-size: clamp(16px, 3.5vw, 20px);
+  }
+  
+  .subtitle-text {
+    font-size: clamp(5px, 1.2vw, 7px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+  
+  .nav-link {
+    font-size: clamp(8px, 1.8vw, 10px);
+    padding: 3px 8px;
+    max-width: 70px;
+    white-space: nowrap;
+  }
+}
+
+/* iPhone SE and very small screens - Vertical button layout */
+@media (max-width: 375px) {
+  .header-container {
+    padding: 4px 0;
+    min-height: 55px;
+  }
+  
+  .header-content {
+    gap: 4px;
+    padding: 0 6px;
+  }
+  
+  .center-container {
+    gap: 3px;
+    max-width: 45%;
+  }
+  
+  .left-nav {
+    max-width: 30%;
+    gap: 2px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .right-nav {
+    max-width: 25%;
+  }
+  
+  .logo-container {
+    width: clamp(35px, 7vw, 45px);
+    height: clamp(35px, 7vw, 45px);
+  }
+  
+  .title-text {
+    font-size: clamp(14px, 3.2vw, 18px);
+  }
+  
+  .subtitle-text {
+    font-size: clamp(5px, 1.2vw, 7px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+  
+  .nav-link {
+    font-size: clamp(6px, 1.4vw, 8px);
+    padding: 2px 6px;
+    max-width: 55px;
+    white-space: nowrap;
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* iPad specific styles */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .subtitle-text {
+    font-size: clamp(5px, 1vw, 7px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+  
+  .center-container {
+    max-width: 45%;
+  }
+}
+
+/* Ultra-wide screens */
+@media (min-width: 1400px) {
+  .header-content {
+    max-width: 90%;
+  }
+  
+  .center-container {
+    max-width: 45%;
+  }
+  
+  .right-nav {
+    max-width: 40%;
   }
 } 

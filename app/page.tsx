@@ -12,6 +12,10 @@ import FeedbackForm from './components/FeedbackForm';
 import WhiteBox from './components/WhiteBox';
 import DonationsBox from './components/DonationsBox';
 import MobileOrientationMessage from './components/MobileOrientationMessage';
+import DownloadRestriction from './components/DownloadRestriction';
+import MembershipBanner from './components/MembershipBanner';
+import UserStatus from './components/UserStatus';
+import MembershipModal from './components/MembershipModal';
 import { useAnalytics } from './utils/useAnalytics';
 import './components/GreenSectionFinal.css';
 
@@ -32,6 +36,8 @@ export default function Home() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [totalPages, setTotalPages] = useState(0);
   const [downloadIsProcessing, setDownloadIsProcessing] = useState(false);
+  const [showMembershipModal, setShowMembershipModal] = useState(false);
+  const [referralCode, setReferralCode] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   // New state variables for color options
@@ -138,6 +144,20 @@ export default function Home() {
   useEffect(() => {
     updateOutputFileName(baseFileName, includeWithNotes);
   }, [baseFileName, includeWithNotes]);
+
+  // Check for referral code in URL
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const refCode = urlParams.get('ref');
+      if (refCode) {
+        setReferralCode(refCode);
+        setShowMembershipModal(true);
+        // Track referral link visit
+        trackEvent('referral_link_visited', { referral_code: refCode });
+      }
+    }
+  }, [trackEvent]);
 
   // Handle base filename change
   const handleBaseFileNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1010,6 +1030,7 @@ export default function Home() {
       feedbackSectionNeedsExtraHeight={feedbackSectionNeedsExtraHeight}
       feedbackSubmitted={feedbackSubmitted}
     >
+      <div className="bottom-section-placeholder"></div>
       <div 
         style={{ 
           width: '100%',
@@ -1019,6 +1040,7 @@ export default function Home() {
         }}
       >
         <MobileOrientationMessage />
+        <MembershipBanner />
         <Header />
         <Features />
         
@@ -1152,6 +1174,15 @@ export default function Home() {
             // Add more FAQ items as needed
           })
         }}
+      />
+      
+      {/* Membership Modal for Referral Links */}
+      <MembershipModal
+        isOpen={showMembershipModal}
+        onClose={() => setShowMembershipModal(false)}
+        onSignUp={() => setShowMembershipModal(false)}
+        onLogin={() => setShowMembershipModal(false)}
+        initialReferralCode={referralCode}
       />
     </Layout>
   );

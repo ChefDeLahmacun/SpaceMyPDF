@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useLayoutEffect, useRef } from 'react';
+import DownloadRestriction from './DownloadRestriction';
 
 interface ControlsProps {
   file: File | null;
@@ -1116,17 +1117,17 @@ const Controls: React.FC<ControlsProps> = ({
             )}
             
             <div style={{ marginBottom: '3%', width: '100%' }}>
-              <button
-                onClick={handleDownload}
-                disabled={!file || downloadIsProcessing}
-                style={{
-                  backgroundColor: file ? '#4a6741' : '#ccc',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '4px',
-                  padding: '10px',
-                  cursor: file ? 'pointer' : 'not-allowed',
-                  width: '100%',
+              <DownloadRestriction onDownload={handleDownload}>
+                <button
+                  disabled={!file || downloadIsProcessing}
+                  style={{
+                    backgroundColor: file ? '#4a6741' : '#ccc',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    padding: '10px',
+                    cursor: file ? 'pointer' : 'not-allowed',
+                    width: '100%',
                   fontSize: 'clamp(14px, 1.6vw, 16px)',
                   display: 'flex',
                   alignItems: 'center',
@@ -1136,6 +1137,7 @@ const Controls: React.FC<ControlsProps> = ({
               >
                 {downloadIsProcessing ? 'Processing...' : 'Download PDF'}
               </button>
+              </DownloadRestriction>
               {successMessage && (
                 <div style={{ 
                   marginTop: '2%', 

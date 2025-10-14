@@ -107,8 +107,8 @@ const Features: React.FC = () => {
         
         <FeatureCard 
           icon={<FaGift size={24} color="#4a6741" />}
-          title="Completely Free"
-          description="No cost, no sign-up, no limits. Use it as much as you want, whenever you want."
+          title="Free Trial + Bonuses"
+          description="Start with a free month trial. Refer friends to earn up to 3 bonus months total. No credit card required on signup."
           screenSize={screenSize}
         />
       </div>

@@ -36,15 +36,15 @@ const MobileOrientationMessage: React.FC = () => {
     <div style={{
       width: '100%',
       backgroundColor: '#e8d7e8', // Pale Mauve background
-      padding: '2px 0',
+      padding: '1px 0',
       marginBottom: '0',
       borderBottom: '1px solid #ccc',
       boxSizing: 'border-box'
     }}>
       <div style={{
         backgroundColor: 'rgba(255,255,255,0.7)',
-        padding: '0.3vh 1.5%',
-        borderRadius: '4px',
+        padding: '0.2vh 1%',
+        borderRadius: '3px',
         margin: '0 auto',
         border: '1px solid #ddd',
         boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
@@ -57,19 +57,19 @@ const MobileOrientationMessage: React.FC = () => {
         <div style={{ 
           display: 'flex', 
           alignItems: 'center', 
-          gap: '6px',
-          marginRight: '6px'
+          gap: '4px',
+          marginRight: '4px'
         }}>
-          <FaMobileAlt style={{ transform: 'rotate(90deg)', color: '#4a6741', fontSize: '10px' }} />
-          <FaArrowsAltH style={{ color: '#4a6741', fontSize: '10px' }} />
+          <FaMobileAlt style={{ transform: 'rotate(90deg)', color: '#4a6741', fontSize: '8px' }} />
+          <FaArrowsAltH style={{ color: '#4a6741', fontSize: '8px' }} />
         </div>
         <p style={{ 
-          fontSize: 'clamp(8px, 1vw, 10px)', 
+          fontSize: 'clamp(7px, 0.8vw, 9px)', 
           margin: '0', 
-          lineHeight: '1.2', 
+          lineHeight: '1.1', 
           color: '#34495e'
         }}>
-          For the best experience, please use this website in landscape mode.
+          For best experience, use landscape mode.
         </p>
       </div>
     </div>

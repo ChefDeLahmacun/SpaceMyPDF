@@ -56,3 +56,6 @@ backups/
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# all md files
+MEMBERSHIP_IMPLEMENTATION_PLAN.md

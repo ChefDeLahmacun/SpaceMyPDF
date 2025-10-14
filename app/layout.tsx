@@ -74,11 +74,11 @@ export default function RootLayout({
   const fontVariables = `${inter.variable} ${roboto.variable}`;
   
   return (
-    <html lang="en" className={fontVariables}>
+    <html lang="en" className={`${fontVariables} font-loading`}>
       <head>
         {/* External CSS is now imported at the top */}
         {/* External JS is now loaded with Next.js Script component */}
-        <Script src="/scripts/font-loader.js" strategy="beforeInteractive" />
+        <Script src="/scripts/font-loader.js" strategy="afterInteractive" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
         
         {/* Favicon */}
@@ -91,7 +91,6 @@ export default function RootLayout({
       </head>
       <body suppressHydrationWarning style={{ WebkitOverflowScrolling: 'touch' }}>
         <Navigation />
-        <div className="bottom-section-placeholder"></div>
         {children}
         <GoogleAnalytics gaId={GA_MEASUREMENT_ID} />
         <Script id="enable-ios-scroll-to-top" strategy="afterInteractive">
