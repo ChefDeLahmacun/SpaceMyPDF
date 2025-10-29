@@ -252,38 +252,40 @@
   
   .header-content {
     flex-direction: row;
-    gap: 10px;
+    gap: 4px;
     min-height: auto;
-    padding: 0 12px;
+    padding: 0 8px;
     align-items: center;
+    justify-content: space-between;
   }
   
   .center-container {
     order: 2;
     flex-direction: row;
     text-align: center;
-    position: static;
+    position: relative;
     transform: none;
     left: auto;
-    max-width: 45%;
+    max-width: none;
     width: auto;
-    flex: 1;
+    flex: 0 1 auto;
     justify-content: center;
+    min-width: 0;
   }
   
   .left-nav {
     order: 1;
     justify-content: flex-start;
     width: auto;
-    max-width: 30%;
-    gap: 6px;
+    flex: 0 0 auto;
+    gap: 3px;
   }
   
   .right-nav {
     order: 3;
     justify-content: flex-end;
     width: auto;
-    max-width: 30%;
+    flex: 0 0 auto;
   }
   
   .title-container {
@@ -292,12 +294,12 @@
   }
   
   .title-text {
-    font-size: clamp(18px, 4.5vw, 24px);
+    font-size: clamp(14px, 3.5vw, 20px);
     text-align: center;
   }
   
   .subtitle-text {
-    font-size: clamp(5px, 1.2vw, 7px);
+    font-size: clamp(5px, 1vw, 7px);
     text-align: center;
     white-space: nowrap;
     overflow: hidden;
@@ -306,17 +308,17 @@
   }
   
   .nav-link {
-    font-size: clamp(9px, 2vw, 11px);
-    padding: 4px 10px;
+    font-size: clamp(8px, 1.8vw, 10px);
+    padding: 3px 6px;
     flex: none;
     text-align: center;
-    max-width: 80px;
+    min-width: 0;
     white-space: nowrap;
   }
   
   .logo-container {
-    width: clamp(45px, 9vw, 60px);
-    height: clamp(45px, 9vw, 60px);
+    width: clamp(40px, 8vw, 50px);
+    height: clamp(40px, 8vw, 50px);
   }
 }
 
@@ -334,80 +336,21 @@
 /* Extra small screens */
 @media (max-width: 480px) {
   .header-container {
-    padding: 4px 0;
+    padding: 3px 0;
     min-height: 50px;
   }
   
   .header-content {
-    gap: 6px;
-    padding: 0 8px;
-  }
-  
-  .center-container {
-    gap: 4px;
-    max-width: 50%;
-  }
-  
-  .left-nav {
-    max-width: 25%;
-    gap: 3px;
-  }
-  
-  .right-nav {
-    max-width: 25%;
-  }
-  
-  .logo-container {
-    width: clamp(40px, 8vw, 50px);
-    height: clamp(40px, 8vw, 50px);
-  }
-  
-  .title-text {
-    font-size: clamp(16px, 3.5vw, 20px);
-  }
-  
-  .subtitle-text {
-    font-size: clamp(5px, 1.2vw, 7px);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
-  }
-  
-  .nav-link {
-    font-size: clamp(8px, 1.8vw, 10px);
-    padding: 3px 8px;
-    max-width: 70px;
-    white-space: nowrap;
-  }
-}
-
-/* iPhone SE and very small screens - Vertical button layout */
-@media (max-width: 375px) {
-  .header-container {
-    padding: 4px 0;
-    min-height: 55px;
-  }
-  
-  .header-content {
-    gap: 4px;
-    padding: 0 6px;
-  }
-  
-  .center-container {
-    gap: 3px;
-    max-width: 45%;
-  }
-  
-  .left-nav {
-    max-width: 30%;
     gap: 2px;
-    flex-direction: column;
-    align-items: flex-start;
+    padding: 0 4px;
   }
   
-  .right-nav {
-    max-width: 25%;
+  .center-container {
+    gap: 3px;
+  }
+  
+  .left-nav {
+    gap: 2px;
   }
   
   .logo-container {
@@ -416,11 +359,11 @@
   }
   
   .title-text {
-    font-size: clamp(14px, 3.2vw, 18px);
+    font-size: clamp(12px, 3vw, 16px);
   }
   
   .subtitle-text {
-    font-size: clamp(5px, 1.2vw, 7px);
+    font-size: clamp(5px, 1vw, 6px);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -428,12 +371,50 @@
   }
   
   .nav-link {
-    font-size: clamp(6px, 1.4vw, 8px);
-    padding: 2px 6px;
-    max-width: 55px;
+    font-size: clamp(7px, 1.6vw, 9px);
+    padding: 2px 5px;
     white-space: nowrap;
-    width: 100%;
-    text-align: center;
+  }
+}
+
+/* iPhone SE and very small screens */
+@media (max-width: 375px) {
+  .header-container {
+    padding: 2px 0;
+    min-height: 48px;
+  }
+  
+  .header-content {
+    gap: 2px;
+    padding: 0 3px;
+  }
+  
+  .center-container {
+    gap: 2px;
+  }
+  
+  .left-nav {
+    gap: 2px;
+    flex-wrap: nowrap;
+  }
+  
+  .logo-container {
+    width: clamp(32px, 6.5vw, 40px);
+    height: clamp(32px, 6.5vw, 40px);
+  }
+  
+  .title-text {
+    font-size: clamp(11px, 2.8vw, 14px);
+  }
+  
+  .subtitle-text {
+    display: none;
+  }
+  
+  .nav-link {
+    font-size: clamp(6px, 1.4vw, 8px);
+    padding: 2px 4px;
+    white-space: nowrap;
   }
 }
 

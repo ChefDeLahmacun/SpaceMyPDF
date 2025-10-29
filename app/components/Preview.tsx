@@ -89,8 +89,8 @@ const Preview: React.FC<PreviewProps> = ({ file, isProcessing, pdfPreviewUrl }) 
                     height: '100%', 
                     backgroundColor: 'white', 
                     display: 'flex', 
-                    justifyContent: 'center', 
-                    alignItems: 'center',
+                    justifyContent: 'flex-start', 
+                    alignItems: 'flex-start',
                     position: 'relative'
                   }}>
                     {isProcessing ? (
@@ -198,8 +198,8 @@ const Preview: React.FC<PreviewProps> = ({ file, isProcessing, pdfPreviewUrl }) 
                     height: '100%', 
                     backgroundColor: 'white', 
                     display: 'flex', 
-                    justifyContent: 'center', 
-                    alignItems: 'center',
+                    justifyContent: 'flex-start', 
+                    alignItems: 'flex-start',
                     position: 'relative'
                   }}>
                     {isProcessing ? (

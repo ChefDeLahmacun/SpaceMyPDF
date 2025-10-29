@@ -17,8 +17,36 @@ export default function ChangelogPage() {
 
   const changelogEntries = [
     {
-      version: "1.2.0",
-      date: "27 August 2025",
+      version: "1.3.0-beta",
+      date: "October 29, 2024",
+      title: "Membership System & Enhanced User Experience",
+      features: [
+        "🎉 Free 30-day trial for all new users",
+        "💳 Membership plans with unlimited PDF processing",
+        "🎁 Referral system - invite friends and earn free months",
+        "📧 Email notifications for trial reminders and referral bonuses",
+        "👤 Personal dashboard to manage your account and subscription",
+        "PDF preview now displays from the top (no more cut-off content)",
+        "PDFs automatically preserved when signing up during download",
+        "Improved mobile header layout - all buttons fit properly",
+        "Real-time user info updates after login (no page refresh needed)"
+      ],
+      improvements: [
+        "Start with a free 30-day trial to test all features",
+        "Earn up to 3 bonus months by referring friends",
+        "Track your referrals and bonus months in your dashboard",
+        "Multiple currency options (USD, GBP, EUR, TRY) for payments",
+        "Your processed PDFs are never lost when creating an account",
+        "Automatic download after successful signup or login",
+        "Better mobile experience on all devices including small screens",
+        "Smoother authentication flow with instant UI updates",
+        "Wide PDFs now display correctly in preview",
+        "Cleaner navigation layout on phones and tablets"
+      ]
+    },
+    {
+      version: "1.2.0-beta",
+      date: "August 27, 2024",
       title: "Multi-Side Note Space & Patterns",
       features: [
         "Multi-side note space selection (left, right, top, bottom)",
@@ -34,8 +62,8 @@ export default function ChangelogPage() {
       ]
     },
     {
-      version: "1.1.0",
-      date: "29 April 2025",
+      version: "1.1.0-beta",
+      date: "April 29, 2024",
       title: "Enhanced PDF Processing & SEO",
       features: [
         "Improved PDF preview generation and display",
@@ -49,8 +77,8 @@ export default function ChangelogPage() {
       ]
     },
     {
-      version: "1.0.0",
-      date: "5 March 2025",
+      version: "1.0.0-beta",
+      date: "March 5, 2024",
       title: "Initial Release - Core PDF Extension",
       features: [
         "PDF upload and client-side processing",
@@ -110,7 +138,11 @@ export default function ChangelogPage() {
                     {entry.title}
                   </h2>
                   <div className="flex items-center space-x-4">
-                    <span className="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">
+                    <span className={`inline-flex items-center px-3 py-1 text-sm font-medium rounded-full ${
+                      entry.version.includes('beta') 
+                        ? 'bg-yellow-100 text-yellow-800' 
+                        : 'bg-blue-100 text-blue-800'
+                    }`}>
                       v{entry.version}
                     </span>
                     <span className="text-gray-500 text-sm">
@@ -121,6 +153,11 @@ export default function ChangelogPage() {
                 {index === 0 && (
                   <span className="inline-flex items-center px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">
                     Latest
+                  </span>
+                )}
+                {entry.version.includes('beta') && index !== 0 && (
+                  <span className="inline-flex items-center px-3 py-1 bg-orange-100 text-orange-800 text-sm font-medium rounded-full">
+                    Beta
                   </span>
                 )}
               </div>
