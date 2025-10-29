@@ -1,4 +1,5 @@
 import { Database } from '../connection';
+import { BonusActivityService } from './bonus-activities';
 
 export interface Referral {
   id: string;
@@ -17,7 +18,7 @@ export interface ReferralStats {
 
 export class ReferralQueries {
   // Create a new referral
-  static async createReferral(referrerId: string, refereeId: string, bonusMonths: number = 3): Promise<Referral> {
+  static async createReferral(referrerId: string, refereeId: string, bonusMonths: number = 1): Promise<Referral> {
     const query = `
       INSERT INTO referrals (referrer_id, referee_id, bonus_months)
       VALUES ($1, $2, $3)
@@ -125,40 +126,83 @@ export class ReferralQueries {
   }> {
     try {
       // Create referral record
-      await this.createReferral(referrerId, refereeId, 3);
+      await this.createReferral(referrerId, refereeId, 1);
 
-      // Get current trial end dates
+      // Get current trial end dates and subscription status
       const referrer = await Database.queryOne(
-        'SELECT trial_end FROM users WHERE id = $1',
+        'SELECT trial_ends_at, subscription_status FROM users WHERE id = $1',
         [referrerId]
       );
       
       const referee = await Database.queryOne(
-        'SELECT trial_end FROM users WHERE id = $1',
+        'SELECT trial_ends_at, subscription_status FROM users WHERE id = $1',
         [refereeId]
       );
 
-      // Calculate new trial end dates
-      const referrerNewEnd = new Date(referrer.trial_end);
-      referrerNewEnd.setMonth(referrerNewEnd.getMonth() + 3);
-
-      const refereeNewEnd = new Date(referee.trial_end);
-      refereeNewEnd.setMonth(refereeNewEnd.getMonth() + 1);
-
-      // Update trial end dates
-      await Database.query(
-        'UPDATE users SET trial_end = $2, updated_at = NOW() WHERE id = $1',
-        [referrerId, referrerNewEnd]
+      // Check how many people the referrer has already referred
+      const existingReferrals = await Database.queryOne(
+        'SELECT COUNT(*) as count FROM referrals WHERE referrer_id = $1',
+        [referrerId]
       );
+      
+      const currentReferralCount = existingReferrals.count;
+      
+      // Apply bonus months based on subscription status
+      const referrerBonus = currentReferralCount <= 3 ? 1 : 0;
+      const refereeBonus = 1;
 
-      await Database.query(
-        'UPDATE users SET trial_end = $2, updated_at = NOW() WHERE id = $1',
-        [refereeId, refereeNewEnd]
+      // For trial users, extend trial_ends_at
+      // For paying members, we'll store bonus months separately for future use
+      if (referrer.subscription_status === 'trial' && referrerBonus > 0) {
+        const referrerNewEnd = new Date(referrer.trial_ends_at);
+        referrerNewEnd.setMonth(referrerNewEnd.getMonth() + referrerBonus);
+        await Database.query(
+          'UPDATE users SET trial_ends_at = $2, updated_at = NOW() WHERE id = $1',
+          [referrerId, referrerNewEnd]
+        );
+      }
+
+      if (referee.subscription_status === 'trial') {
+        const refereeNewEnd = new Date(referee.trial_ends_at);
+        refereeNewEnd.setMonth(refereeNewEnd.getMonth() + refereeBonus);
+        await Database.query(
+          'UPDATE users SET trial_ends_at = $2, updated_at = NOW() WHERE id = $1',
+          [refereeId, refereeNewEnd]
+        );
+      }
+
+      // Record bonus activities
+      if (referrerBonus > 0) {
+        // Get referee email for activity description
+        const refereeEmail = await Database.queryOne(
+          'SELECT email FROM users WHERE id = $1',
+          [refereeId]
+        );
+        
+        await BonusActivityService.recordReferralBonus(
+          referrerId,
+          referrerBonus,
+          refereeEmail.email,
+          referral.id
+        );
+      }
+
+      // Record referee bonus activity
+      const referrerEmail = await Database.queryOne(
+        'SELECT email FROM users WHERE id = $1',
+        [referrerId]
+      );
+      
+      await BonusActivityService.recordReferralBonus(
+        refereeId,
+        refereeBonus,
+        referrerEmail.email,
+        referral.id
       );
 
       return {
-        referrerBonus: 3,
-        refereeBonus: 1
+        referrerBonus,
+        refereeBonus
       };
 
     } catch (error) {

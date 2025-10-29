@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Database } from '@/lib/db/connection';
-import { EmailService } from '@/lib/email/service';
+import { emailService } from '@/lib/email/service';
 
 export const dynamic = 'force-dynamic';
 
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
         
         if (daysLeft === 7) {
           // Send 7-day reminder
-          await EmailService.sendTrialEndingReminder(
+          await emailService.sendTrialEndingReminder(
             user.email,
             user.email.split('@')[0],
             daysLeft,
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
           results.push({ user: user.email, type: '7-day-reminder', success: true });
         } else if (daysLeft === 3) {
           // Send 3-day reminder
-          await EmailService.sendTrialEndingReminder(
+          await emailService.sendTrialEndingReminder(
             user.email,
             user.email.split('@')[0],
             daysLeft,
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
           results.push({ user: user.email, type: '3-day-reminder', success: true });
         } else if (daysLeft === 1) {
           // Send 1-day reminder
-          await EmailService.sendTrialEndingReminder(
+          await emailService.sendTrialEndingReminder(
             user.email,
             user.email.split('@')[0],
             daysLeft,
@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
     for (const user of expiredTrials) {
       try {
         // Send payment required email
-        await EmailService.sendPaymentRequiredEmail(
+        await emailService.sendPaymentRequiredEmail(
           user.email,
           user.email.split('@')[0]
         );

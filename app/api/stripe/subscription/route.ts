@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       subscription: {
-        id: subscription.id,
+        id: subscription.stripe_subscription_id, // Use Stripe subscription ID, not database ID
         status: subscription.status,
         current_period_start: subscription.current_period_start,
         current_period_end: subscription.current_period_end,

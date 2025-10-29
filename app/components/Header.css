@@ -184,6 +184,32 @@
   box-shadow: 0 1px 3px rgba(44, 62, 80, 0.2);
 }
 
+/* Admin link styling */
+.admin-link {
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.95) 0%, rgba(185, 28, 28, 0.95) 100%) !important;
+  color: white !important;
+  border-color: #dc2626 !important;
+  font-weight: 600 !important;
+  position: relative;
+}
+
+.admin-link:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
+  color: white !important;
+  border-color: #b91c1c !important;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(220, 38, 38, 0.25), 0 2px 4px rgba(220, 38, 38, 0.15);
+}
+
+.admin-link::after {
+  content: "🔒";
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  font-size: 8px;
+  opacity: 0.8;
+}
+
 /* Tablet styles */
 @media (max-width: 1024px) {
   .header-content {

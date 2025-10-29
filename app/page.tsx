@@ -152,9 +152,21 @@ export default function Home() {
       const refCode = urlParams.get('ref');
       if (refCode) {
         setReferralCode(refCode);
-        setShowMembershipModal(true);
-        // Track referral link visit
-        trackEvent('referral_link_visited', { referral_code: refCode });
+        
+        // Check if user is already logged in
+        const token = localStorage.getItem('token');
+        if (token) {
+          // User is logged in, don't show signup modal
+          // Just track the referral link visit
+          trackEvent('referral_link_visited', 'referral', refCode);
+          // Clear the referral code from URL to prevent redirect loop
+          const newUrl = window.location.pathname;
+          window.history.replaceState({}, '', newUrl);
+        } else {
+          // User is not logged in, show signup modal
+          setShowMembershipModal(true);
+          trackEvent('referral_link_visited', 'referral', refCode);
+        }
       }
     }
   }, [trackEvent]);
@@ -801,6 +813,23 @@ export default function Home() {
             
             clearAllFeedbackImages();
             setFeedbackSectionNeedsExtraHeight(false);
+            
+            // Increment PDF processed count
+            try {
+              const token = localStorage.getItem('token');
+              if (token) {
+                await fetch('/api/analytics/user-stats', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                  },
+                  body: JSON.stringify({ action: 'increment_pdf_processed' })
+                });
+              }
+            } catch (error) {
+              console.error('Failed to update analytics:', error);
+            }
           } catch (error) {
             // User cancelled the save dialog
             console.log('Save cancelled or failed:', error);
@@ -853,6 +882,25 @@ export default function Home() {
       'PDF downloaded successfully',
       Math.round(pdfBytes.length / 1024) // Size in KB as value
     );
+    
+    // Increment PDF processed count
+    try {
+      const token = localStorage.getItem('token');
+      if (token) {
+        fetch('/api/analytics/user-stats', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ action: 'increment_pdf_processed' })
+        }).catch(error => {
+          console.error('Failed to update analytics:', error);
+        });
+      }
+    } catch (error) {
+      console.error('Failed to update analytics:', error);
+    }
     
     // Reset the success message after 5 seconds
     setTimeout(() => {

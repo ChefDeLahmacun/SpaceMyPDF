@@ -13,13 +13,8 @@ export const registerSchema = z.object({
     .min(6, 'Password must be at least 6 characters')
     .max(128, 'Password is too long'),
   phone: z.string()
-    .min(1, 'Phone number is required')
-    .refine((phone) => {
-      // Remove spaces and validate phone number (international format)
-      const cleanedPhone = phone.replace(/\s/g, '');
-      const phoneRegex = /^\+?[1-9]\d{1,14}$/;
-      return phoneRegex.test(cleanedPhone);
-    }, 'Invalid phone number format'),
+    .max(20, 'Phone number is too long')
+    .optional(),
   referralCode: z.string()
     .max(10, 'Referral code is too long')
     .optional()
@@ -34,18 +29,6 @@ export const loginSchema = z.object({
     .min(1, 'Password is required')
 });
 
-// Phone verification validation schema
-export const phoneVerificationSchema = z.object({
-  phone: z.string()
-    .min(1, 'Phone number is required')
-    .refine((phone) => {
-      const phoneRegex = /^\+?[1-9]\d{1,14}$/;
-      return phoneRegex.test(phone);
-    }, 'Invalid phone number format'),
-  verificationCode: z.string()
-    .min(4, 'Verification code must be at least 4 digits')
-    .max(6, 'Verification code must be at most 6 digits')
-});
 
 // Email validation helper
 export const validateEmail = (email: string): { isValid: boolean; error?: string } => {
@@ -75,26 +58,6 @@ export const validateEmail = (email: string): { isValid: boolean; error?: string
   return { isValid: true };
 };
 
-// Phone number validation helper
-export const validatePhone = (phone: string): { isValid: boolean; error?: string } => {
-  // Remove all non-digit characters except +
-  const cleaned = phone.replace(/[^\d+]/g, '');
-  
-  // Check if it starts with + and has 10-15 digits
-  if (cleaned.startsWith('+')) {
-    const digits = cleaned.slice(1);
-    if (digits.length < 10 || digits.length > 15) {
-      return { isValid: false, error: 'Phone number must be 10-15 digits after country code' };
-    }
-  } else {
-    // If no country code, assume it's a local number
-    if (cleaned.length < 10 || cleaned.length > 15) {
-      return { isValid: false, error: 'Phone number must be 10-15 digits' };
-    }
-  }
-  
-  return { isValid: true };
-};
 
 // Referral code validation
 export const validateReferralCode = (code: string): { isValid: boolean; error?: string } => {

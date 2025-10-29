@@ -3,11 +3,10 @@
 import React, { useState } from 'react';
 import FeatureRequestForm from '@/app/components/FeatureRequestForm';
 import FeatureRequestList from '@/app/components/FeatureRequestList';
-import PhoneVerification from '@/app/components/PhoneVerification';
 import UserStatus from '@/app/components/UserStatus';
 
 export default function FeaturesPage() {
-  const [activeTab, setActiveTab] = useState<'submit' | 'my-requests' | 'verify-phone'>('submit');
+  const [activeTab, setActiveTab] = useState<'submit' | 'my-requests'>('submit');
   const [user, setUser] = useState<any>(null);
 
   React.useEffect(() => {
@@ -96,16 +95,6 @@ export default function FeaturesPage() {
             >
               My Requests
             </button>
-            <button
-              onClick={() => setActiveTab('verify-phone')}
-              className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'verify-phone'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              Verify Phone
-            </button>
           </nav>
         </div>
 
@@ -131,19 +120,6 @@ export default function FeaturesPage() {
             </div>
           )}
 
-          {activeTab === 'verify-phone' && (
-            <div className="lg:col-span-2">
-              <PhoneVerification 
-                onVerified={(phone) => {
-                  console.log('Phone verified:', phone);
-                  alert('Phone number verified successfully!');
-                }}
-                onError={(error) => {
-                  console.error('Phone verification error:', error);
-                }}
-              />
-            </div>
-          )}
         </div>
 
         {/* Benefits Section */}
@@ -154,9 +130,9 @@ export default function FeaturesPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="text-center">
               <div className="text-3xl mb-2">🎁</div>
-              <h4 className="font-medium text-gray-900 mb-2">Earn Bonus Months</h4>
+              <h4 className="font-medium text-gray-900 mb-2">Potential Bonus</h4>
               <p className="text-sm text-gray-600">
-                Get 1 bonus month for each approved feature request
+                May receive 1 bonus month for exceptional feature requests (admin discretion)
               </p>
             </div>
             <div className="text-center">

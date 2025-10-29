@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { FaFileAlt } from 'react-icons/fa';
@@ -10,6 +10,35 @@ import './Header.css';
 
 const Header: React.FC = () => {
   const [showMembershipModal, setShowMembershipModal] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    // Check if current user is admin
+    const checkAdminStatus = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        const response = await fetch('/api/auth/verify', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const user = data.user;
+          // Check if user is admin
+          const adminEmails = process.env.NEXT_PUBLIC_ADMIN_EMAILS?.split(',') || [];
+          setIsAdmin(adminEmails.includes(user.email));
+        }
+      } catch (error) {
+        console.error('Error checking admin status:', error);
+      }
+    };
+
+    checkAdminStatus();
+  }, []);
 
   const handleSignIn = () => {
     setShowMembershipModal(true);
@@ -30,6 +59,11 @@ const Header: React.FC = () => {
           <Link href="/dashboard" className="nav-link">
             Dashboard
           </Link>
+          {isAdmin && (
+            <Link href="/admin" className="nav-link admin-link">
+              Admin
+            </Link>
+          )}
         </nav>
         
         {/* Center: Logo and title */}

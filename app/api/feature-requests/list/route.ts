@@ -24,9 +24,10 @@ export async function GET(request: NextRequest) {
           fr.title,
           fr.description,
           fr.status,
+          fr.priority,
+          fr.bonus_awarded,
           fr.created_at,
-          fr.updated_at,
-          fr.bonus_months_awarded
+          fr.created_at as reviewed_at
         FROM feature_requests fr
         WHERE fr.user_id = $1
         ORDER BY fr.created_at DESC
@@ -34,15 +35,19 @@ export async function GET(request: NextRequest) {
     
     const featureRequests = await Database.queryMany(query, [user.id]);
     
-    // Map the bonus_months_awarded field to bonus_months for frontend compatibility
+    // Map the bonus_awarded field to bonus_months and map status values for frontend compatibility
     const requestsWithBonus = featureRequests.map(request => ({
       ...request,
-      bonus_months: request.bonus_months_awarded || 0
+      bonus_months: request.bonus_awarded ? 1 : 0,
+      status: request.status === 'completed' ? 'implemented' : 
+              request.status === 'in_progress' ? 'approved' : 
+              request.status
     }));
 
     return NextResponse.json({
       success: true,
-      featureRequests: requestsWithBonus,
+      requests: requestsWithBonus,
+      featureRequests: requestsWithBonus, // Keep both for compatibility
       user: {
         id: user.id,
         email: user.email

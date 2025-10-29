@@ -32,7 +32,12 @@ export default function UserStatus({ onLogin, onLogout }: UserStatusProps) {
       if (response.ok) {
         const data = await response.json();
         setUser(data.user);
+      } else if (response.status === 401) {
+        // Token is invalid, silently clear it
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
       } else {
+        console.error('Auth verification failed:', response.status);
         localStorage.removeItem('token');
         localStorage.removeItem('user');
       }

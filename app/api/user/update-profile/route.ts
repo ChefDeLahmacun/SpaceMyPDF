@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateRequest } from '@/lib/middleware/auth';
 import { UserQueries } from '@/lib/db/queries/users';
-import { validateEmail, validatePhone } from '@/lib/auth/validation';
+import { validateEmail } from '@/lib/auth/validation';
 import { z } from 'zod';
 
 export const dynamic = 'force-dynamic';
@@ -48,16 +48,6 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // Validate phone if provided
-    if (phone) {
-      const phoneValidation = validatePhone(phone);
-      if (!phoneValidation.isValid) {
-        return NextResponse.json(
-          { error: phoneValidation.error },
-          { status: 400 }
-        );
-      }
-    }
 
     // Check if email is already in use by another user
     if (email !== user.email) {
@@ -84,7 +74,7 @@ export async function PUT(request: NextRequest) {
     // Update user profile
     const updatedUser = await UserQueries.updateUser(user.id, {
       email,
-      phone: phone || null
+      phone: phone || undefined
     });
 
     if (!updatedUser) {

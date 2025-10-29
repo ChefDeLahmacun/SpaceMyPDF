@@ -1,4 +1,4 @@
-import { stripe, STRIPE_CONFIG } from './config';
+import { stripe, STRIPE_CONFIG, getPriceId } from './config';
 import { StripeCustomerService } from './customers';
 import { Database } from '@/lib/db/connection';
 
@@ -201,21 +201,50 @@ export class StripeSubscriptionService {
     }
   }
 
-  // Get subscription pricing
-  static getSubscriptionPricing(currency: string) {
-    const currencyUpper = currency.toUpperCase() as keyof typeof STRIPE_CONFIG.currencies;
-    
-    return {
-      monthly: {
-        price: STRIPE_CONFIG.plans.monthly[currencyUpper]?.price || STRIPE_CONFIG.plans.monthly.GBP.price,
-        name: STRIPE_CONFIG.plans.monthly[currencyUpper]?.name || 'Monthly Plan',
-        currency: currencyUpper
-      },
-      yearly: {
-        price: STRIPE_CONFIG.plans.yearly[currencyUpper]?.price || STRIPE_CONFIG.plans.yearly.GBP.price,
-        name: STRIPE_CONFIG.plans.yearly[currencyUpper]?.name || 'Yearly Plan',
-        currency: currencyUpper
-      }
-    };
+  // Get subscription pricing from Stripe
+  static async getSubscriptionPricing(currency: string = 'GBP') {
+    try {
+      const currencyUpper = currency.toUpperCase();
+      
+      // Get monthly price
+      const monthlyPriceId = getPriceId(currencyUpper, 'monthly');
+      const monthlyPrice = await stripe.prices.retrieve(monthlyPriceId);
+      
+      // Get yearly price
+      const yearlyPriceId = getPriceId(currencyUpper, 'yearly');
+      const yearlyPrice = await stripe.prices.retrieve(yearlyPriceId);
+      
+      return {
+        monthly: {
+          price: monthlyPrice.unit_amount ? monthlyPrice.unit_amount / 100 : 0,
+          name: 'Monthly Plan',
+          currency: monthlyPrice.currency?.toUpperCase() || currencyUpper,
+          priceId: monthlyPrice.id
+        },
+        yearly: {
+          price: yearlyPrice.unit_amount ? yearlyPrice.unit_amount / 100 : 0,
+          name: 'Yearly Plan',
+          currency: yearlyPrice.currency?.toUpperCase() || currencyUpper,
+          priceId: yearlyPrice.id
+        }
+      };
+    } catch (error) {
+      console.error('Error fetching pricing from Stripe:', error);
+      // Fallback to correct hardcoded pricing if Stripe is unavailable
+      return {
+        monthly: { 
+          price: 3.00, 
+          name: 'Monthly Plan', 
+          currency: currency.toUpperCase(), 
+          priceId: process.env.STRIPE_MONTHLY_PRICE_ID_GBP || 'fallback' 
+        },
+        yearly: { 
+          price: 30.00, 
+          name: 'Yearly Plan', 
+          currency: currency.toUpperCase(), 
+          priceId: process.env.STRIPE_YEARLY_PRICE_ID_GBP || 'fallback' 
+        }
+      };
+    }
   }
 }

@@ -13,10 +13,12 @@ export class EmailService {
   constructor() {
     // Create Gmail SMTP transporter with SSL fix
     this.transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: process.env.SMTP_HOST || 'smtp.gmail.com',
+      port: parseInt(process.env.SMTP_PORT || '587'),
+      secure: false, // true for 465, false for other ports
       auth: {
-        user: process.env.GMAIL_USER || 'spacemypdf@gmail.com',
-        pass: process.env.GMAIL_APP_PASSWORD // You'll need to generate an App Password
+        user: process.env.SMTP_USER || process.env.GMAIL_USER || 'spacemypdf@gmail.com',
+        pass: process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD
       },
       // Fix SSL certificate issues in development
       tls: {
@@ -200,6 +202,106 @@ export class EmailService {
     return await this.sendEmail({
       to: userEmail,
       subject: 'Feature Request Received - SpaceMyPDF',
+      html
+    });
+  }
+
+  // Send trial ending reminder email
+  async sendTrialEndingReminder(
+    userEmail: string,
+    userName: string,
+    daysLeft: number,
+    trialEndDate: Date
+  ): Promise<boolean> {
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+          <h1 style="color: white; margin: 0; font-size: 28px;">Trial Ending Soon</h1>
+        </div>
+        
+        <div style="background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px;">
+          <h2 style="color: #333; margin-top: 0;">Hi ${userName}!</h2>
+          
+          <p style="color: #666; font-size: 16px; line-height: 1.6;">
+            Your SpaceMyPDF free trial will end in <strong style="color: #e74c3c;">${daysLeft} day${daysLeft === 1 ? '' : 's'}</strong> 
+            (${trialEndDate.toLocaleDateString()}).
+          </p>
+          
+          <p style="color: #666; font-size: 16px; line-height: 1.6;">
+            Don't lose access to your PDF processing tools! Subscribe now to continue using SpaceMyPDF.
+          </p>
+          
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard" 
+               style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                      color: white; 
+                      padding: 15px 30px; 
+                      text-decoration: none; 
+                      border-radius: 25px; 
+                      font-weight: bold; 
+                      display: inline-block;
+                      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
+              Continue Your Subscription
+            </a>
+          </div>
+          
+          <p style="color: #999; font-size: 14px; text-align: center; margin-top: 30px;">
+            Questions? Reply to this email and we'll help you out!
+          </p>
+        </div>
+      </div>
+    `;
+
+    return await this.sendEmail({
+      to: userEmail,
+      subject: `Your SpaceMyPDF trial ends in ${daysLeft} day${daysLeft === 1 ? '' : 's'}`,
+      html
+    });
+  }
+
+  // Send payment required email
+  async sendPaymentRequiredEmail(
+    userEmail: string,
+    userName: string
+  ): Promise<boolean> {
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+          <h1 style="color: white; margin: 0; font-size: 28px;">Trial Expired</h1>
+        </div>
+        
+        <div style="background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px;">
+          <h2 style="color: #333; margin-top: 0;">Hi ${userName}!</h2>
+          
+          <p style="color: #666; font-size: 16px; line-height: 1.6;">
+            Your SpaceMyPDF free trial has ended. To continue using our PDF processing tools, 
+            please subscribe to one of our plans.
+          </p>
+          
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard" 
+               style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                      color: white; 
+                      padding: 15px 30px; 
+                      text-decoration: none; 
+                      border-radius: 25px; 
+                      font-weight: bold; 
+                      display: inline-block;
+                      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
+              Subscribe Now
+            </a>
+          </div>
+          
+          <p style="color: #999; font-size: 14px; text-align: center; margin-top: 30px;">
+            Questions? Reply to this email and we'll help you out!
+          </p>
+        </div>
+      </div>
+    `;
+
+    return await this.sendEmail({
+      to: userEmail,
+      subject: 'Your SpaceMyPDF trial has ended - Subscribe to continue',
       html
     });
   }

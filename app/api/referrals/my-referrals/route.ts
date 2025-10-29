@@ -25,8 +25,9 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      referrals,
-      stats,
+      totalReferrals: stats.total_referrals,
+      totalBonusMonths: stats.total_bonus_months,
+      recentReferrals: referrals,
       user: {
         id: user.id,
         email: user.email,

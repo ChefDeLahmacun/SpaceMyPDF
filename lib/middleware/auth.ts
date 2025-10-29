@@ -21,6 +21,8 @@ export async function authenticateRequest(request: NextRequest): Promise<{
     const authHeader = request.headers.get('authorization');
     const token = JWTUtils.extractTokenFromHeader(authHeader);
 
+    console.log('Auth middleware - token extracted:', !!token);
+
     if (!token) {
       return {
         isAuthenticated: false,
@@ -30,6 +32,8 @@ export async function authenticateRequest(request: NextRequest): Promise<{
 
     // Verify token
     const payload = JWTUtils.verifyToken(token);
+    console.log('Auth middleware - token verified:', !!payload);
+    
     if (!payload) {
       return {
         isAuthenticated: false,
@@ -46,13 +50,8 @@ export async function authenticateRequest(request: NextRequest): Promise<{
       };
     }
 
-
-    if (user.subscription_status === 'cancelled') {
-      return {
-        isAuthenticated: false,
-        error: 'Account has been cancelled'
-      };
-    }
+    // Note: We don't log out users with cancelled subscriptions
+    // They should still be able to access their account, just not premium features
 
     return {
       isAuthenticated: true,

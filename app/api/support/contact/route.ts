@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateRequest } from '@/lib/middleware/auth';
 import { Database } from '@/lib/db/connection';
-import { EmailService } from '@/lib/email/service';
+import { emailService } from '@/lib/email/service';
 import { z } from 'zod';
 
 export const dynamic = 'force-dynamic';
@@ -29,10 +29,12 @@ export async function POST(request: NextRequest) {
     // Validate input
     const validationResult = contactSchema.safeParse(body);
     if (!validationResult.success) {
+      console.log('Contact form validation failed:', validationResult.error.issues);
       return NextResponse.json(
         { 
           error: 'Validation failed', 
-          details: validationResult.error.issues 
+          details: validationResult.error.issues,
+          message: 'Please check your input and try again'
         },
         { status: 400 }
       );
@@ -55,7 +57,7 @@ export async function POST(request: NextRequest) {
     ]);
 
     // Send email notification to support team
-    const supportEmail = process.env.SUPPORT_EMAIL || 'support@spacemypdf.com';
+    const supportEmail = process.env.SUPPORT_EMAIL || 'spacemypdf@gmail.com';
     const emailSubject = `[${priority.toUpperCase()}] Support Ticket #${ticket.id}: ${subject}`;
     const emailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -99,7 +101,55 @@ export async function POST(request: NextRequest) {
     `;
 
     try {
-      await EmailService.sendEmail(supportEmail, emailSubject, emailHtml);
+      console.log(`Sending support email to: ${supportEmail}`);
+      await emailService.sendEmail({
+        to: supportEmail,
+        subject: emailSubject,
+        html: emailHtml
+      });
+      console.log('Support email sent successfully');
+      
+      // Send confirmation email to user
+      const userConfirmationHtml = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="background: #f0f9ff; border: 1px solid #0ea5e9; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+            <h2 style="color: #0c4a6e; margin: 0 0 10px 0;">Support Ticket Received</h2>
+            <p style="margin: 0; color: #0c4a6e;">
+              <strong>Ticket ID:</strong> #${ticket.id}
+            </p>
+          </div>
+          
+          <div style="margin-bottom: 20px;">
+            <h3 style="color: #1f2937; margin: 0 0 10px 0;">Your Message</h3>
+            <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 15px;">
+              <p style="color: #4b5563; margin: 0; white-space: pre-wrap;">${message}</p>
+            </div>
+          </div>
+          
+          <div style="background: #f0fdf4; border: 1px solid #22c55e; border-radius: 8px; padding: 15px; margin-top: 20px;">
+            <h4 style="color: #15803d; margin: 0 0 10px 0;">✅ What happens next?</h4>
+            <p style="margin: 0; color: #15803d; font-size: 14px;">
+              • We've received your support request<br>
+              • Our team will review it and get back to you as soon as possible<br>
+              • You can reply to this email if you need to add more information
+            </p>
+          </div>
+          
+          <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+            <p style="color: #6b7280; font-size: 12px; margin: 0;">
+              Thank you for using SpaceMyPDF!
+            </p>
+          </div>
+        </div>
+      `;
+      
+      await emailService.sendEmail({
+        to: user.email,
+        subject: `Support Ticket Confirmation #${ticket.id}`,
+        html: userConfirmationHtml
+      });
+      console.log('User confirmation email sent successfully');
+      
     } catch (emailError) {
       console.error('Failed to send support email:', emailError);
       // Don't fail the request if email fails

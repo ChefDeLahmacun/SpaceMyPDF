@@ -30,6 +30,7 @@ export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [isClient, setIsClient] = useState(false);
 
   // Helper function to format time ago
   const formatTimeAgo = (dateString: string) => {
@@ -46,7 +47,10 @@ export default function DashboardPage() {
   };
 
   useEffect(() => {
-    checkAuthStatus();
+    setIsClient(true);
+    if (typeof window !== 'undefined') {
+      checkAuthStatus();
+    }
   }, []);
 
   const checkAuthStatus = async () => {
@@ -134,6 +138,30 @@ export default function DashboardPage() {
       setTimeout(() => setCopied(false), 2000);
     }
   };
+
+  if (!isClient) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <div className="bg-white shadow-sm border-b flex-shrink-0">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between h-16">
+              <div className="flex items-center space-x-6 min-w-0 flex-1">
+                <h1 className="text-xl font-semibold text-gray-900 flex-shrink-0">Dashboard</h1>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading dashboard...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">

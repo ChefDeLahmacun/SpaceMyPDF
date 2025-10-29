@@ -8,8 +8,8 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const currency = searchParams.get('currency') || 'GBP';
 
-    // Get pricing for the currency
-    const pricing = StripeSubscriptionService.getSubscriptionPricing(currency);
+    // Get pricing for the currency from Stripe
+    const pricing = await StripeSubscriptionService.getSubscriptionPricing(currency);
 
     return NextResponse.json({
       success: true,

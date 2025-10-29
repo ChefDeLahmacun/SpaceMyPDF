@@ -122,10 +122,27 @@ export default function SupportPage() {
       const data = await response.json();
 
       if (response.ok) {
-        setMessage({ type: 'success', text: 'Your message has been sent successfully! We\'ll get back to you within 24 hours.' });
+        setMessage({ type: 'success', text: 'Your message has been sent successfully! We\'ll get back to you as soon as possible.' });
         setContactForm({ subject: '', message: '', priority: 'medium' });
       } else {
-        setMessage({ type: 'error', text: data.error || 'Failed to send message' });
+        let errorMessage = data.error || 'Failed to send message';
+        
+        // Show specific validation errors
+        if (data.details && Array.isArray(data.details)) {
+          const validationErrors = data.details.map((detail: any) => {
+            if (detail.path.includes('subject')) {
+              return 'Subject must be at least 5 characters long';
+            } else if (detail.path.includes('message')) {
+              return 'Message must be at least 20 characters long';
+            } else if (detail.path.includes('priority')) {
+              return 'Please select a valid priority level';
+            }
+            return detail.message;
+          });
+          errorMessage = validationErrors.join('. ');
+        }
+        
+        setMessage({ type: 'error', text: errorMessage });
       }
     } catch (error) {
       setMessage({ type: 'error', text: 'An error occurred while sending your message' });
@@ -241,7 +258,7 @@ export default function SupportPage() {
               <form onSubmit={handleContactSubmit} className="space-y-4">
                 <div>
                   <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">
-                    Subject
+                    Subject <span className="text-gray-500 text-xs">(min 5 characters)</span>
                   </label>
                   <input
                     type="text"
@@ -250,6 +267,8 @@ export default function SupportPage() {
                     onChange={(e) => setContactForm(prev => ({ ...prev, subject: e.target.value }))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
+                    minLength={5}
+                    maxLength={255}
                   />
                 </div>
 
@@ -272,7 +291,7 @@ export default function SupportPage() {
 
                 <div>
                   <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
-                    Message
+                    Message <span className="text-gray-500 text-xs">(min 20 characters)</span>
                   </label>
                   <textarea
                     id="message"
@@ -280,9 +299,14 @@ export default function SupportPage() {
                     value={contactForm.message}
                     onChange={(e) => setContactForm(prev => ({ ...prev, message: e.target.value }))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Describe your issue or question..."
+                    placeholder="Please describe your issue or question in detail..."
                     required
+                    minLength={20}
+                    maxLength={2000}
                   />
+                  <div className="text-xs text-gray-500 mt-1">
+                    {contactForm.message.length}/2000 characters
+                  </div>
                 </div>
 
                 <button

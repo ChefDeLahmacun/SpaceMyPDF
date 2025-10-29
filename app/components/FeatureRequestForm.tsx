@@ -146,7 +146,7 @@ export default function FeatureRequestForm({ onSubmit, onError }: FeatureRequest
           💡 Feature Request Benefits
         </h4>
         <ul className="text-sm text-blue-800 space-y-1">
-          <li>• Earn 1 bonus month for each approved feature request</li>
+          <li>• May receive 1 bonus month for exceptional feature requests (admin discretion)</li>
           <li>• Help improve SpaceMyPDF for everyone</li>
           <li>• Get early access to new features</li>
           <li>• Your feedback shapes the product roadmap</li>

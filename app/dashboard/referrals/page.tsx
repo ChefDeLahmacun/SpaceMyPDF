@@ -65,7 +65,11 @@ export default function ReferralsPage() {
 
       if (response.ok) {
         const data = await response.json();
-        setStats(data);
+        setStats({
+          totalReferrals: data.totalReferrals,
+          totalBonusMonths: data.totalBonusMonths,
+          recentReferrals: data.recentReferrals
+        });
       }
     } catch (error) {
       console.error('Error fetching referral stats:', error);

@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import UserStatus from '@/app/components/UserStatus';
-import PhoneVerification from '@/app/components/PhoneVerification';
 
 interface User {
   id: string;
@@ -352,21 +351,6 @@ export default function SettingsPage() {
               </form>
             </div>
 
-            {/* Phone Verification */}
-            {user?.phone && !user.phoneVerified && (
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-6">Verify Phone Number</h3>
-                <PhoneVerification
-                  onVerified={(phone) => {
-                    setMessage({ type: 'success', text: 'Phone number verified successfully!' });
-                    setUser(prev => prev ? { ...prev, phone, phoneVerified: true } : null);
-                  }}
-                  onError={(error) => {
-                    setMessage({ type: 'error', text: error });
-                  }}
-                />
-              </div>
-            )}
           </div>
         )}
 

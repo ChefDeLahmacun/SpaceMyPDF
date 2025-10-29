@@ -4,6 +4,7 @@ import { PasswordUtils } from '@/lib/auth/password';
 import { UserQueries } from '@/lib/db/queries/users';
 import { JWTUtils } from '@/lib/auth/jwt';
 import { emailService } from '@/lib/email/service';
+import { AntiFraudService } from '@/lib/security/anti-fraud';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,6 +27,38 @@ export async function POST(request: NextRequest) {
     }
 
     const { name, email, password, phone, referralCode } = validationResult.data;
+    
+    // Anti-fraud analysis
+    const clientIP = request.headers.get('x-forwarded-for') || 
+                    request.headers.get('x-real-ip') || 
+                    '127.0.0.1';
+    const userAgent = request.headers.get('user-agent') || '';
+    
+    const fraudAnalysis = AntiFraudService.analyzeUser({
+      email,
+      ip: clientIP,
+      userAgent,
+      referralCode,
+      timestamp: new Date()
+    });
+
+    console.log('Fraud analysis:', {
+      score: fraudAnalysis.score,
+      isFraud: fraudAnalysis.isFraud,
+      reasons: fraudAnalysis.reasons
+    });
+
+    // Handle high-risk registrations
+    if (fraudAnalysis.isFraud) {
+      console.log('Blocking high-risk registration:', fraudAnalysis.reasons);
+      return NextResponse.json(
+        { 
+          error: 'Registration blocked due to suspicious activity',
+          details: 'Please contact support if you believe this is an error'
+        },
+        { status: 403 }
+      );
+    }
     
     // Clean phone number (remove spaces)
     const cleanedPhone = phone ? phone.replace(/\s/g, '') : phone;
@@ -85,6 +118,27 @@ export async function POST(request: NextRequest) {
     };
 
     const newUser = await UserQueries.createUser(userData);
+
+    // Process referral if provided
+    if (referredBy) {
+      try {
+        // Import ReferralQueries here to avoid circular dependency
+        const { ReferralQueries } = await import('@/lib/db/queries/referrals');
+        
+        // Apply referral bonus
+        await ReferralQueries.applyReferralBonus(referredBy, newUser.id);
+        console.log('Referral bonus applied successfully');
+        
+        // Get updated user data after referral bonus
+        const updatedUser = await UserQueries.getUserById(newUser.id);
+        if (updatedUser) {
+          newUser.trial_ends_at = updatedUser.trial_ends_at;
+        }
+      } catch (error) {
+        console.error('Error applying referral bonus:', error);
+        // Don't fail registration if referral bonus fails
+      }
+    }
 
     // Generate JWT token
     const token = JWTUtils.generateToken({

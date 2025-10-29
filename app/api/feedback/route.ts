@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { emailService } from '@/lib/email/service';
 
 // Store feedback in memory for development purposes
 // In production, you would use a database or external service
@@ -57,6 +58,54 @@ export async function POST(request: Request) {
     console.log('Received feedback:', feedback);
     console.log('Number of attachments:', attachments.length);
     console.log('Total feedback items stored:', feedbackStore.length);
+    
+    // Send email notification to spacemypdf@gmail.com
+    const emailHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #2563eb;">New Feedback Received</h2>
+        <p>A new feedback submission has been received on SpaceMyPDF.</p>
+        
+        <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="color: #1f2937; margin-top: 0;">Feedback Details:</h3>
+          <p><strong>ID:</strong> ${feedbackId}</p>
+          <p><strong>Timestamp:</strong> ${new Date().toISOString()}</p>
+          <p><strong>Attachments:</strong> ${attachments.length} file(s)</p>
+        </div>
+
+        <div style="background-color: #ffffff; border: 1px solid #e5e7eb; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="color: #1f2937; margin-top: 0;">Message:</h3>
+          <p style="white-space: pre-wrap;">${feedback}</p>
+        </div>
+
+        ${attachments.length > 0 ? `
+          <div style="background-color: #fef3c7; border: 1px solid #fde68a; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <h4 style="color: #d97706; margin-top: 0;">Attachments:</h4>
+            <ul>
+              ${attachments.map(att => `<li>${att.name} (${Math.round(att.size / 1024)}KB, ${att.type})</li>`).join('')}
+            </ul>
+          </div>
+        ` : ''}
+
+        <p style="color: #6b7280; font-size: 14px;">
+          This feedback was submitted through the SpaceMyPDF website feedback form.
+        </p>
+      </div>
+    `;
+
+    // Send email notification (don't wait for it to complete)
+    emailService.sendEmail({
+      to: 'spacemypdf@gmail.com',
+      subject: `New Feedback - ${feedbackId}`,
+      html: emailHtml
+    }).then(success => {
+      if (success) {
+        console.log('Feedback notification email sent successfully');
+      } else {
+        console.log('Failed to send feedback notification email');
+      }
+    }).catch(error => {
+      console.error('Error sending feedback notification email:', error);
+    });
     
     // Simulate a slight delay to ensure the UI shows the processing state
     await new Promise(resolve => setTimeout(resolve, 1000));

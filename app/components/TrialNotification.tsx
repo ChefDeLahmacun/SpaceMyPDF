@@ -7,14 +7,21 @@ interface TrialNotificationProps {
     trialEnd?: string;
     subscriptionStatus: string;
   };
+  hasActiveSubscription?: boolean; // Add this prop to check if user has active Stripe subscription
   onClose?: () => void;
 }
 
-export default function TrialNotification({ user, onClose }: TrialNotificationProps) {
+export default function TrialNotification({ user, hasActiveSubscription = false, onClose }: TrialNotificationProps) {
   const [show, setShow] = useState(false);
   const [daysRemaining, setDaysRemaining] = useState(0);
 
   useEffect(() => {
+    // Don't show trial notification if user has an active subscription
+    if (hasActiveSubscription) {
+      setShow(false);
+      return;
+    }
+
     if (user.subscriptionStatus === 'trial' && user.trialEnd) {
       // Check if notification was dismissed
       const dismissed = localStorage.getItem('trial-notification-dismissed');
@@ -30,7 +37,7 @@ export default function TrialNotification({ user, onClose }: TrialNotificationPr
       setDaysRemaining(Math.max(0, diffDays));
       setShow(true);
     }
-  }, [user]);
+  }, [user, hasActiveSubscription]);
 
   if (!show || user.subscriptionStatus !== 'trial') {
     return null;
@@ -106,14 +113,14 @@ export default function TrialNotification({ user, onClose }: TrialNotificationPr
                   <span>Days remaining</span>
                   <span>{daysRemaining}</span>
                 </div>
-                <div className="mt-1 bg-gray-200 rounded-full h-2">
+                <div className="mt-1 bg-gray-200 rounded-full h-2 overflow-hidden">
                   <div 
                     className={`h-2 rounded-full ${
                       notificationType === 'error' ? 'bg-red-500' :
                       notificationType === 'warning' ? 'bg-yellow-500' :
                       'bg-green-500'
                     }`}
-                    style={{ width: `${Math.max(5, (daysRemaining / 30) * 100)}%` }}
+                    style={{ width: `${Math.max(5, Math.min(100, (daysRemaining / 30) * 100))}%` }}
                   ></div>
                 </div>
               </div>

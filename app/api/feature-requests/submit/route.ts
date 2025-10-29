@@ -52,9 +52,9 @@ export async function POST(request: NextRequest) {
 
     // Create feature request
     const query = `
-      INSERT INTO feature_requests (user_id, title, description, status, bonus_months_awarded)
-      VALUES ($1, $2, $3, 'pending', 1)
-      RETURNING id, title, description, status, created_at, bonus_months_awarded
+      INSERT INTO feature_requests (user_id, title, description, status, priority, bonus_awarded)
+      VALUES ($1, $2, $3, 'pending', 'medium', FALSE)
+      RETURNING id, title, description, status, priority, bonus_awarded, created_at
     `;
     
     const featureRequest = await Database.queryOne(query, [user.id, title, description]);
@@ -79,8 +79,9 @@ export async function POST(request: NextRequest) {
         title: featureRequest.title,
         description: featureRequest.description,
         status: featureRequest.status,
-        created_at: featureRequest.created_at,
-        bonus_months_awarded: featureRequest.bonus_months_awarded
+        priority: featureRequest.priority,
+        bonus_awarded: featureRequest.bonus_awarded,
+        created_at: featureRequest.created_at
       },
       message: 'Feature request submitted successfully'
     });

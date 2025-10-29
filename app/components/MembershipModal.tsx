@@ -41,6 +41,23 @@ export default function MembershipModal({ isOpen, onClose, onSignUp, onLogin, in
     }
   }, [isOpen, initialReferralCode]);
 
+  // Reset form when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setFormData({
+        name: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
+        phone: '',
+        referralCode: ''
+      });
+      setError(null);
+      setSuccess(null);
+      setLoading(false);
+    }
+  }, [isOpen]);
+
   if (!isOpen || !mounted) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -58,6 +75,7 @@ export default function MembershipModal({ isOpen, onClose, onSignUp, onLogin, in
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
+          name: formData.name,
           email: formData.email,
           password: formData.password,
           phone: formData.phone,
@@ -83,10 +101,11 @@ export default function MembershipModal({ isOpen, onClose, onSignUp, onLogin, in
 
       setSuccess(activeTab === 'signup' ? 'Account created successfully!' : 'Login successful!');
       
-      // Close modal and refresh page
+      // Close modal and redirect to main page
       setTimeout(() => {
         onClose();
-        window.location.reload();
+        // Redirect to main page without referral parameters
+        window.location.href = '/';
       }, 1500);
 
     } catch (error) {
