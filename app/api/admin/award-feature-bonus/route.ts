@@ -106,10 +106,32 @@ export async function POST(request: NextRequest) {
       // Commit transaction
       await Database.query('COMMIT');
 
+      // Send feature request approval email (don't wait for it)
+      try {
+        const { emailService } = await import('@/lib/email/service');
+        const userInfo = await Database.queryOne(
+          'SELECT email, name FROM users WHERE id = $1',
+          [userId]
+        );
+        
+        if (userInfo) {
+          emailService.sendFeatureRequestConfirmation(
+            userInfo.email,
+            userInfo.name || userInfo.email.split('@')[0],
+            user.feature_title
+          ).catch(error => {
+            console.error('Error sending feature request confirmation email:', error);
+          });
+        }
+      } catch (error) {
+        console.error('Error preparing feature request email:', error);
+        // Don't fail the bonus award if email fails
+      }
+
       return NextResponse.json({
         success: true,
         message: 'Bonus month awarded successfully',
-        newTrialEndDate: newTrialEndDate.toISOString()
+        newTrialEndDate: newTrialEndDate?.toISOString() || null
       });
 
     } catch (error) {

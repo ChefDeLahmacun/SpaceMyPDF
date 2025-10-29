@@ -1,60 +1,48 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { authenticateRequest } from './auth';
+import { Database } from '@/lib/db/connection';
 
-export interface AdminAuthResult {
-  isAdmin: boolean;
-  user?: {
-    id: string;
-    email: string;
-    name: string;
-  };
-  error?: string;
-}
+export async function authenticateAdmin(request: NextRequest) {
+  // First, authenticate the user
+  const authResult = await authenticateRequest(request);
+  
+  if (!authResult.isAuthenticated) {
+    return {
+      isAdmin: false,
+      error: authResult.error
+    };
+  }
 
-export async function authenticateAdmin(request: NextRequest): Promise<AdminAuthResult> {
+  const user = authResult.user!;
+  
+  // Check if user has admin privileges in database
   try {
-    // Get authorization header
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return { isAdmin: false, error: 'No authorization token provided' };
-    }
-
-    const token = authHeader.substring(7);
+    const adminCheck = await Database.queryOne(
+      'SELECT is_admin FROM users WHERE id = $1',
+      [user.id]
+    );
     
-    // Verify the token
-    const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/auth/verify`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-
-    if (!response.ok) {
-      return { isAdmin: false, error: 'Invalid or expired token' };
-    }
-
-    const data = await response.json();
-    const user = data.user;
-
-    // Check if user is admin
-    const adminEmails = process.env.ADMIN_EMAILS?.split(',') || [];
-    const isAdmin = adminEmails.includes(user.email);
-
+    const isAdmin = adminCheck?.is_admin === true;
+    
     if (!isAdmin) {
-      return { isAdmin: false, error: 'Access denied. Admin privileges required.' };
+      return {
+        isAdmin: false,
+        error: 'Admin access required'
+      };
     }
 
     return {
       isAdmin: true,
       user: {
-        id: user.id,
-        email: user.email,
-        name: user.name
+        ...user,
+        isAdmin: true
       }
     };
-
   } catch (error) {
-    console.error('Admin authentication error:', error);
-    return { isAdmin: false, error: 'Authentication failed' };
+    console.error('Error checking admin status:', error);
+    return {
+      isAdmin: false,
+      error: 'Failed to verify admin status'
+    };
   }
 }
-
-

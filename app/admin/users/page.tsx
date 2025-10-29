@@ -12,6 +12,8 @@ interface User {
   created_at: string;
   referral_code: string;
   total_referrals?: number;
+  admin_granted_premium?: boolean;
+  admin_premium_expires_at?: string | null;
 }
 
 export default function AdminUsers() {
@@ -21,6 +23,10 @@ export default function AdminUsers() {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [showGrantModal, setShowGrantModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [grantDuration, setGrantDuration] = useState('1year');
+  const [granting, setGranting] = useState(false);
 
   useEffect(() => {
     checkAuthStatus();
@@ -81,6 +87,70 @@ export default function AdminUsers() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     window.location.href = '/';
+  };
+
+  const handleGrantPremium = async () => {
+    if (!selectedUser) return;
+
+    setGranting(true);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/admin/grant-premium', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          userId: selectedUser.id,
+          duration: grantDuration
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        alert(data.message);
+        setShowGrantModal(false);
+        setSelectedUser(null);
+        await fetchUsers(); // Refresh the list
+      } else {
+        const errorData = await response.json();
+        alert(`Error: ${errorData.error}`);
+      }
+    } catch (error) {
+      console.error('Error granting premium:', error);
+      alert('Failed to grant premium membership');
+    } finally {
+      setGranting(false);
+    }
+  };
+
+  const handleRevokePremium = async (userId: string) => {
+    if (!confirm('Are you sure you want to revoke this admin-granted premium membership?')) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`/api/admin/grant-premium?userId=${userId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        alert(data.message);
+        await fetchUsers(); // Refresh the list
+      } else {
+        const errorData = await response.json();
+        alert(`Error: ${errorData.error}`);
+      }
+    } catch (error) {
+      console.error('Error revoking premium:', error);
+      alert('Failed to revoke premium membership');
+    }
   };
 
   const filteredUsers = users.filter(user => {
@@ -238,6 +308,9 @@ export default function AdminUsers() {
                     Joined
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Premium
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
@@ -271,26 +344,64 @@ export default function AdminUsers() {
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {new Date(user.created_at).toLocaleDateString()}
                       </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        {user.admin_granted_premium ? (
+                          <div>
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                              Admin Premium
+                            </span>
+                            {user.admin_premium_expires_at && (
+                              <div className="text-xs text-gray-500 mt-1">
+                                Expires: {new Date(user.admin_premium_expires_at).toLocaleDateString()}
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <button
-                          onClick={() => {
-                            // Copy referral code to clipboard
-                            navigator.clipboard.writeText(user.referral_code);
-                            alert('Referral code copied to clipboard!');
-                          }}
-                          className="text-blue-600 hover:text-blue-900 mr-3"
-                        >
-                          Copy Ref Code
-                        </button>
-                        <button
-                          onClick={() => {
-                            // View user details (could open a modal)
-                            alert(`User ID: ${user.id}\nEmail: ${user.email}\nStatus: ${user.subscription_status}`);
-                          }}
-                          className="text-green-600 hover:text-green-900"
-                        >
-                          View Details
-                        </button>
+                        <div className="flex flex-col gap-2">
+                          <div>
+                            <button
+                              onClick={() => {
+                                navigator.clipboard.writeText(user.referral_code);
+                                alert('Referral code copied to clipboard!');
+                              }}
+                              className="text-blue-600 hover:text-blue-900 mr-3"
+                            >
+                              Copy Code
+                            </button>
+                            <button
+                              onClick={() => {
+                                alert(`User ID: ${user.id}\nEmail: ${user.email}\nReferral Code: ${user.referral_code}\nStatus: ${user.subscription_status}`);
+                              }}
+                              className="text-green-600 hover:text-green-900"
+                            >
+                              Details
+                            </button>
+                          </div>
+                          <div>
+                            {user.admin_granted_premium ? (
+                              <button
+                                onClick={() => handleRevokePremium(user.id)}
+                                className="text-red-600 hover:text-red-900 font-medium"
+                              >
+                                Revoke Premium
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => {
+                                  setSelectedUser(user);
+                                  setShowGrantModal(true);
+                                }}
+                                className="text-purple-600 hover:text-purple-900 font-medium"
+                              >
+                                Grant Premium
+                              </button>
+                            )}
+                          </div>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -306,6 +417,66 @@ export default function AdminUsers() {
           </div>
         )}
       </div>
+
+      {/* Grant Premium Modal */}
+      {showGrantModal && selectedUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900">Grant Premium Membership</h3>
+            </div>
+            <div className="px-6 py-4">
+              <p className="text-sm text-gray-600 mb-4">
+                Grant free premium membership to <strong>{selectedUser.name}</strong> ({selectedUser.email})
+              </p>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Duration
+                </label>
+                <select
+                  value={grantDuration}
+                  onChange={(e) => setGrantDuration(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  disabled={granting}
+                >
+                  <option value="1month">1 Month</option>
+                  <option value="3months">3 Months</option>
+                  <option value="6months">6 Months</option>
+                  <option value="1year">1 Year</option>
+                  <option value="lifetime">Lifetime</option>
+                </select>
+              </div>
+
+              <div className="mt-4 p-3 bg-purple-50 border border-purple-200 rounded-md">
+                <p className="text-xs text-purple-800">
+                  <strong>Note:</strong> Admin-granted premium will give the user full access without requiring payment. 
+                  This action will be logged for audit purposes.
+                </p>
+              </div>
+            </div>
+            <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end space-x-3">
+              <button
+                onClick={() => {
+                  setShowGrantModal(false);
+                  setSelectedUser(null);
+                }}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                disabled={granting}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleGrantPremium}
+                className="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-md hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={granting}
+              >
+                {granting ? 'Granting...' : 'Grant Premium'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

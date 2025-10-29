@@ -1,12 +1,15 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { getCurrencySymbol } from '@/lib/utils/currency';
 
 interface SubscriptionCardProps {
   userId: string;
   user?: {
     subscriptionStatus: string;
     trialEnd?: string;
+    adminGrantedPremium?: boolean;
+    adminPremiumExpiresAt?: string;
   };
 }
 
@@ -34,9 +37,11 @@ interface Pricing {
 export default function SubscriptionCard({ userId, user }: SubscriptionCardProps) {
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [pricing, setPricing] = useState<Pricing | null>(null);
+  const [allPricing, setAllPricing] = useState<{ [key: string]: Pricing }>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'yearly'>('monthly');
+  const [selectedCurrency, setSelectedCurrency] = useState('GBP');
   const [cancelling, setCancelling] = useState(false);
   const [isClient, setIsClient] = useState(false);
 
@@ -45,26 +50,50 @@ export default function SubscriptionCard({ userId, user }: SubscriptionCardProps
   }, []);
 
   const formatPrice = (price: number, period: string) => {
-    return '£' + price.toFixed(2) + '/' + period;
+    const symbol = getCurrencySymbol(selectedCurrency);
+    return symbol + price.toFixed(2) + '/' + period;
   };
 
-  const fetchPricing = useCallback(async () => {
+  // Pre-fetch all currencies at once for instant switching
+  const fetchAllPricing = useCallback(async () => {
     try {
-      const pricingResponse = await fetch(`/api/stripe/pricing?currency=GBP`);
-      if (pricingResponse.ok) {
-        const pricingData = await pricingResponse.json();
-        setPricing(pricingData.pricing);
-      }
+      const currencies = ['GBP', 'USD', 'EUR', 'TRY'];
+      const pricingPromises = currencies.map(curr =>
+        fetch(`/api/stripe/pricing?currency=${curr}`).then(res => res.json())
+      );
+      
+      const results = await Promise.all(pricingPromises);
+      const pricingCache: { [key: string]: Pricing } = {};
+      
+      results.forEach((data, index) => {
+        pricingCache[currencies[index]] = data.pricing;
+      });
+      
+      setAllPricing(pricingCache);
+      setPricing(pricingCache[selectedCurrency]);
     } catch (error) {
       console.error('Error fetching pricing:', error);
     }
-  }, []);
+  }, [selectedCurrency]);
+
+  // Update pricing instantly from cache when currency changes
+  useEffect(() => {
+    if (allPricing[selectedCurrency]) {
+      setPricing(allPricing[selectedCurrency]);
+    }
+  }, [selectedCurrency, allPricing]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       fetchSubscriptionData();
     }
   }, [userId]);
+
+  useEffect(() => {
+    if (isClient) {
+      fetchAllPricing();
+    }
+  }, [isClient, fetchAllPricing]);
 
   const fetchSubscriptionData = async () => {
     try {
@@ -93,9 +122,6 @@ export default function SubscriptionCard({ userId, user }: SubscriptionCardProps
         setSubscription(data.subscription);
       }
 
-      // Fetch pricing data
-      await fetchPricing();
-
     } catch (error) {
       console.error('Error fetching subscription data:', error);
       setError(error instanceof Error ? error.message : 'Failed to load subscription data');
@@ -123,7 +149,7 @@ export default function SubscriptionCard({ userId, user }: SubscriptionCardProps
         },
         body: JSON.stringify({
           plan: selectedPlan,
-          currency: 'GBP'
+          currency: selectedCurrency
         })
       });
 
@@ -283,13 +309,77 @@ export default function SubscriptionCard({ userId, user }: SubscriptionCardProps
     );
   }
 
+  // Check if user has active admin-granted premium
+  const hasAdminPremium = user?.adminGrantedPremium && user?.adminPremiumExpiresAt && 
+    new Date(user.adminPremiumExpiresAt) > new Date();
+
   return (
     <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
       <h3 className="text-lg font-semibold text-gray-900 mb-4">
         Subscription Management
       </h3>
 
-      {subscription ? (
+      {hasAdminPremium ? (
+        // Admin-Granted Premium - Show info and prevent purchases
+        <div className="space-y-4">
+          <div className="bg-purple-50 border border-purple-200 rounded-md p-6">
+            <div className="flex items-center mb-3">
+              <svg className="w-6 h-6 text-purple-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <h4 className="text-lg font-semibold text-purple-900">
+                Premium Access Granted
+              </h4>
+            </div>
+            
+            <p className="text-sm text-purple-800 mb-4">
+              You have been granted complimentary premium access! Enjoy all premium features at no cost.
+            </p>
+
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-purple-700 font-medium">Status:</span>
+                <span className="text-purple-900 font-semibold">Active Premium</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-purple-700 font-medium">Access Until:</span>
+                <span className="text-purple-900 font-semibold">
+                  {new Date(user.adminPremiumExpiresAt!).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  })}
+                </span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-purple-700 font-medium">Days Remaining:</span>
+                <span className="text-purple-900 font-semibold">
+                  {Math.ceil((new Date(user.adminPremiumExpiresAt!).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days
+                </span>
+              </div>
+            </div>
+
+            <div className="mt-4 pt-4 border-t border-purple-200">
+              <p className="text-xs text-purple-600">
+                <strong>Note:</strong> While you have complimentary premium access, you cannot purchase a separate subscription. 
+                Contact support if you have any questions.
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
+            <h4 className="text-sm font-medium text-blue-900 mb-2">
+              ✨ What's Included
+            </h4>
+            <ul className="text-sm text-blue-800 space-y-1">
+              <li>• Unlimited PDF processing</li>
+              <li>• Priority support</li>
+              <li>• All premium features</li>
+              <li>• No hidden fees</li>
+            </ul>
+          </div>
+        </div>
+      ) : subscription ? (
         // Existing Subscription - ALWAYS show this if there's a Stripe subscription
         <div className="space-y-4">
           <div className="flex items-center justify-between">
@@ -373,6 +463,21 @@ export default function SubscriptionCard({ userId, user }: SubscriptionCardProps
       ) : (
         // No Subscription - Create One
         <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Select Currency
+            </label>
+            <select
+              value={selectedCurrency}
+              onChange={(e) => setSelectedCurrency(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="GBP">British Pound (£)</option>
+              <option value="USD">US Dollar ($)</option>
+              <option value="EUR">Euro (€)</option>
+              <option value="TRY">Turkish Lira (₺)</option>
+            </select>
+          </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">

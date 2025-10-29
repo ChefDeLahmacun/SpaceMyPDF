@@ -147,7 +147,8 @@ export class UserQueries {
       FROM users 
       WHERE id = $1 
       AND (subscription_status = 'active' 
-           OR (subscription_status = 'trial' AND trial_ends_at > NOW()))
+           OR (subscription_status = 'trial' AND trial_ends_at > NOW())
+           OR (admin_granted_premium = TRUE AND admin_premium_expires_at > NOW()))
     `;
     
     const result = await Database.queryOne(query, [userId]);

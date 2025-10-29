@@ -7,7 +7,6 @@ interface User {
   id: string;
   email: string;
   phone?: string;
-  phoneVerified: boolean;
   subscriptionStatus: string;
   referralCode: string;
   trialEnd?: string;
@@ -24,10 +23,17 @@ export default function SettingsPage() {
     newPassword: '',
     confirmPassword: ''
   });
+  const [notificationPreferences, setNotificationPreferences] = useState({
+    emailNotifications: true,
+    trialReminders: true,
+    referralUpdates: true
+  });
+  const [savingPreferences, setSavingPreferences] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   useEffect(() => {
     checkAuthStatus();
+    loadNotificationPreferences();
   }, []);
 
   const checkAuthStatus = async () => {
@@ -143,6 +149,64 @@ export default function SettingsPage() {
       }
     } catch (error) {
       setMessage({ type: 'error', text: 'An error occurred while changing password' });
+    }
+  };
+
+  const loadNotificationPreferences = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      const response = await fetch('/api/user/notification-preferences', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setNotificationPreferences(data.preferences);
+      }
+    } catch (error) {
+      console.error('Failed to load notification preferences:', error);
+    }
+  };
+
+  const handleNotificationChange = async (key: keyof typeof notificationPreferences) => {
+    const newPreferences = {
+      ...notificationPreferences,
+      [key]: !notificationPreferences[key]
+    };
+    
+    setNotificationPreferences(newPreferences);
+    setSavingPreferences(true);
+    setMessage(null);
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/user/notification-preferences', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(newPreferences)
+      });
+
+      if (response.ok) {
+        setMessage({ type: 'success', text: 'Notification preferences updated' });
+        setTimeout(() => setMessage(null), 3000);
+      } else {
+        // Revert on error
+        setNotificationPreferences(notificationPreferences);
+        setMessage({ type: 'error', text: 'Failed to update preferences' });
+      }
+    } catch (error) {
+      // Revert on error
+      setNotificationPreferences(notificationPreferences);
+      setMessage({ type: 'error', text: 'An error occurred' });
+    } finally {
+      setSavingPreferences(false);
     }
   };
 
@@ -270,11 +334,6 @@ export default function SettingsPage() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="+44 7700 900000"
                 />
-                {user?.phone && (
-                  <p className="mt-1 text-sm text-gray-500">
-                    Status: {user.phoneVerified ? 'Verified' : 'Not verified'}
-                  </p>
-                )}
               </div>
 
               <div className="flex justify-end">
@@ -357,31 +416,64 @@ export default function SettingsPage() {
         {activeTab === 'notifications' && (
           <div className="bg-white rounded-lg shadow-md p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-6">Notification Preferences</h3>
+            <p className="text-sm text-gray-600 mb-6">
+              Choose which email notifications you'd like to receive
+            </p>
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
+              <div className="flex items-center justify-between py-3 border-b border-gray-100">
+                <div className="flex-1">
                   <h4 className="text-sm font-medium text-gray-900">Email Notifications</h4>
                   <p className="text-sm text-gray-500">Receive updates about your account and new features</p>
                 </div>
-                <input type="checkbox" defaultChecked className="h-4 w-4 text-blue-600 rounded" />
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={notificationPreferences.emailNotifications}
+                    onChange={() => handleNotificationChange('emailNotifications')}
+                    disabled={savingPreferences}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                </label>
               </div>
               
-              <div className="flex items-center justify-between">
-                <div>
+              <div className="flex items-center justify-between py-3 border-b border-gray-100">
+                <div className="flex-1">
                   <h4 className="text-sm font-medium text-gray-900">Trial Reminders</h4>
                   <p className="text-sm text-gray-500">Get notified when your trial is ending</p>
                 </div>
-                <input type="checkbox" defaultChecked className="h-4 w-4 text-blue-600 rounded" />
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={notificationPreferences.trialReminders}
+                    onChange={() => handleNotificationChange('trialReminders')}
+                    disabled={savingPreferences}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                </label>
               </div>
               
-              <div className="flex items-center justify-between">
-                <div>
+              <div className="flex items-center justify-between py-3">
+                <div className="flex-1">
                   <h4 className="text-sm font-medium text-gray-900">Referral Updates</h4>
                   <p className="text-sm text-gray-500">Get notified when someone uses your referral code</p>
                 </div>
-                <input type="checkbox" defaultChecked className="h-4 w-4 text-blue-600 rounded" />
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={notificationPreferences.referralUpdates}
+                    onChange={() => handleNotificationChange('referralUpdates')}
+                    disabled={savingPreferences}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                </label>
               </div>
             </div>
+            {savingPreferences && (
+              <p className="text-xs text-gray-500 mt-4 text-center">Saving...</p>
+            )}
           </div>
         )}
       </div>

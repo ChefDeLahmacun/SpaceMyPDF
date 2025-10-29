@@ -202,49 +202,111 @@ export class StripeSubscriptionService {
   }
 
   // Get subscription pricing from Stripe
+  // Finds the correct price ID for the requested currency
   static async getSubscriptionPricing(currency: string = 'GBP') {
     try {
       const currencyUpper = currency.toUpperCase();
       
-      // Get monthly price
-      const monthlyPriceId = getPriceId(currencyUpper, 'monthly');
-      const monthlyPrice = await stripe.prices.retrieve(monthlyPriceId);
+      // Fetch all active prices from Stripe
+      const prices = await stripe.prices.list({ 
+        active: true, 
+        limit: 100 
+      });
       
-      // Get yearly price
-      const yearlyPriceId = getPriceId(currencyUpper, 'yearly');
-      const yearlyPrice = await stripe.prices.retrieve(yearlyPriceId);
+      let monthlyPrice: any = null;
+      let yearlyPrice: any = null;
       
+      // First pass: try to find prices that match the requested currency directly
+      for (const price of prices.data) {
+        if (price.currency.toUpperCase() !== currencyUpper) continue;
+        
+        const lookupKey = price.lookup_key?.toLowerCase() || '';
+        const nickname = price.nickname?.toLowerCase() || '';
+        const combined = `${lookupKey} ${nickname}`;
+        
+        if ((combined.includes('monthly') || combined.includes('spacemypdf_monthly')) && !monthlyPrice) {
+          monthlyPrice = price;
+        } else if ((combined.includes('yearly') || combined.includes('annual') || combined.includes('spacemypdf_yearly')) && !yearlyPrice) {
+          yearlyPrice = price;
+        }
+      }
+      
+      // Second pass: if no direct currency match, use GBP prices and extract from currency_options
+      if (!monthlyPrice || !yearlyPrice) {
+        console.log(`No direct ${currencyUpper} prices found, checking GBP prices with currency_options...`);
+        
+        let gbpMonthlyId: string | null = null;
+        let gbpYearlyId: string | null = null;
+        
+        for (const price of prices.data) {
+          if (price.currency.toUpperCase() !== 'GBP') continue;
+          const lookupKey = price.lookup_key?.toLowerCase() || '';
+          const nickname = price.nickname?.toLowerCase() || '';
+          const combined = `${lookupKey} ${nickname}`;
+          
+          if (combined.includes('monthly') && !gbpMonthlyId) gbpMonthlyId = price.id;
+          if ((combined.includes('yearly') || combined.includes('annual')) && !gbpYearlyId) gbpYearlyId = price.id;
+        }
+        
+        if (gbpMonthlyId && gbpYearlyId) {
+          // Retrieve prices with currency_options
+          const [gbpMonthly, gbpYearly] = await Promise.all([
+            stripe.prices.retrieve(gbpMonthlyId, { expand: ['currency_options'] }),
+            stripe.prices.retrieve(gbpYearlyId, { expand: ['currency_options'] })
+          ]);
+          
+          // Extract amounts from currency_options
+          const getAmount = (price: any, curr: string): number | null => {
+            if (price.currency.toUpperCase() === curr) {
+              return price.unit_amount ? price.unit_amount / 100 : null;
+            }
+            const opt = price.currency_options?.[curr] || price.currency_options?.[curr.toLowerCase()];
+            return opt?.unit_amount ? opt.unit_amount / 100 : null;
+          };
+          
+          const monthlyAmount = getAmount(gbpMonthly, currencyUpper);
+          const yearlyAmount = getAmount(gbpYearly, currencyUpper);
+          
+          if (monthlyAmount !== null && yearlyAmount !== null) {
+            return {
+              monthly: {
+                price: monthlyAmount,
+                name: 'Monthly Plan',
+                currency: currencyUpper,
+                priceId: gbpMonthly.id
+              },
+              yearly: {
+                price: yearlyAmount,
+                name: 'Yearly Plan',
+                currency: currencyUpper,
+                priceId: gbpYearly.id
+              }
+            };
+          }
+        }
+        
+        throw new Error(`Could not find pricing for currency ${currencyUpper}`);
+      }
+      
+      // Found direct currency prices
       return {
         monthly: {
           price: monthlyPrice.unit_amount ? monthlyPrice.unit_amount / 100 : 0,
           name: 'Monthly Plan',
-          currency: monthlyPrice.currency?.toUpperCase() || currencyUpper,
+          currency: currencyUpper,
           priceId: monthlyPrice.id
         },
         yearly: {
           price: yearlyPrice.unit_amount ? yearlyPrice.unit_amount / 100 : 0,
           name: 'Yearly Plan',
-          currency: yearlyPrice.currency?.toUpperCase() || currencyUpper,
+          currency: currencyUpper,
           priceId: yearlyPrice.id
         }
       };
     } catch (error) {
       console.error('Error fetching pricing from Stripe:', error);
-      // Fallback to correct hardcoded pricing if Stripe is unavailable
-      return {
-        monthly: { 
-          price: 3.00, 
-          name: 'Monthly Plan', 
-          currency: currency.toUpperCase(), 
-          priceId: process.env.STRIPE_MONTHLY_PRICE_ID_GBP || 'fallback' 
-        },
-        yearly: { 
-          price: 30.00, 
-          name: 'Yearly Plan', 
-          currency: currency.toUpperCase(), 
-          priceId: process.env.STRIPE_YEARLY_PRICE_ID_GBP || 'fallback' 
-        }
-      };
+      console.error('Error details:', error instanceof Error ? error.message : String(error));
+      throw error;
     }
   }
 }

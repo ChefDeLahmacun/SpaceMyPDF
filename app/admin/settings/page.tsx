@@ -6,10 +6,11 @@ import UserStatus from '@/app/components/UserStatus';
 interface Announcement {
   id: string;
   title: string;
-  message: string;
+  content: string;
   type: 'info' | 'warning' | 'success' | 'error';
   is_active: boolean;
   created_at: string;
+  expires_at?: string;
 }
 
 interface SystemStats {
@@ -28,10 +29,12 @@ export default function AdminSettings() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showAnnouncementForm, setShowAnnouncementForm] = useState(false);
+  const [editingAnnouncement, setEditingAnnouncement] = useState<Announcement | null>(null);
   const [newAnnouncement, setNewAnnouncement] = useState({
     title: '',
-    message: '',
-    type: 'info' as 'info' | 'warning' | 'success' | 'error'
+    content: '',
+    type: 'info' as 'info' | 'warning' | 'success' | 'error',
+    expires_at: ''
   });
 
   useEffect(() => {
@@ -116,7 +119,7 @@ export default function AdminSettings() {
 
       if (response.ok) {
         await fetchData();
-        setNewAnnouncement({ title: '', message: '', type: 'info' });
+        setNewAnnouncement({ title: '', content: '', type: 'info', expires_at: '' });
         setShowAnnouncementForm(false);
       } else {
         alert('Failed to create announcement');
@@ -151,6 +154,83 @@ export default function AdminSettings() {
       console.error('Error updating announcement:', error);
       alert('Failed to update announcement');
     }
+  };
+
+  const editAnnouncement = (announcement: Announcement) => {
+    setEditingAnnouncement(announcement);
+    setNewAnnouncement({
+      title: announcement.title,
+      content: announcement.content,
+      type: announcement.type,
+      expires_at: announcement.expires_at || ''
+    });
+    setShowAnnouncementForm(true);
+  };
+
+  const saveEditedAnnouncement = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingAnnouncement) return;
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/admin/announcements', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          id: editingAnnouncement.id,
+          title: newAnnouncement.title,
+          content: newAnnouncement.content,
+          type: newAnnouncement.type,
+          expires_at: newAnnouncement.expires_at || null
+        })
+      });
+
+      if (response.ok) {
+        await fetchData();
+        setNewAnnouncement({ title: '', content: '', type: 'info', expires_at: '' });
+        setEditingAnnouncement(null);
+        setShowAnnouncementForm(false);
+      } else {
+        alert('Failed to update announcement');
+      }
+    } catch (error) {
+      console.error('Error updating announcement:', error);
+      alert('Failed to update announcement');
+    }
+  };
+
+  const deleteAnnouncement = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this announcement?')) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`/api/admin/announcements?id=${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        await fetchData();
+      } else {
+        alert('Failed to delete announcement');
+      }
+    } catch (error) {
+      console.error('Error deleting announcement:', error);
+      alert('Failed to delete announcement');
+    }
+  };
+
+  const closeAnnouncementForm = () => {
+    setShowAnnouncementForm(false);
+    setEditingAnnouncement(null);
+    setNewAnnouncement({ title: '', content: '', type: 'info', expires_at: '' });
   };
 
   const handleLogout = () => {
@@ -413,7 +493,7 @@ export default function AdminSettings() {
               {announcements.map((announcement) => (
                 <div key={announcement.id} className="border border-gray-200 rounded-lg p-4">
                   <div className="flex justify-between items-start mb-2">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <h3 className="font-medium text-gray-900">{announcement.title}</h3>
                       {getTypeBadge(announcement.type)}
                       <span className={`px-2 py-1 text-xs rounded-full ${
@@ -424,21 +504,44 @@ export default function AdminSettings() {
                         {announcement.is_active ? 'Active' : 'Inactive'}
                       </span>
                     </div>
-                    <button
-                      onClick={() => toggleAnnouncement(announcement.id, announcement.is_active)}
-                      className={`px-3 py-1 text-xs rounded-md ${
-                        announcement.is_active
-                          ? 'bg-red-100 text-red-800 hover:bg-red-200'
-                          : 'bg-green-100 text-green-800 hover:bg-green-200'
-                      }`}
-                    >
-                      {announcement.is_active ? 'Deactivate' : 'Activate'}
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => editAnnouncement(announcement)}
+                        className="px-3 py-1 text-xs rounded-md bg-blue-100 text-blue-800 hover:bg-blue-200"
+                        title="Edit announcement"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => toggleAnnouncement(announcement.id, announcement.is_active)}
+                        className={`px-3 py-1 text-xs rounded-md ${
+                          announcement.is_active
+                            ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
+                            : 'bg-green-100 text-green-800 hover:bg-green-200'
+                        }`}
+                        title={announcement.is_active ? 'Deactivate' : 'Activate'}
+                      >
+                        {announcement.is_active ? 'Deactivate' : 'Activate'}
+                      </button>
+                      <button
+                        onClick={() => deleteAnnouncement(announcement.id)}
+                        className="px-3 py-1 text-xs rounded-md bg-red-100 text-red-800 hover:bg-red-200"
+                        title="Delete announcement"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </div>
-                  <p className="text-sm text-gray-600 mb-2">{announcement.message}</p>
-                  <p className="text-xs text-gray-500">
-                    Created: {new Date(announcement.created_at).toLocaleString()}
-                  </p>
+                  <div 
+                    className="text-sm text-gray-700 mb-2 prose prose-sm max-w-none"
+                    dangerouslySetInnerHTML={{ __html: announcement.content }}
+                  />
+                  <div className="flex justify-between text-xs text-gray-500">
+                    <span>Created: {new Date(announcement.created_at).toLocaleString()}</span>
+                    {announcement.expires_at && (
+                      <span>Expires: {new Date(announcement.expires_at).toLocaleString()}</span>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -446,15 +549,17 @@ export default function AdminSettings() {
         </div>
       </div>
 
-      {/* Create Announcement Modal */}
+      {/* Create/Edit Announcement Modal */}
       {showAnnouncementForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-md w-full">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Create Announcement</h3>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {editingAnnouncement ? 'Edit Announcement' : 'Create Announcement'}
+                </h3>
                 <button
-                  onClick={() => setShowAnnouncementForm(false)}
+                  onClick={closeAnnouncementForm}
                   className="text-gray-400 hover:text-gray-600"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -463,7 +568,7 @@ export default function AdminSettings() {
                 </button>
               </div>
 
-              <form onSubmit={createAnnouncement} className="space-y-4">
+              <form onSubmit={editingAnnouncement ? saveEditedAnnouncement : createAnnouncement} className="space-y-4">
                 <div>
                   <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
                     Title
@@ -480,18 +585,19 @@ export default function AdminSettings() {
                 </div>
 
                 <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
-                    Message
+                  <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-1">
+                    Content
                   </label>
                   <textarea
-                    id="message"
-                    rows={3}
-                    value={newAnnouncement.message}
-                    onChange={(e) => setNewAnnouncement(prev => ({ ...prev, message: e.target.value }))}
+                    id="content"
+                    rows={5}
+                    value={newAnnouncement.content}
+                    onChange={(e) => setNewAnnouncement(prev => ({ ...prev, content: e.target.value }))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Describe what users need to know..."
+                    placeholder="Describe what users need to know... (HTML allowed)"
                     required
                   />
+                  <p className="text-xs text-gray-500 mt-1">You can use HTML tags for formatting</p>
                 </div>
 
                 <div>
@@ -511,16 +617,30 @@ export default function AdminSettings() {
                   </select>
                 </div>
 
+                <div>
+                  <label htmlFor="expires_at" className="block text-sm font-medium text-gray-700 mb-1">
+                    Expires At (Optional)
+                  </label>
+                  <input
+                    type="datetime-local"
+                    id="expires_at"
+                    value={newAnnouncement.expires_at}
+                    onChange={(e) => setNewAnnouncement(prev => ({ ...prev, expires_at: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Leave empty for no expiration</p>
+                </div>
+
                 <div className="flex gap-2 pt-4">
                   <button
                     type="submit"
                     className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                   >
-                    Create Announcement
+                    {editingAnnouncement ? 'Save Changes' : 'Create Announcement'}
                   </button>
                   <button
                     type="button"
-                    onClick={() => setShowAnnouncementForm(false)}
+                    onClick={closeAnnouncementForm}
                     className="flex-1 px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
                   >
                     Cancel

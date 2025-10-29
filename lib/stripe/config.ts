@@ -2,7 +2,7 @@ import Stripe from 'stripe';
 
 // Initialize Stripe with secret key and proper error handling
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2023-10-16',
+  apiVersion: '2025-09-30.clover' as any,
   typescript: true,
   maxNetworkRetries: 3,
   timeout: 10000,

@@ -10,10 +10,11 @@ interface MembershipModalProps {
   onSignUp?: () => void;
   onLogin?: () => void;
   initialReferralCode?: string;
+  preventRedirect?: boolean; // Add flag to prevent redirect after signup/login
 }
 
-export default function MembershipModal({ isOpen, onClose, onSignUp, onLogin, initialReferralCode }: MembershipModalProps) {
-  const [activeTab, setActiveTab] = useState<'signup' | 'login'>('signup');
+export default function MembershipModal({ isOpen, onClose, onSignUp, onLogin, initialReferralCode, preventRedirect = false }: MembershipModalProps) {
+  const [activeTab, setActiveTab] = useState<'signup' | 'login' | 'forgotPassword'>('signup');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -26,6 +27,7 @@ export default function MembershipModal({ isOpen, onClose, onSignUp, onLogin, in
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState('');
 
   useEffect(() => {
     setMounted(true);
@@ -59,6 +61,41 @@ export default function MembershipModal({ isOpen, onClose, onSignUp, onLogin, in
   }, [isOpen]);
 
   if (!isOpen || !mounted) return null;
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const response = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email: forgotPasswordEmail })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to send reset email');
+      }
+
+      setSuccess(data.message);
+      
+      // Show dev reset link in development
+      if (data.devResetLink) {
+        console.log('Password Reset Link:', data.devResetLink);
+      }
+
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -101,11 +138,24 @@ export default function MembershipModal({ isOpen, onClose, onSignUp, onLogin, in
 
       setSuccess(activeTab === 'signup' ? 'Account created successfully!' : 'Login successful!');
       
-      // Close modal and redirect to main page
+      // Dispatch auth change event to update UI components
+      window.dispatchEvent(new Event('authChange'));
+      
+      // Close modal and handle post-auth action
       setTimeout(() => {
+        // Call the appropriate callback
+        if (activeTab === 'signup' && onSignUp) {
+          onSignUp();
+        } else if (activeTab === 'login' && onLogin) {
+          onLogin();
+        }
+        
         onClose();
-        // Redirect to main page without referral parameters
-        window.location.href = '/';
+        
+        // Only redirect if not prevented (e.g., when user was processing a PDF)
+        if (!preventRedirect) {
+          window.location.href = '/';
+        }
       }, 1500);
 
     } catch (error) {
@@ -181,7 +231,84 @@ export default function MembershipModal({ isOpen, onClose, onSignUp, onLogin, in
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        {activeTab === 'forgotPassword' ? (
+          <form onSubmit={handleForgotPassword} className="p-6 space-y-6">
+            {/* Success/Error Messages */}
+            {success && (
+              <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-3">
+                <svg className="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p className="text-sm text-green-800">{success}</p>
+              </div>
+            )}
+
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3">
+                <svg className="w-5 h-5 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p className="text-sm text-red-800">{error}</p>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <label htmlFor="forgotEmail" className="block text-sm font-semibold text-gray-700">
+                Email Address
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <input
+                  type="email"
+                  id="forgotEmail"
+                  value={forgotPasswordEmail}
+                  onChange={(e) => setForgotPasswordEmail(e.target.value)}
+                  required
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
+                  placeholder="Enter your email address"
+                />
+              </div>
+              <p className="text-xs text-gray-600">
+                We'll send you instructions to reset your password.
+              </p>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 px-6 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
+            >
+              {loading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Sending...
+                </>
+              ) : (
+                <>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                  Send Reset Link
+                </>
+              )}
+            </button>
+
+            <div className="text-center">
+              <button
+                type="button"
+                onClick={() => setActiveTab('login')}
+                className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+              >
+                ← Back to Sign In
+              </button>
+            </div>
+          </form>
+        ) : (
+          <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {/* Email */}
           <div className="space-y-2">
             <label htmlFor="email" className="block text-sm font-semibold text-gray-700">
@@ -254,14 +381,26 @@ export default function MembershipModal({ isOpen, onClose, onSignUp, onLogin, in
                 placeholder="Enter your password"
               />
             </div>
-            <div className="text-xs text-gray-600">
-              <p>Password must be at least 8 characters with:</p>
-              <ul className="list-disc list-inside mt-1 space-y-0.5">
-                <li>One uppercase letter</li>
-                <li>One lowercase letter</li>
-                <li>One number</li>
-              </ul>
-            </div>
+            {activeTab === 'signup' ? (
+              <div className="text-xs text-gray-600">
+                <p>Password must be at least 8 characters with:</p>
+                <ul className="list-disc list-inside mt-1 space-y-0.5">
+                  <li>One uppercase letter</li>
+                  <li>One lowercase letter</li>
+                  <li>One number</li>
+                </ul>
+              </div>
+            ) : (
+              <div className="text-right">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('forgotPassword')}
+                  className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+                >
+                  Forgot password?
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Confirm Password (Sign Up only) */}
@@ -398,6 +537,7 @@ export default function MembershipModal({ isOpen, onClose, onSignUp, onLogin, in
             </span>
           </button>
         </form>
+        )}
 
         {/* Benefits */}
         <div className="px-6 pb-6">

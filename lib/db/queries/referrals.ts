@@ -125,8 +125,22 @@ export class ReferralQueries {
     refereeBonus: number;
   }> {
     try {
+      // Check if referral should be allowed (phone number fraud check)
+      const { AntiFraudService } = await import('@/lib/security/anti-fraud');
+      const phoneCheck = await AntiFraudService.canGiveReferralBonus(referrerId, refereeId);
+      
+      if (!phoneCheck.allowed) {
+        console.log('Referral bonus blocked:', phoneCheck.reason);
+        // Create referral record but with 0 bonus months
+        await this.createReferral(referrerId, refereeId, 0);
+        return {
+          referrerBonus: 0,
+          refereeBonus: 0
+        };
+      }
+
       // Create referral record
-      await this.createReferral(referrerId, refereeId, 1);
+      const referral = await this.createReferral(referrerId, refereeId, 1);
 
       // Get current trial end dates and subscription status
       const referrer = await Database.queryOne(
@@ -171,7 +185,7 @@ export class ReferralQueries {
         );
       }
 
-      // Record bonus activities
+      // Record bonus activities and send emails
       if (referrerBonus > 0) {
         // Get referee email for activity description
         const refereeEmail = await Database.queryOne(
@@ -185,6 +199,24 @@ export class ReferralQueries {
           refereeEmail.email,
           referral.id
         );
+
+        // Send referral bonus email to referrer
+        try {
+          const { emailService } = await import('@/lib/email/service');
+          const referrerUser = await Database.queryOne(
+            'SELECT email, name FROM users WHERE id = $1',
+            [referrerId]
+          );
+          
+          await emailService.sendReferralBonusEmail(
+            referrerUser.email,
+            referrerUser.name || referrerUser.email.split('@')[0],
+            referrerBonus
+          );
+        } catch (error) {
+          console.error('Error sending referral bonus email to referrer:', error);
+          // Don't fail the referral process if email fails
+        }
       }
 
       // Record referee bonus activity
@@ -199,6 +231,24 @@ export class ReferralQueries {
         referrerEmail.email,
         referral.id
       );
+
+      // Send referral bonus email to referee
+      try {
+        const { emailService } = await import('@/lib/email/service');
+        const refereeUser = await Database.queryOne(
+          'SELECT email, name FROM users WHERE id = $1',
+          [refereeId]
+        );
+        
+        await emailService.sendReferralBonusEmail(
+          refereeUser.email,
+          refereeUser.name || refereeUser.email.split('@')[0],
+          refereeBonus
+        );
+      } catch (error) {
+        console.error('Error sending referral bonus email to referee:', error);
+        // Don't fail the referral process if email fails
+      }
 
       return {
         referrerBonus,

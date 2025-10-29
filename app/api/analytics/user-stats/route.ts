@@ -56,6 +56,7 @@ export async function POST(request: NextRequest) {
     // Authenticate user
     const authResult = await authenticateRequest(request);
     if (!authResult.isAuthenticated) {
+      console.log('[Analytics] User not authenticated');
       return NextResponse.json(
         { error: authResult.error },
         { status: 401 }
@@ -66,9 +67,11 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { action } = body;
 
+    console.log(`[Analytics] User ${user.email} action: ${action}`);
+
     if (action === 'increment_pdf_processed') {
       // Increment PDF processed count
-      await Database.query(`
+      const result = await Database.query(`
         INSERT INTO user_analytics (user_id, pdfs_processed, last_activity)
         VALUES ($1, 1, NOW())
         ON CONFLICT (user_id) 
@@ -76,11 +79,15 @@ export async function POST(request: NextRequest) {
           pdfs_processed = user_analytics.pdfs_processed + 1,
           last_activity = NOW(),
           updated_at = NOW()
+        RETURNING pdfs_processed
       `, [user.id]);
+
+      console.log(`[Analytics] PDF count incremented to ${result.rows[0].pdfs_processed} for user ${user.email}`);
 
       return NextResponse.json({
         success: true,
-        message: 'PDF processing recorded'
+        message: 'PDF processing recorded',
+        pdfsProcessed: result.rows[0].pdfs_processed
       });
     }
 
@@ -90,9 +97,9 @@ export async function POST(request: NextRequest) {
     );
 
   } catch (error) {
-    console.error('Update user analytics error:', error);
+    console.error('[Analytics] Update user analytics error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }

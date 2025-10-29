@@ -7,9 +7,15 @@ export const dynamic = 'force-dynamic';
 export async function POST(request: NextRequest) {
   try {
     // This endpoint should be called by a cron job or scheduled task
-    // Check for admin authorization if needed
+    // Check for authorization (Vercel Cron or manual with secret)
     const authHeader = request.headers.get('authorization');
-    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    const cronSecret = process.env.CRON_SECRET;
+    
+    // Allow requests from Vercel Cron (no auth header) or with valid secret
+    const isVercelCron = request.headers.get('user-agent')?.includes('vercel-cron');
+    const hasValidSecret = cronSecret && authHeader === `Bearer ${cronSecret}`;
+    
+    if (!isVercelCron && !hasValidSecret) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }

@@ -11,10 +11,6 @@ export default function UserStatus({ onLogin, onLogout }: UserStatusProps) {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    checkAuthStatus();
-  }, []);
-
   const checkAuthStatus = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -50,10 +46,31 @@ export default function UserStatus({ onLogin, onLogout }: UserStatusProps) {
     }
   };
 
+  useEffect(() => {
+    checkAuthStatus();
+    
+    // Listen for auth change events
+    const handleAuthChange = () => {
+      console.log('Auth change detected, refreshing user status...');
+      checkAuthStatus();
+    };
+    
+    window.addEventListener('authChange', handleAuthChange);
+    
+    return () => {
+      window.removeEventListener('authChange', handleAuthChange);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setUser(null);
+    
+    // Dispatch auth change event
+    window.dispatchEvent(new Event('authChange'));
+    
     onLogout?.();
     window.location.reload();
   };

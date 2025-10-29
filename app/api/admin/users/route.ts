@@ -25,10 +25,12 @@ export async function GET(request: NextRequest) {
         u.trial_ends_at,
         u.created_at,
         u.referral_code,
+        u.admin_granted_premium,
+        u.admin_premium_expires_at,
         COUNT(r.id) as total_referrals
       FROM users u
       LEFT JOIN referrals r ON u.id = r.referrer_id
-      GROUP BY u.id, u.email, u.name, u.subscription_status, u.trial_ends_at, u.created_at, u.referral_code
+      GROUP BY u.id, u.email, u.name, u.subscription_status, u.trial_ends_at, u.created_at, u.referral_code, u.admin_granted_premium, u.admin_premium_expires_at
       ORDER BY u.created_at DESC
     `;
     

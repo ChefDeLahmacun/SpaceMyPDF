@@ -80,6 +80,11 @@ export default function Home() {
   // New state for specifying save location
   const [specifyLocation, setSpecifyLocation] = useState(false);
   
+  // Debug: Log when specifyLocation changes
+  useEffect(() => {
+    console.log('[State] specifyLocation changed to:', specifyLocation);
+  }, [specifyLocation]);
+  
   // Use useLayoutEffect to ensure everything is ready before rendering
   useLayoutEffect(() => {
     // Mark component as fully mounted after a delay
@@ -785,6 +790,9 @@ export default function Home() {
       // Save the modified PDF
       const modifiedPdfBytes = await modifiedPdfDoc.save();
       
+      console.log('[Download] specifyLocation state:', specifyLocation);
+      console.log('[Download] Browser supports showSaveFilePicker:', 'showSaveFilePicker' in window);
+      
       if (specifyLocation) {
         // Use the File System Access API if available
         if ('showSaveFilePicker' in window) {
@@ -866,10 +874,21 @@ export default function Home() {
     link.href = url;
     const filename = outputFileName || file!.name.replace('.pdf', '_with_notes.pdf');
     link.download = filename;
+    
+    // Set additional attributes to force download without dialog
+    link.style.display = 'none';
+    link.setAttribute('target', '_self');
+    
     document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    
+    // Use a small delay to ensure the link is ready
+    setTimeout(() => {
+      link.click();
+      setTimeout(() => {
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      }, 100);
+    }, 0);
 
     // After processing, show success message
     setIsProcessing(false);
@@ -887,6 +906,7 @@ export default function Home() {
     try {
       const token = localStorage.getItem('token');
       if (token) {
+        console.log('[PDF Download] Incrementing PDF count...');
         fetch('/api/analytics/user-stats', {
           method: 'POST',
           headers: {
@@ -894,12 +914,19 @@ export default function Home() {
             'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({ action: 'increment_pdf_processed' })
-        }).catch(error => {
-          console.error('Failed to update analytics:', error);
-        });
+        })
+          .then(response => response.json())
+          .then(data => {
+            console.log('[PDF Download] Analytics response:', data);
+          })
+          .catch(error => {
+            console.error('[PDF Download] Failed to update analytics:', error);
+          });
+      } else {
+        console.log('[PDF Download] No auth token found, skipping analytics');
       }
     } catch (error) {
-      console.error('Failed to update analytics:', error);
+      console.error('[PDF Download] Failed to update analytics:', error);
     }
     
     // Reset the success message after 5 seconds

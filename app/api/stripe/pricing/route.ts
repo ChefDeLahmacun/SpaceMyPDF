@@ -19,8 +19,10 @@ export async function GET(request: NextRequest) {
 
   } catch (error) {
     console.error('Get pricing error:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error('Error details:', errorMessage);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', details: errorMessage },
       { status: 500 }
     );
   }

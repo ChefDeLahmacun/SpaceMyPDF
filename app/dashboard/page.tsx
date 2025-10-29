@@ -15,6 +15,8 @@ interface User {
   referralCode: string;
   trialEnd?: string;
   created_at?: string;
+  adminGrantedPremium?: boolean;
+  adminPremiumExpiresAt?: string;
 }
 
 interface DashboardStats {
@@ -24,10 +26,19 @@ interface DashboardStats {
   daysRemaining: number;
 }
 
+interface Activity {
+  id: string;
+  activity_type: string;
+  bonus_months: number;
+  description: string;
+  created_at: string;
+}
+
 export default function DashboardPage() {
   const [showMembershipModal, setShowMembershipModal] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [recentActivities, setRecentActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const [isClient, setIsClient] = useState(false);
@@ -86,7 +97,7 @@ export default function DashboardPage() {
 
   const fetchDashboardStats = async (userId: string, userData: User) => {
     try {
-      const [analyticsRes, referralsRes, featuresRes] = await Promise.all([
+      const [analyticsRes, referralsRes, featuresRes, activitiesRes] = await Promise.all([
         fetch('/api/analytics/user-stats', {
           headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         }),
@@ -95,12 +106,16 @@ export default function DashboardPage() {
         }),
         fetch('/api/feature-requests/list', {
           headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        }),
+        fetch('/api/bonus-activities/user-activities', {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         })
       ]);
 
       const analytics = analyticsRes.ok ? await analyticsRes.json() : { pdfsProcessed: 0 };
       const referrals = referralsRes.ok ? await referralsRes.json() : { referrals: [] };
       const features = featuresRes.ok ? await featuresRes.json() : { requests: [] };
+      const activities = activitiesRes.ok ? await activitiesRes.json() : { activities: [] };
 
       const daysRemaining = userData?.trialEnd ? 
         Math.max(0, Math.floor((new Date(userData.trialEnd).getTime() - Date.now()) / (1000 * 60 * 60 * 24))) : 0;
@@ -112,6 +127,8 @@ export default function DashboardPage() {
         featureRequestsCount: features.requests?.length || 0,
         daysRemaining
       });
+
+      setRecentActivities(activities.activities || []);
     } catch (error) {
       console.error('Error fetching dashboard stats:', error);
     }
@@ -286,7 +303,7 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Subscription Management */}
+            {/* Subscription Management & Quick Actions */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
               <div className="bg-white rounded-lg shadow-md p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Subscription</h3>
@@ -296,6 +313,12 @@ export default function DashboardPage() {
               <div className="bg-white rounded-lg shadow-md p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
                 <div className="space-y-3">
+                  <a
+                    href="/dashboard/change-password"
+                    className="block w-full px-4 py-2 text-left text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                  >
+                    🔐 Change Password
+                  </a>
                   <a
                     href="/dashboard/features"
                     className="block w-full px-4 py-2 text-left text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
@@ -340,6 +363,7 @@ export default function DashboardPage() {
             <div className="bg-white rounded-lg shadow-md p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
               <div className="space-y-3">
+                {/* Account created */}
                 <div className="flex items-center text-sm text-gray-600">
                   <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
                   <span>Account created successfully</span>
@@ -347,6 +371,8 @@ export default function DashboardPage() {
                     {user.created_at ? formatTimeAgo(user.created_at) : 'Recently'}
                   </span>
                 </div>
+
+                {/* Free trial started */}
                 {user.subscriptionStatus === 'trial' && (
                   <div className="flex items-center text-sm text-gray-600">
                     <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
@@ -356,15 +382,45 @@ export default function DashboardPage() {
                     </span>
                   </div>
                 )}
+
+                {/* Bonus activities (referrals, feature requests, admin grants) */}
+                {recentActivities && recentActivities.length > 0 && recentActivities.slice(0, 5).map((activity) => (
+                  <div key={activity.id} className="flex items-start text-sm text-gray-600">
+                    <div className={`w-2 h-2 rounded-full mr-3 mt-1 ${
+                      activity.activity_type === 'admin_award' ? 'bg-purple-500' :
+                      activity.activity_type === 'referral' ? 'bg-blue-500' :
+                      activity.activity_type === 'feature_request' ? 'bg-orange-500' : 'bg-gray-500'
+                    }`}></div>
+                    <div className="flex-1">
+                      <span className="block">{activity.description}</span>
+                      {activity.bonus_months > 0 && (
+                        <span className="text-xs text-green-600 font-medium">
+                          +{activity.bonus_months} bonus months
+                        </span>
+                      )}
+                    </div>
+                    <span className="ml-2 text-gray-400 whitespace-nowrap">
+                      {formatTimeAgo(activity.created_at)}
+                    </span>
+                  </div>
+                ))}
+
+                {/* PDFs processed */}
                 {stats && stats.pdfsProcessed > 0 && (
                   <div className="flex items-center text-sm text-gray-600">
-                    <div className="w-2 h-2 bg-purple-500 rounded-full mr-3"></div>
+                    <div className="w-2 h-2 bg-indigo-500 rounded-full mr-3"></div>
                     <span>{stats.pdfsProcessed} PDFs processed</span>
                     <span className="ml-auto text-gray-400">Recently</span>
                   </div>
                 )}
+
+                {/* Empty state */}
+                {(!recentActivities || recentActivities.length === 0) && stats && stats.pdfsProcessed === 0 && (
+                  <p className="text-sm text-gray-400 italic">No recent activities yet</p>
+                )}
               </div>
             </div>
+
           </>
         )}
       </div>

@@ -5,6 +5,7 @@ import { UserQueries } from '@/lib/db/queries/users';
 import { JWTUtils } from '@/lib/auth/jwt';
 import { emailService } from '@/lib/email/service';
 import { AntiFraudService } from '@/lib/security/anti-fraud';
+import { NotificationService } from '@/lib/services/notification-service';
 
 export const dynamic = 'force-dynamic';
 
@@ -81,16 +82,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if phone is already in use (if provided)
-    if (cleanedPhone) {
-      const existingPhone = await UserQueries.getUserByPhone(cleanedPhone);
-      if (existingPhone) {
-        return NextResponse.json(
-          { error: 'Phone number is already in use' },
-          { status: 409 }
-        );
-      }
-    }
+    // Check phone number for duplicate (allow registration, but may skip trial)
+    const phoneCheck = await AntiFraudService.checkPhoneForTrial(cleanedPhone);
+    console.log('Phone number check:', phoneCheck);
 
     // Validate referral code if provided
     let referredBy = null;
@@ -108,6 +102,10 @@ export async function POST(request: NextRequest) {
     // Hash password
     const passwordHash = await PasswordUtils.hashPassword(password);
 
+    // Determine trial eligibility
+    // If phone number is duplicate, skip trial (set to expired immediately)
+    const skipTrial = phoneCheck.isDuplicate;
+
     // Create user
     const userData = {
       name,
@@ -118,6 +116,31 @@ export async function POST(request: NextRequest) {
     };
 
     const newUser = await UserQueries.createUser(userData);
+
+    // If duplicate phone, update to skip trial
+    if (skipTrial) {
+      const { Database } = await import('@/lib/db/connection');
+      await Database.query(
+        `UPDATE users 
+         SET subscription_status = 'expired', 
+             trial_ends_at = NOW(),
+             updated_at = NOW()
+         WHERE id = $1`,
+        [newUser.id]
+      );
+      newUser.subscription_status = 'expired';
+      newUser.trial_ends_at = new Date().toISOString();
+      console.log('Trial skipped for duplicate phone number');
+    }
+
+    // Create default notification preferences
+    try {
+      await NotificationService.createDefaultPreferences(newUser.id);
+      console.log('Default notification preferences created for user:', newUser.id);
+    } catch (error) {
+      console.error('Error creating notification preferences:', error);
+      // Don't fail registration if this fails
+    }
 
     // Process referral if provided
     if (referredBy) {

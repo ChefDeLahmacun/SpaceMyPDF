@@ -32,7 +32,7 @@ export default function TrialNotification({ user, hasActiveSubscription = false,
       const trialEndDate = new Date(user.trialEnd);
       const now = new Date();
       const diffTime = trialEndDate.getTime() - now.getTime();
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
       
       setDaysRemaining(Math.max(0, diffDays));
       setShow(true);

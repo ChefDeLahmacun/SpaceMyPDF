@@ -151,6 +151,33 @@ export default function AdminDashboard() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <a
+            href="/admin/users"
+            className="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-lg shadow-lg p-6 hover:from-blue-600 hover:to-blue-700 transition-all transform hover:scale-105"
+          >
+            <h3 className="text-lg font-semibold mb-2">Manage Users</h3>
+            <p className="text-sm text-blue-100">View, search, and manage all users</p>
+          </a>
+          
+          <a
+            href="/admin/grant-access"
+            className="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-lg shadow-lg p-6 hover:from-purple-600 hover:to-purple-700 transition-all transform hover:scale-105"
+          >
+            <h3 className="text-lg font-semibold mb-2">Grant Premium Access</h3>
+            <p className="text-sm text-purple-100">Give users free premium membership</p>
+          </a>
+
+          <a
+            href="/dashboard"
+            className="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-lg shadow-lg p-6 hover:from-green-600 hover:to-green-700 transition-all transform hover:scale-105"
+          >
+            <h3 className="text-lg font-semibold mb-2">User Dashboard</h3>
+            <p className="text-sm text-green-100">View the regular user dashboard</p>
+          </a>
+        </div>
+
         {/* Stats Overview */}
         {stats && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

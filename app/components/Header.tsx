@@ -17,7 +17,10 @@ const Header: React.FC = () => {
     const checkAdminStatus = async () => {
       try {
         const token = localStorage.getItem('token');
-        if (!token) return;
+        if (!token) {
+          setIsAdmin(false);
+          return;
+        }
 
         const response = await fetch('/api/auth/verify', {
           headers: {
@@ -28,16 +31,30 @@ const Header: React.FC = () => {
         if (response.ok) {
           const data = await response.json();
           const user = data.user;
-          // Check if user is admin
-          const adminEmails = process.env.NEXT_PUBLIC_ADMIN_EMAILS?.split(',') || [];
-          setIsAdmin(adminEmails.includes(user.email));
+          // Check if user is admin from database
+          setIsAdmin(user.isAdmin === true);
+        } else {
+          setIsAdmin(false);
         }
       } catch (error) {
         console.error('Error checking admin status:', error);
+        setIsAdmin(false);
       }
     };
 
     checkAdminStatus();
+    
+    // Listen for auth change events
+    const handleAuthChange = () => {
+      console.log('Auth change detected in Header, refreshing admin status...');
+      checkAdminStatus();
+    };
+    
+    window.addEventListener('authChange', handleAuthChange);
+    
+    return () => {
+      window.removeEventListener('authChange', handleAuthChange);
+    };
   }, []);
 
   const handleSignIn = () => {

@@ -90,12 +90,12 @@ export default function DownloadRestriction({ onDownload, children }: DownloadRe
       
       <MembershipModal
         isOpen={showMembershipModal}
+        preventRedirect={isDownloadTriggered} // Prevent redirect if triggered from download
         onClose={() => {
           setShowMembershipModal(false);
           setIsDownloadTriggered(false);
         }}
         onSignUp={() => {
-          setShowMembershipModal(false);
           // Only trigger download if this was initiated by download attempt
           if (isDownloadTriggered) {
             // Refresh auth status after signup and trigger download
@@ -123,7 +123,6 @@ export default function DownloadRestriction({ onDownload, children }: DownloadRe
           }
         }}
         onLogin={() => {
-          setShowMembershipModal(false);
           // Only trigger download if this was initiated by download attempt
           if (isDownloadTriggered) {
             // Refresh auth status after login and trigger download

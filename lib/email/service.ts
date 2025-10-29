@@ -1,4 +1,6 @@
 import nodemailer from 'nodemailer';
+import { NotificationService } from '@/lib/services/notification-service';
+import { Database } from '@/lib/db/connection';
 
 export interface EmailOptions {
   to: string;
@@ -47,8 +49,31 @@ export class EmailService {
     }
   }
 
+  // Get user ID from email
+  private async getUserIdByEmail(email: string): Promise<string | null> {
+    try {
+      const user = await Database.queryOne(
+        'SELECT id FROM users WHERE email = $1',
+        [email]
+      );
+      return user?.id || null;
+    } catch (error) {
+      console.error('Error getting user ID:', error);
+      return null;
+    }
+  }
+
   // Send welcome email to new users
   async sendWelcomeEmail(userEmail: string, userName: string, referralCode: string): Promise<boolean> {
+    // Check email notification preference
+    const userId = await this.getUserIdByEmail(userEmail);
+    if (userId) {
+      const canSend = await NotificationService.canSendNotification(userId, 'email');
+      if (!canSend) {
+        console.log(`Email notifications disabled for user ${userId}`);
+        return false;
+      }
+    }
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #2563eb;">Welcome to SpaceMyPDF!</h2>
@@ -91,6 +116,15 @@ export class EmailService {
 
   // Send trial reminder email
   async sendTrialReminderEmail(userEmail: string, userName: string, daysRemaining: number): Promise<boolean> {
+    // Check trial reminder preference
+    const userId = await this.getUserIdByEmail(userEmail);
+    if (userId) {
+      const canSend = await NotificationService.canSendNotification(userId, 'trial');
+      if (!canSend) {
+        console.log(`Trial reminders disabled for user ${userId}`);
+        return false;
+      }
+    }
     const urgency = daysRemaining <= 3 ? 'urgent' : daysRemaining <= 7 ? 'warning' : 'info';
     const color = urgency === 'urgent' ? '#dc2626' : urgency === 'warning' ? '#d97706' : '#2563eb';
     
@@ -138,6 +172,15 @@ export class EmailService {
 
   // Send referral bonus email
   async sendReferralBonusEmail(userEmail: string, userName: string, bonusMonths: number): Promise<boolean> {
+    // Check referral updates preference
+    const userId = await this.getUserIdByEmail(userEmail);
+    if (userId) {
+      const canSend = await NotificationService.canSendNotification(userId, 'referral');
+      if (!canSend) {
+        console.log(`Referral updates disabled for user ${userId}`);
+        return false;
+      }
+    }
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #059669;">🎉 Referral Bonus Earned!</h2>
@@ -171,6 +214,15 @@ export class EmailService {
 
   // Send feature request confirmation
   async sendFeatureRequestConfirmation(userEmail: string, userName: string, requestTitle: string): Promise<boolean> {
+    // Check email notification preference
+    const userId = await this.getUserIdByEmail(userEmail);
+    if (userId) {
+      const canSend = await NotificationService.canSendNotification(userId, 'email');
+      if (!canSend) {
+        console.log(`Email notifications disabled for user ${userId}`);
+        return false;
+      }
+    }
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #2563eb;">Feature Request Received</h2>
@@ -213,6 +265,15 @@ export class EmailService {
     daysLeft: number,
     trialEndDate: Date
   ): Promise<boolean> {
+    // Check trial reminder preference
+    const userId = await this.getUserIdByEmail(userEmail);
+    if (userId) {
+      const canSend = await NotificationService.canSendNotification(userId, 'trial');
+      if (!canSend) {
+        console.log(`Trial reminders disabled for user ${userId}`);
+        return false;
+      }
+    }
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
@@ -264,6 +325,15 @@ export class EmailService {
     userEmail: string,
     userName: string
   ): Promise<boolean> {
+    // Check trial reminder preference (payment required is related to trial ending)
+    const userId = await this.getUserIdByEmail(userEmail);
+    if (userId) {
+      const canSend = await NotificationService.canSendNotification(userId, 'trial');
+      if (!canSend) {
+        console.log(`Trial reminders disabled for user ${userId}`);
+        return false;
+      }
+    }
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
