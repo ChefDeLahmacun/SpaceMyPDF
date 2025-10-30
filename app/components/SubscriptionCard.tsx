@@ -461,8 +461,44 @@ export default function SubscriptionCard({ userId, user }: SubscriptionCardProps
           )}
         </div>
       ) : (
-        // No Subscription - Create One
+        // No Subscription - Show upgrade options
         <div className="space-y-4">
+          {/* Current Trial Status */}
+          {user?.subscriptionStatus === 'trial' && user?.trialEnd && (
+            <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
+              <h4 className="text-sm font-medium text-blue-900 mb-2">
+                ✨ You're Currently on Free Trial
+              </h4>
+              <p className="text-sm text-blue-800 mb-2">
+                Your free access ends on{' '}
+                <span className="font-semibold">
+                  {new Date(user.trialEnd).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  })}
+                </span>
+              </p>
+              <p className="text-xs text-blue-700">
+                💡 This includes any bonus months from referrals or feature requests.
+              </p>
+              <p className="text-xs text-blue-700 mt-2 pt-2 border-t border-blue-200">
+                ⚠️ After your free access ends, you'll need a paid subscription to continue using all features.
+              </p>
+            </div>
+          )}
+
+          {user?.subscriptionStatus === 'expired' && (
+            <div className="bg-red-50 border border-red-200 rounded-md p-4">
+              <h4 className="text-sm font-medium text-red-900 mb-2">
+                ⚠️ Trial Ended
+              </h4>
+              <p className="text-sm text-red-800">
+                Your free trial has ended. Subscribe below to regain access to all features.
+              </p>
+            </div>
+          )}
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Select Currency
@@ -514,22 +550,17 @@ export default function SubscriptionCard({ userId, user }: SubscriptionCardProps
             </div>
           </div>
 
-          <div className="bg-green-50 border border-green-200 rounded-md p-4">
-            <h4 className="text-sm font-medium text-green-900 mb-2">
-              🎉 Free Trial Included
-            </h4>
-            <p className="text-sm text-green-800">
-              Start with a 30-day free trial. No payment required until your trial ends.
-            </p>
-          </div>
-
           <button
             onClick={handleCreateSubscription}
             disabled={loading}
             className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            {loading ? 'Creating...' : 'Start Free Trial'}
+            {loading ? 'Processing...' : (user?.subscriptionStatus === 'expired' ? 'Subscribe Now' : 'Upgrade to Premium')}
           </button>
+          
+          <p className="text-xs text-center text-gray-500">
+            Secure payment powered by Stripe
+          </p>
         </div>
       )}
 
