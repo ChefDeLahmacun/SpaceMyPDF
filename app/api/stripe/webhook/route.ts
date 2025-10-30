@@ -5,13 +5,6 @@ import { Database } from '@/lib/db/connection';
 
 export const dynamic = 'force-dynamic';
 
-// Disable body parsing for webhook signature verification
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-
 export async function POST(request: NextRequest) {
   try {
     const body = await request.text();
