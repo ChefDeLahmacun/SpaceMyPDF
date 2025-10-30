@@ -119,7 +119,7 @@ export async function POST(request: NextRequest) {
         [newUser.id]
       );
       newUser.subscription_status = 'expired';
-      newUser.trial_ends_at = new Date().toISOString();
+      newUser.trial_ends_at = new Date();
     }
 
     // Create default notification preferences
