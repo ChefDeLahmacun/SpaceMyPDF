@@ -121,14 +121,14 @@ export async function GET(request: NextRequest) {
     }
 
     const stats = {
-      totalUsers: parseInt(userStats.total_users) || 0,
-      activeUsers: parseInt(userStats.active_users) || 0,
-      trialUsers: parseInt(userStats.trial_users) || 0,
-      paidUsers: parseInt(userStats.paid_users) || 0,
-      totalReferrals: parseInt(referralStats.total_referrals) || 0,
-      pendingSupportTickets: parseInt(supportStats.pending_support_tickets) || 0,
-      pendingFeatureRequests: parseInt(featureStats.total_feature_requests) || 0,
-      totalPDFsProcessed: parseInt(pdfStats.total_pdfs_processed) || 0
+      totalUsers: parseInt(String(userStats.total_users)) || 0,
+      activeUsers: parseInt(String(userStats.active_users)) || 0,
+      trialUsers: parseInt(String(userStats.trial_users)) || 0,
+      paidUsers: parseInt(String(userStats.paid_users)) || 0,
+      totalReferrals: parseInt(String(referralStats.total_referrals)) || 0,
+      pendingSupportTickets: parseInt(String(supportStats.pending_support_tickets)) || 0,
+      pendingFeatureRequests: parseInt(String(featureStats.total_feature_requests)) || 0,
+      totalPDFsProcessed: parseInt(String(pdfStats.total_pdfs_processed)) || 0
     };
 
     return NextResponse.json({

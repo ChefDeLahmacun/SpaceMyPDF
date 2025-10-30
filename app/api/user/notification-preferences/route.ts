@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Database } from '@/lib/db/connection';
-import { verifyToken } from '@/lib/auth/jwt';
+import { JWTUtils } from '@/lib/auth/jwt';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     }
 
     const token = authHeader.substring(7);
-    const decoded = verifyToken(token);
+    const decoded = JWTUtils.verifyToken(token);
 
     if (!decoded || !decoded.userId) {
       return NextResponse.json(
@@ -71,7 +71,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const token = authHeader.substring(7);
-    const decoded = verifyToken(token);
+    const decoded = JWTUtils.verifyToken(token);
 
     if (!decoded || !decoded.userId) {
       return NextResponse.json(
