@@ -87,8 +87,7 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
       return;
     }
 
-    const subscriptionResponse = await stripe.subscriptions.retrieve(subscriptionId);
-    const subscription = subscriptionResponse as Stripe.Subscription;
+    const subscription = await stripe.subscriptions.retrieve(subscriptionId);
 
     // Update or create subscription in database
     await Database.query(`
@@ -112,12 +111,12 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
     `, [
       userId,
       subscription.id,
-      subscription.customer as string,
+      typeof subscription.customer === 'string' ? subscription.customer : subscription.customer.id,
       subscription.status,
       plan || 'monthly',
-      new Date(subscription.current_period_start * 1000),
-      new Date(subscription.current_period_end * 1000),
-      subscription.cancel_at_period_end
+      new Date((subscription as any).current_period_start * 1000),
+      new Date((subscription as any).current_period_end * 1000),
+      (subscription as any).cancel_at_period_end
     ]);
 
     // Update user status
@@ -146,9 +145,9 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
       WHERE stripe_subscription_id = $5
     `, [
       subscription.status,
-      new Date(subscription.current_period_start * 1000),
-      new Date(subscription.current_period_end * 1000),
-      subscription.cancel_at_period_end,
+      new Date((subscription as any).current_period_start * 1000),
+      new Date((subscription as any).current_period_end * 1000),
+      (subscription as any).cancel_at_period_end,
       subscription.id
     ]);
 
