@@ -144,7 +144,7 @@ export default function DashboardPage() {
 
   const handleGoBack = () => {
     if (typeof window !== 'undefined') {
-      window.history.back();
+      window.location.href = '/';
     }
   };
 

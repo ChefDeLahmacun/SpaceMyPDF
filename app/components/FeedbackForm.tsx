@@ -197,8 +197,6 @@ const FeedbackForm = ({
       // Set success status
       setSubmissionStatus('success');
       
-      console.log('Feedback submitted successfully!');
-      
       // If the submission completes before the countdown, we'll still wait
       // for the countdown to finish before showing success
       if (processingTime <= 0) {

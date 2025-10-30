@@ -233,8 +233,6 @@ export class StripeSubscriptionService {
       
       // Second pass: if no direct currency match, use GBP prices and extract from currency_options
       if (!monthlyPrice || !yearlyPrice) {
-        console.log(`No direct ${currencyUpper} prices found, checking GBP prices with currency_options...`);
-        
         let gbpMonthlyId: string | null = null;
         let gbpYearlyId: string | null = null;
         

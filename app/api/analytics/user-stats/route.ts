@@ -56,7 +56,6 @@ export async function POST(request: NextRequest) {
     // Authenticate user
     const authResult = await authenticateRequest(request);
     if (!authResult.isAuthenticated) {
-      console.log('[Analytics] User not authenticated');
       return NextResponse.json(
         { error: authResult.error },
         { status: 401 }
@@ -66,8 +65,6 @@ export async function POST(request: NextRequest) {
     const user = authResult.user!;
     const body = await request.json();
     const { action } = body;
-
-    console.log(`[Analytics] User ${user.email} action: ${action}`);
 
     if (action === 'increment_pdf_processed') {
       // Increment PDF processed count
@@ -80,9 +77,7 @@ export async function POST(request: NextRequest) {
           last_activity = NOW(),
           updated_at = NOW()
         RETURNING pdfs_processed
-      `, [user.id]);
-
-      console.log(`[Analytics] PDF count incremented to ${result.rows[0].pdfs_processed} for user ${user.email}`);
+      `, [user.id]        );
 
       return NextResponse.json({
         success: true,

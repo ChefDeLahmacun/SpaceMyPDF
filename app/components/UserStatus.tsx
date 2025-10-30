@@ -51,7 +51,6 @@ export default function UserStatus({ onLogin, onLogout }: UserStatusProps) {
     
     // Listen for auth change events
     const handleAuthChange = () => {
-      console.log('Auth change detected, refreshing user status...');
       checkAuthStatus();
     };
     

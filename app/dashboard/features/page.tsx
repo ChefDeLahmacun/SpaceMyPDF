@@ -104,7 +104,6 @@ export default function FeaturesPage() {
             <div className="lg:col-span-2">
               <FeatureRequestForm 
                 onSubmit={(request) => {
-                  console.log('Feature request submitted:', request);
                   setActiveTab('my-requests');
                 }}
                 onError={(error) => {

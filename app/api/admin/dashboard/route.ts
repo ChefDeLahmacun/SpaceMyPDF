@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
       `;
       supportStats = await Database.queryOne(supportStatsQuery) || supportStats;
     } catch (error) {
-      console.warn('Error fetching support stats:', error);
+      // Silently handle error - return default values
     }
 
     // Get feature request statistics (with error handling)
@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
       `;
       featureStats = await Database.queryOne(featureStatsQuery) || featureStats;
     } catch (error) {
-      console.warn('Error fetching feature stats:', error);
+      // Silently handle error - return default values
     }
 
     // Get recent activity (with error handling)
@@ -105,7 +105,7 @@ export async function GET(request: NextRequest) {
       `;
       recentActivity = await Database.queryMany(recentActivityQuery) || [];
     } catch (error) {
-      console.warn('Error fetching recent activity:', error);
+      // Silently handle error - return default values
     }
 
     // Get PDFs processed statistics
@@ -117,7 +117,7 @@ export async function GET(request: NextRequest) {
       `;
       pdfStats = await Database.queryOne(pdfStatsQuery) || pdfStats;
     } catch (error) {
-      console.warn('Error fetching PDF stats:', error);
+      // Silently handle error - return default values
     }
 
     const stats = {

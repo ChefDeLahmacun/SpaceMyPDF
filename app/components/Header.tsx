@@ -46,7 +46,6 @@ const Header: React.FC = () => {
     
     // Listen for auth change events
     const handleAuthChange = () => {
-      console.log('Auth change detected in Header, refreshing admin status...');
       checkAdminStatus();
     };
     

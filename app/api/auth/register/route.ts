@@ -12,12 +12,10 @@ export const dynamic = 'force-dynamic';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    console.log('Registration request body:', body);
     
     // Validate input
     const validationResult = registerSchema.safeParse(body);
     if (!validationResult.success) {
-      console.log('Validation errors:', validationResult.error.issues);
       return NextResponse.json(
         { 
           error: 'Validation failed', 
@@ -43,15 +41,8 @@ export async function POST(request: NextRequest) {
       timestamp: new Date()
     });
 
-    console.log('Fraud analysis:', {
-      score: fraudAnalysis.score,
-      isFraud: fraudAnalysis.isFraud,
-      reasons: fraudAnalysis.reasons
-    });
-
     // Handle high-risk registrations
     if (fraudAnalysis.isFraud) {
-      console.log('Blocking high-risk registration:', fraudAnalysis.reasons);
       return NextResponse.json(
         { 
           error: 'Registration blocked due to suspicious activity',
@@ -84,7 +75,6 @@ export async function POST(request: NextRequest) {
 
     // Check phone number for duplicate (allow registration, but may skip trial)
     const phoneCheck = await AntiFraudService.checkPhoneForTrial(cleanedPhone);
-    console.log('Phone number check:', phoneCheck);
 
     // Validate referral code if provided
     let referredBy = null;
@@ -130,13 +120,11 @@ export async function POST(request: NextRequest) {
       );
       newUser.subscription_status = 'expired';
       newUser.trial_ends_at = new Date().toISOString();
-      console.log('Trial skipped for duplicate phone number');
     }
 
     // Create default notification preferences
     try {
       await NotificationService.createDefaultPreferences(newUser.id);
-      console.log('Default notification preferences created for user:', newUser.id);
     } catch (error) {
       console.error('Error creating notification preferences:', error);
       // Don't fail registration if this fails
@@ -150,7 +138,6 @@ export async function POST(request: NextRequest) {
         
         // Apply referral bonus
         await ReferralQueries.applyReferralBonus(referredBy, newUser.id);
-        console.log('Referral bonus applied successfully');
         
         // Get updated user data after referral bonus
         const updatedUser = await UserQueries.getUserById(newUser.id);
@@ -172,13 +159,6 @@ export async function POST(request: NextRequest) {
 
     // Send welcome email (don't wait for it to complete)
     emailService.sendWelcomeEmail(newUser.email, newUser.name, newUser.referral_code)
-      .then(success => {
-        if (success) {
-          console.log('Welcome email sent successfully to:', newUser.email);
-        } else {
-          console.log('Failed to send welcome email to:', newUser.email);
-        }
-      })
       .catch(error => {
         console.error('Error sending welcome email:', error);
       });
@@ -195,7 +175,6 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Registration error:', error);
-    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
     return NextResponse.json(
       { 
         error: 'Internal server error',

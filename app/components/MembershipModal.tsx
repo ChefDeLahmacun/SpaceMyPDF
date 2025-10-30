@@ -84,11 +84,6 @@ export default function MembershipModal({ isOpen, onClose, onSignUp, onLogin, in
       }
 
       setSuccess(data.message);
-      
-      // Show dev reset link in development
-      if (data.devResetLink) {
-        console.log('Password Reset Link:', data.devResetLink);
-      }
 
     } catch (err: any) {
       setError(err.message);

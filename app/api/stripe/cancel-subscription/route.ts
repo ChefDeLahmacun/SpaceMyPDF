@@ -38,8 +38,6 @@ export async function POST(request: NextRequest) {
 
     const { subscriptionId } = validationResult.data;
 
-    console.log('Cancellation request:', { userId: user.id, subscriptionId });
-
     // Verify the subscription belongs to the user
     const subscriptionQuery = `
       SELECT s.*, u.id as user_id, u.trial_ends_at, u.created_at
@@ -50,16 +48,7 @@ export async function POST(request: NextRequest) {
     
     const subscription = await Database.queryOne(subscriptionQuery, [subscriptionId, user.id]);
     
-    console.log('Found subscription:', subscription);
-    
     if (!subscription) {
-      // Let's also check what subscriptions exist for this user
-      const userSubscriptions = await Database.queryMany(
-        'SELECT stripe_subscription_id, status FROM subscriptions WHERE user_id = $1',
-        [user.id]
-      );
-      console.log('User subscriptions:', userSubscriptions);
-      
       return NextResponse.json(
         { error: 'Subscription not found or does not belong to you' },
         { status: 404 }

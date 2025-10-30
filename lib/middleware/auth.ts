@@ -21,8 +21,6 @@ export async function authenticateRequest(request: NextRequest): Promise<{
     const authHeader = request.headers.get('authorization');
     const token = JWTUtils.extractTokenFromHeader(authHeader);
 
-    console.log('Auth middleware - token extracted:', !!token);
-
     if (!token) {
       return {
         isAuthenticated: false,
@@ -32,7 +30,6 @@ export async function authenticateRequest(request: NextRequest): Promise<{
 
     // Verify token
     const payload = JWTUtils.verifyToken(token);
-    console.log('Auth middleware - token verified:', !!payload);
     
     if (!payload) {
       return {

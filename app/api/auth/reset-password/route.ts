@@ -63,8 +63,6 @@ export async function POST(request: NextRequest) {
       [resetRecord.user_id]
     );
 
-    console.log(`Password reset successfully for user: ${resetRecord.email}`);
-
     return NextResponse.json({
       success: true,
       message: 'Password has been reset successfully. You can now log in with your new password.'

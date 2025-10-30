@@ -36,7 +36,6 @@ export async function POST(request: NextRequest) {
     // Always return success even if user doesn't exist (security best practice)
     // This prevents email enumeration attacks
     if (!user) {
-      console.log(`Password reset requested for non-existent email: ${email}`);
       return NextResponse.json({
         success: true,
         message: 'If an account exists with this email, you will receive password reset instructions.'
@@ -120,22 +119,11 @@ export async function POST(request: NextRequest) {
         subject: 'Reset Your Password - SpaceMyPDF',
         html: emailHtml
       });
-      console.log(`Password reset email sent to: ${user.email}`);
     } catch (emailError) {
       console.error('Failed to send password reset email:', emailError);
       // Don't fail the request if email fails - still return success for security
     }
 
-    // Log to console for development
-    if (process.env.NODE_ENV === 'development') {
-      console.log('\n========================================');
-      console.log('PASSWORD RESET REQUEST');
-      console.log('========================================');
-      console.log(`User: ${user.name} (${user.email})`);
-      console.log(`Reset Link: ${resetLink}`);
-      console.log(`Expires: ${expiresAt.toLocaleString()}`);
-      console.log('========================================\n');
-    }
 
     return NextResponse.json({
       success: true,

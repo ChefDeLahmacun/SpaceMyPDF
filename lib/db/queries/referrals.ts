@@ -130,7 +130,6 @@ export class ReferralQueries {
       const phoneCheck = await AntiFraudService.canGiveReferralBonus(referrerId, refereeId);
       
       if (!phoneCheck.allowed) {
-        console.log('Referral bonus blocked:', phoneCheck.reason);
         // Create referral record but with 0 bonus months
         await this.createReferral(referrerId, refereeId, 0);
         return {

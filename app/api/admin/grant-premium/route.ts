@@ -121,8 +121,6 @@ export async function POST(request: NextRequest) {
       authResult.user!.id
     );
 
-    console.log(`Admin ${authResult.user!.email} granted ${duration} premium to user ${targetUser.email}`);
-
     return NextResponse.json({
       success: true,
       message: `Premium membership (${duration}) granted to ${targetUser.email}`,
@@ -228,8 +226,6 @@ export async function DELETE(request: NextRequest) {
       userId,
       JSON.stringify({ previousStatus: 'active' })
     ]);
-
-    console.log(`Admin ${authResult.user!.email} revoked premium from user ${user.email}`);
 
     return NextResponse.json({
       success: true,

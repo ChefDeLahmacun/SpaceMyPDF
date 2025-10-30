@@ -30,10 +30,6 @@ export async function POST(request: Request) {
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       if (file instanceof Blob) {
-        // For security, we're just logging the file size and type in development
-        // In production, you would use a secure service to handle file uploads
-        console.log(`Attachment ${i+1}: ${file.size} bytes, type: ${file.type}`);
-        
         // Store file information for the response
         attachments.push({
           name: `image-${i + 1}.png`,
@@ -53,11 +49,6 @@ export async function POST(request: Request) {
       timestamp: new Date().toISOString(),
       attachments
     });
-    
-    // Log the feedback for development purposes
-    console.log('Received feedback:', feedback);
-    console.log('Number of attachments:', attachments.length);
-    console.log('Total feedback items stored:', feedbackStore.length);
     
     // Send email notification to spacemypdf@gmail.com
     const emailHtml = `
@@ -97,12 +88,6 @@ export async function POST(request: Request) {
       to: 'spacemypdf@gmail.com',
       subject: `New Feedback - ${feedbackId}`,
       html: emailHtml
-    }).then(success => {
-      if (success) {
-        console.log('Feedback notification email sent successfully');
-      } else {
-        console.log('Failed to send feedback notification email');
-      }
     }).catch(error => {
       console.error('Error sending feedback notification email:', error);
     });

@@ -40,8 +40,7 @@ export class EmailService {
         text: options.text || this.stripHtml(options.html)
       };
 
-      const result = await this.transporter.sendMail(mailOptions);
-      console.log('Email sent successfully:', result.messageId);
+      await this.transporter.sendMail(mailOptions);
       return true;
     } catch (error) {
       console.error('Email sending failed:', error);
@@ -70,7 +69,6 @@ export class EmailService {
     if (userId) {
       const canSend = await NotificationService.canSendNotification(userId, 'email');
       if (!canSend) {
-        console.log(`Email notifications disabled for user ${userId}`);
         return false;
       }
     }
@@ -121,7 +119,6 @@ export class EmailService {
     if (userId) {
       const canSend = await NotificationService.canSendNotification(userId, 'trial');
       if (!canSend) {
-        console.log(`Trial reminders disabled for user ${userId}`);
         return false;
       }
     }
@@ -177,7 +174,6 @@ export class EmailService {
     if (userId) {
       const canSend = await NotificationService.canSendNotification(userId, 'referral');
       if (!canSend) {
-        console.log(`Referral updates disabled for user ${userId}`);
         return false;
       }
     }
@@ -219,7 +215,6 @@ export class EmailService {
     if (userId) {
       const canSend = await NotificationService.canSendNotification(userId, 'email');
       if (!canSend) {
-        console.log(`Email notifications disabled for user ${userId}`);
         return false;
       }
     }
@@ -270,7 +265,6 @@ export class EmailService {
     if (userId) {
       const canSend = await NotificationService.canSendNotification(userId, 'trial');
       if (!canSend) {
-        console.log(`Trial reminders disabled for user ${userId}`);
         return false;
       }
     }
@@ -330,7 +324,6 @@ export class EmailService {
     if (userId) {
       const canSend = await NotificationService.canSendNotification(userId, 'trial');
       if (!canSend) {
-        console.log(`Trial reminders disabled for user ${userId}`);
         return false;
       }
     }

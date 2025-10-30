@@ -80,10 +80,6 @@ export default function Home() {
   // New state for specifying save location
   const [specifyLocation, setSpecifyLocation] = useState(false);
   
-  // Debug: Log when specifyLocation changes
-  useEffect(() => {
-    console.log('[State] specifyLocation changed to:', specifyLocation);
-  }, [specifyLocation]);
   
   // Use useLayoutEffect to ensure everything is ready before rendering
   useLayoutEffect(() => {
@@ -790,9 +786,6 @@ export default function Home() {
       // Save the modified PDF
       const modifiedPdfBytes = await modifiedPdfDoc.save();
       
-      console.log('[Download] specifyLocation state:', specifyLocation);
-      console.log('[Download] Browser supports showSaveFilePicker:', 'showSaveFilePicker' in window);
-      
       if (specifyLocation) {
         // Use the File System Access API if available
         if ('showSaveFilePicker' in window) {
@@ -840,7 +833,6 @@ export default function Home() {
             }
           } catch (error) {
             // User cancelled the save dialog
-            console.log('Save cancelled or failed:', error);
           }
         } else {
           // Fallback for browsers that don't support File System Access API
@@ -906,7 +898,6 @@ export default function Home() {
     try {
       const token = localStorage.getItem('token');
       if (token) {
-        console.log('[PDF Download] Incrementing PDF count...');
         fetch('/api/analytics/user-stats', {
           method: 'POST',
           headers: {
@@ -916,14 +907,9 @@ export default function Home() {
           body: JSON.stringify({ action: 'increment_pdf_processed' })
         })
           .then(response => response.json())
-          .then(data => {
-            console.log('[PDF Download] Analytics response:', data);
-          })
           .catch(error => {
             console.error('[PDF Download] Failed to update analytics:', error);
           });
-      } else {
-        console.log('[PDF Download] No auth token found, skipping analytics');
       }
     } catch (error) {
       console.error('[PDF Download] Failed to update analytics:', error);

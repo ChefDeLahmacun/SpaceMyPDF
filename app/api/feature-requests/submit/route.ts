@@ -29,16 +29,9 @@ export async function POST(request: NextRequest) {
     const user = authResult.user!;
     const body = await request.json();
 
-    // Debug logging
-    console.log('Received body:', body);
-    console.log('Body keys:', Object.keys(body));
-    console.log('Title length:', body.title?.length);
-    console.log('Description length:', body.description?.length);
-
     // Validate input
     const validationResult = featureRequestSchema.safeParse(body);
     if (!validationResult.success) {
-      console.log('Validation errors:', validationResult.error.issues);
       return NextResponse.json(
         { 
           error: 'Validation failed', 
@@ -61,13 +54,6 @@ export async function POST(request: NextRequest) {
 
     // Send confirmation email (don't wait for it to complete)
     emailService.sendFeatureRequestConfirmation(user.email, user.name, title)
-      .then(success => {
-        if (success) {
-          console.log('Feature request confirmation email sent to:', user.email);
-        } else {
-          console.log('Failed to send feature request confirmation email to:', user.email);
-        }
-      })
       .catch(error => {
         console.error('Error sending feature request confirmation email:', error);
       });

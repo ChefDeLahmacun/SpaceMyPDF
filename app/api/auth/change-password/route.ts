@@ -80,8 +80,6 @@ export async function POST(request: NextRequest) {
       [newPasswordHash, user.id]
     );
 
-    console.log(`Password changed successfully for user: ${user.email}`);
-
     return NextResponse.json({
       success: true,
       message: 'Password changed successfully'

@@ -24,7 +24,6 @@ export class JWTUtils {
   static verifyToken(token: string): JWTPayload | null {
     try {
       const decoded = jwt.verify(token, JWT_SECRET) as JWTPayload;
-      console.log('JWT verification successful for user:', decoded.userId);
       return decoded;
     } catch (error) {
       console.error('JWT verification error:', error);

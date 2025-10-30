@@ -29,7 +29,6 @@ export async function POST(request: NextRequest) {
     // Validate input
     const validationResult = contactSchema.safeParse(body);
     if (!validationResult.success) {
-      console.log('Contact form validation failed:', validationResult.error.issues);
       return NextResponse.json(
         { 
           error: 'Validation failed', 
@@ -101,13 +100,11 @@ export async function POST(request: NextRequest) {
     `;
 
     try {
-      console.log(`Sending support email to: ${supportEmail}`);
       await emailService.sendEmail({
         to: supportEmail,
         subject: emailSubject,
         html: emailHtml
       });
-      console.log('Support email sent successfully');
       
       // Send confirmation email to user
       const userConfirmationHtml = `
@@ -148,7 +145,6 @@ export async function POST(request: NextRequest) {
         subject: `Support Ticket Confirmation #${ticket.id}`,
         html: userConfirmationHtml
       });
-      console.log('User confirmation email sent successfully');
       
     } catch (emailError) {
       console.error('Failed to send support email:', emailError);
