@@ -41,6 +41,13 @@ transaction_info.txt
 *credential*.md
 *key*.md
 
+# development/setup files
+favicon-generator.html
+public/formsubmit-setup.html
+temp_fonts/
+*.zip
+inter.zip
+
 # backups
 backups/
 *.tar.gz
