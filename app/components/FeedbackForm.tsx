@@ -143,7 +143,7 @@ const FeedbackForm = ({
       }
       
       // Set form attributes
-      hiddenForm.action = `https://formsubmit.co/${process.env.NEXT_PUBLIC_FEEDBACK_EMAIL || 'code.canogullari@gmail.com'}`;
+      hiddenForm.action = `https://formsubmit.co/${process.env.NEXT_PUBLIC_FEEDBACK_EMAIL || 'spacemypdf@gmail.com'}`;
       hiddenForm.method = 'POST';
       hiddenForm.enctype = 'multipart/form-data';
       hiddenForm.target = 'hidden_feedback_iframe';
