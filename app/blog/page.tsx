@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Layout from '../components/Layout';
+import BlogPostCard from '../components/BlogPostCard';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -71,6 +72,11 @@ const blogPosts = [
 export default function Blog() {
   return (
     <Layout>
+      <style jsx>{`
+        .cta-button:hover {
+          background-color: #4338ca !important;
+        }
+      `}</style>
       <div style={{ 
         maxWidth: '1200px', 
         margin: '0 auto', 
@@ -106,100 +112,15 @@ export default function Blog() {
           marginBottom: '60px'
         }}>
           {blogPosts.map((post) => (
-            <article 
+            <BlogPostCard
               key={post.slug}
-              style={{
-                backgroundColor: 'white',
-                borderRadius: '12px',
-                padding: '30px',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                transition: 'transform 0.2s, box-shadow 0.2s',
-                cursor: 'pointer',
-                border: '1px solid #e5e5e5'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-4px)';
-                e.currentTarget.style.boxShadow = '0 8px 20px rgba(0,0,0,0.15)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
-              }}
-            >
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'center',
-                marginBottom: '15px'
-              }}>
-                <span style={{
-                  fontSize: '12px',
-                  fontWeight: '600',
-                  color: '#4f46e5',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px'
-                }}>
-                  {post.category}
-                </span>
-                <time style={{ fontSize: '13px', color: '#999' }} dateTime={post.date}>
-                  {new Date(post.date).toLocaleDateString('en-US', { 
-                    year: 'numeric', 
-                    month: 'short', 
-                    day: 'numeric' 
-                  })}
-                </time>
-              </div>
-              
-              <Link 
-                href={`/blog/${post.slug}`}
-                style={{ textDecoration: 'none', color: 'inherit' }}
-              >
-                <h2 style={{ 
-                  fontSize: '22px', 
-                  fontWeight: '600',
-                  marginBottom: '15px',
-                  color: '#1a1a1a',
-                  lineHeight: '1.4'
-                }}>
-                  {post.title}
-                </h2>
-              </Link>
-              
-              <p style={{ 
-                fontSize: '15px', 
-                color: '#666',
-                lineHeight: '1.6',
-                marginBottom: '20px'
-              }}>
-                {post.excerpt}
-              </p>
-              
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'center',
-                paddingTop: '15px',
-                borderTop: '1px solid #f0f0f0'
-              }}>
-                <span style={{ fontSize: '13px', color: '#999' }}>
-                  {post.readTime}
-                </span>
-                <Link 
-                  href={`/blog/${post.slug}`}
-                  style={{
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    color: '#4f46e5',
-                    textDecoration: 'none',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '5px'
-                  }}
-                >
-                  Read More →
-                </Link>
-              </div>
-            </article>
+              title={post.title}
+              slug={post.slug}
+              excerpt={post.excerpt}
+              date={post.date}
+              readTime={post.readTime}
+              category={post.category}
+            />
           ))}
         </div>
 
@@ -228,7 +149,7 @@ export default function Blog() {
           }}>
             Join thousands of students improving their note-taking skills. Start using SpaceMyPDF today to add note space to your PDFs instantly.
           </p>
-          <Link 
+          <a 
             href="/"
             style={{
               display: 'inline-block',
@@ -241,15 +162,10 @@ export default function Blog() {
               fontSize: '16px',
               transition: 'background-color 0.2s'
             }}
-            onMouseEnter={(e) => {
-              (e.target as HTMLElement).style.backgroundColor = '#4338ca';
-            }}
-            onMouseLeave={(e) => {
-              (e.target as HTMLElement).style.backgroundColor = '#4f46e5';
-            }}
+            className="cta-button"
           >
             Try SpaceMyPDF Free
-          </Link>
+          </a>
         </section>
       </div>
     </Layout>
