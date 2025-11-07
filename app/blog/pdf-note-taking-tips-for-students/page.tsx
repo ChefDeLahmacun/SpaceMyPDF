@@ -64,7 +64,7 @@ export default function BlogPost() {
             1. Add Note Space Before You Start
           </h2>
           <p style={{ marginBottom: '20px' }}>
-            Don't cram notes into tiny margins. Add proper note-taking space to your PDFs using tools like <Link href="/" style={{ color: '#4f46e5', fontWeight: '600' }}>SpaceMyPDF</Link>. This gives you room to:
+            Don't cram notes into tiny margins. Add proper note-taking space to your PDFs using <Link href="/" style={{ color: '#4f46e5', fontWeight: '600' }}>SpaceMyPDF</Link>. With a free 30-day trial, you get unlimited PDF processing and room to:
           </p>
           <ul style={{ marginBottom: '30px', paddingLeft: '25px' }}>
             <li style={{ marginBottom: '10px' }}>Summarize key concepts in your own words</li>
@@ -100,7 +100,7 @@ export default function BlogPost() {
 
           <div style={{ backgroundColor: '#fef3c7', border: '1px solid #fcd34d', borderRadius: '8px', padding: '20px', marginBottom: '30px' }}>
             <p style={{ margin: 0, color: '#92400e' }}>
-              <strong>⚡ Quick Tip:</strong> SpaceMyPDF lets you add colored backgrounds to your note spaces, making it easy to implement color-coded systems.
+              <strong>⚡ Quick Tip:</strong> SpaceMyPDF offers advanced features like colored backgrounds, custom patterns, and multiple positioning options - perfect for implementing professional note-taking systems. Try it free for 30 days!
             </p>
           </div>
 
@@ -197,7 +197,7 @@ export default function BlogPost() {
             Conclusion: Make Your Notes Work For You
           </h2>
           <p style={{ marginBottom: '20px' }}>
-            The best note-taking system is one you'll actually use. Start with these tips, experiment, and adapt them to your learning style. The key is having enough space to capture your thoughts—which is where tools like SpaceMyPDF come in handy.
+            The best note-taking system is one you'll actually use. Start with these tips, experiment, and adapt them to your learning style. The key is having enough space to capture your thoughts—which is where SpaceMyPDF becomes essential. With unlimited PDF processing and advanced customization options, you can create the perfect note-taking environment for your study needs.
           </p>
 
           <div style={{ backgroundColor: '#4f46e5', color: 'white', padding: '40px', borderRadius: '12px', textAlign: 'center', marginTop: '50px' }}>
@@ -205,7 +205,7 @@ export default function BlogPost() {
               Start Taking Better Notes Today
             </h3>
             <p style={{ fontSize: '16px', marginBottom: '25px', opacity: 0.9 }}>
-              Add note-taking space to your PDFs in seconds. No signup required.
+              Start your free 30-day trial. Get unlimited PDF processing and all premium features included.
             </p>
             <Link href="/" style={{ display: 'inline-block', padding: '14px 32px', backgroundColor: 'white', color: '#4f46e5', textDecoration: 'none', borderRadius: '8px', fontWeight: '600', fontSize: '16px' }}>
               Try SpaceMyPDF Free →
