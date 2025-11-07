@@ -14,7 +14,7 @@ export class JWTUtils {
   // Generate a JWT token
   static generateToken(payload: Omit<JWTPayload, 'iat' | 'exp'>): string {
     return jwt.sign(payload, JWT_SECRET, {
-      expiresIn: '7d', // Token expires in 7 days
+      expiresIn: '90d', // Token expires in 90 days (3 months)
       issuer: 'spacemypdf',
       audience: 'spacemypdf-users'
     });
@@ -34,7 +34,7 @@ export class JWTUtils {
   // Generate a refresh token
   static generateRefreshToken(payload: Omit<JWTPayload, 'iat' | 'exp'>): string {
     return jwt.sign(payload, JWT_SECRET, {
-      expiresIn: '30d', // Refresh token expires in 30 days
+      expiresIn: '180d', // Refresh token expires in 180 days (6 months)
       issuer: 'spacemypdf',
       audience: 'spacemypdf-users'
     });
