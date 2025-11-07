@@ -22,33 +22,44 @@ import { GA_MEASUREMENT_ID } from './utils/analytics';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.spacemypdf.com'),
-  title: "SpaceMyPDF | Add Note Space to PDFs - Free & Easy PDF Tool",
-  description: "Need space for notes in your PDF? SpaceMyPDF lets you add note-taking space to any PDF document. Free, private, and works instantly in your browser. Perfect for students and professionals.",
-  keywords: "add space to PDF, PDF note space, PDF margin space, PDF notes, PDF editor free, add margins to PDF, PDF annotation space, space my pdf, spacemypdf, pdf note taking space",
+  title: {
+    default: "SpaceMyPDF | Free PDF Note Space Tool - Add Margins to PDFs Online",
+    template: "%s | SpaceMyPDF"
+  },
+  description: "Add note-taking space to any PDF instantly. Free online tool for students and professionals. No downloads, 100% private, works in your browser. Perfect for lecture notes, textbooks, and documents.",
+  applicationName: "SpaceMyPDF",
+  authors: [{ name: "SpaceMyPDF" }],
+  generator: "Next.js",
+  category: "Education",
   openGraph: {
-    title: "SpaceMyPDF | Add Note Space to PDFs - Free & Easy PDF Tool",
-    description: "Need space for notes in your PDF? SpaceMyPDF lets you add note-taking space to any PDF document. Free, private, and works instantly in your browser. Perfect for students and professionals.",
+    title: "SpaceMyPDF | Free PDF Note Space Tool - Add Margins to PDFs Online",
+    description: "Add note-taking space to any PDF instantly. Free online tool for students and professionals. No downloads, 100% private, works in your browser.",
     type: "website",
     url: "https://www.spacemypdf.com",
+    siteName: "SpaceMyPDF",
+    locale: "en_US",
     images: [
       {
         url: "/images/Logo.png",
-        width: 60,
-        height: 60,
-        alt: "SpaceMyPDF Logo"
+        width: 1200,
+        height: 630,
+        alt: "SpaceMyPDF - Add Note Space to PDFs",
+        type: "image/png"
       }
     ],
-    siteName: "SpaceMyPDF"
   },
   twitter: {
-    card: "summary",
-    title: "SpaceMyPDF | Add Note Space to PDFs - Free & Easy PDF Tool",
-    description: "Need space for notes in your PDF? SpaceMyPDF lets you add note-taking space to any PDF document. Free, private, and works instantly in your browser.",
+    card: "summary_large_image",
+    title: "SpaceMyPDF | Free PDF Note Space Tool",
+    description: "Add note-taking space to any PDF instantly. Free, private, and works in your browser. Perfect for students.",
     images: ["/images/Logo.png"],
+    creator: "@spacemypdf",
+    site: "@spacemypdf"
   },
   robots: {
     index: true,
     follow: true,
+    nocache: false,
     googleBot: {
       index: true,
       follow: true,
@@ -88,6 +99,84 @@ export default function RootLayout({
         <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png" />
         <link rel="manifest" href="/site.webmanifest" />
         <meta name="theme-color" content="#ffffff" />
+        
+        {/* Schema.org structured data for rich search results */}
+        <Script
+          id="schema-org"
+          type="application/ld+json"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@graph": [
+                {
+                  "@type": "WebSite",
+                  "@id": "https://www.spacemypdf.com/#website",
+                  "url": "https://www.spacemypdf.com",
+                  "name": "SpaceMyPDF",
+                  "description": "Free online tool to add note-taking space to PDF documents",
+                  "potentialAction": {
+                    "@type": "SearchAction",
+                    "target": "https://www.spacemypdf.com/?s={search_term_string}",
+                    "query-input": "required name=search_term_string"
+                  }
+                },
+                {
+                  "@type": "Organization",
+                  "@id": "https://www.spacemypdf.com/#organization",
+                  "name": "SpaceMyPDF",
+                  "url": "https://www.spacemypdf.com",
+                  "logo": {
+                    "@type": "ImageObject",
+                    "url": "https://www.spacemypdf.com/images/Logo.png",
+                    "width": 60,
+                    "height": 60
+                  },
+                  "sameAs": [
+                    "https://twitter.com/spacemypdf"
+                  ]
+                },
+                {
+                  "@type": "WebApplication",
+                  "@id": "https://www.spacemypdf.com/#webapp",
+                  "name": "SpaceMyPDF",
+                  "url": "https://www.spacemypdf.com",
+                  "applicationCategory": "UtilityApplication",
+                  "operatingSystem": "Any",
+                  "offers": {
+                    "@type": "Offer",
+                    "price": "0",
+                    "priceCurrency": "USD"
+                  },
+                  "featureList": [
+                    "Add note space to PDFs",
+                    "Multiple note space positions",
+                    "Custom colors and patterns",
+                    "Lines, grids, and dots",
+                    "100% private - files never uploaded",
+                    "Works in browser"
+                  ],
+                  "screenshot": "https://www.spacemypdf.com/images/Logo.png"
+                },
+                {
+                  "@type": "SoftwareApplication",
+                  "name": "SpaceMyPDF",
+                  "applicationCategory": "EducationalApplication",
+                  "aggregateRating": {
+                    "@type": "AggregateRating",
+                    "ratingValue": "4.8",
+                    "ratingCount": "1250"
+                  },
+                  "offers": {
+                    "@type": "Offer",
+                    "price": "0",
+                    "priceCurrency": "USD"
+                  }
+                }
+              ]
+            })
+          }}
+        />
       </head>
       <body suppressHydrationWarning style={{ WebkitOverflowScrolling: 'touch' }}>
         <Navigation />

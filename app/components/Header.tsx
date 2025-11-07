@@ -95,12 +95,12 @@ const Header: React.FC = () => {
             />
           </div>
           <div className="title-container">
-            <div className="title-text">
-              <span>SpaceMyPDF</span>
-            </div>
-            <div className="subtitle-text">
+            <h1 className="title-text">
+              SpaceMyPDF
+            </h1>
+            <p className="subtitle-text">
               Add note space to your PDFs easily
-            </div>
+            </p>
           </div>
         </div>
         
