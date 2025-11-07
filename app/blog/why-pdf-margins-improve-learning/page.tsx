@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import Layout from '@/app/components/Layout';
+import Header from '@/app/components/Header';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -20,8 +20,10 @@ export const metadata: Metadata = {
 
 export default function BlogPost() {
   return (
-    <Layout>
-      <article style={{ maxWidth: '800px', margin: '0 auto', padding: '60px 20px', fontFamily: 'var(--font-inter), system-ui, sans-serif' }}>
+    <>
+      <Header />
+      <div style={{ minHeight: '100vh', backgroundColor: '#ffffff', paddingBottom: '80px' }}>
+        <article style={{ maxWidth: '800px', margin: '0 auto', padding: '60px 20px', fontFamily: 'var(--font-inter), system-ui, sans-serif' }}>
         <nav style={{ marginBottom: '20px', fontSize: '14px', color: '#666' }}>
           <Link href="/" style={{ color: '#4f46e5', textDecoration: 'none' }}>Home</Link> / <Link href="/blog" style={{ color: '#4f46e5', textDecoration: 'none' }}>Blog</Link> / <span>Why PDF Margins Improve Learning</span>
         </nav>
@@ -51,8 +53,9 @@ export default function BlogPost() {
         <div style={{ marginTop: '60px', paddingTop: '40px', borderTop: '1px solid #e5e5e5' }}>
           <Link href="/blog" style={{ color: '#4f46e5', textDecoration: 'none', fontSize: '16px', fontWeight: '600' }}>← Back to Blog</Link>
         </div>
-      </article>
-    </Layout>
+        </article>
+      </div>
+    </>
   );
 }
 
