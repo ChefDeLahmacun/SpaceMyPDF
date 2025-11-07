@@ -139,7 +139,7 @@ export default function Blog() {
             marginBottom: '15px',
             color: '#1a1a1a'
           }}>
-            Get More Study Tips
+            Ready to Level Up Your Note-Taking?
           </h2>
           <p style={{ 
             fontSize: '16px', 
@@ -148,7 +148,7 @@ export default function Blog() {
             maxWidth: '600px',
             margin: '0 auto 25px'
           }}>
-            Join thousands of students improving their note-taking skills. Start using SpaceMyPDF today to add note space to your PDFs instantly.
+            Join thousands of students using SpaceMyPDF to add professional note space to their PDFs. Start your free 30-day trial today—unlimited PDF processing, all premium features included.
           </p>
           <Link 
             href="/"
