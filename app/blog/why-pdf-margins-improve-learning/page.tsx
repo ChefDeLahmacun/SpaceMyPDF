@@ -4,11 +4,11 @@ import Header from '@/app/components/Header';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Why Adding Margins to PDFs Improves Learning & Retention by 34%',
-  description: 'Scientific research proves that PDF note-taking with proper margins increases retention by 34%. Learn the psychology behind effective digital annotation.',
+  title: 'Why Adding Margins to PDFs Improves Learning & Retention',
+  description: 'Research shows that PDF note-taking with proper margins significantly increases retention. Learn the psychology behind effective digital annotation.',
   openGraph: {
-    title: 'Why Adding Margins to PDFs Improves Learning & Retention by 34%',
-    description: 'Scientific research proves that PDF note-taking with proper margins increases retention by 34%.',
+    title: 'Why Adding Margins to PDFs Improves Learning & Retention',
+    description: 'Research shows that PDF note-taking with proper margins significantly increases retention.',
     type: 'article',
     url: 'https://www.spacemypdf.com/blog/why-pdf-margins-improve-learning',
     publishedTime: '2024-11-05T00:00:00.000Z',
@@ -40,20 +40,20 @@ export default function BlogPost() {
           </h1>
           
           <p style={{ fontSize: '20px', color: '#666', lineHeight: '1.6' }}>
-            Scientific research shows that active note-taking improves memory retention by up to 34%. Discover why adding note space to your PDFs is a game-changer.
+            Research shows that active note-taking significantly improves memory retention. Discover why adding note space to your PDFs is a game-changer.
           </p>
         </header>
 
         <div style={{ fontSize: '17px', lineHeight: '1.8', color: '#333' }}>
           <p style={{ marginBottom: '20px' }}>
-            You've probably heard that taking notes improves learning—but did you know that <strong>how much space you have for notes</strong> directly impacts how well you retain information? Scientific research consistently shows that students who take comprehensive notes retain 34% more information than those who don't. Here's why adding margins to your PDFs is a game-changer for learning.
+            You've probably heard that taking notes improves learning—but did you know that <strong>how much space you have for notes</strong> directly impacts how well you retain information? Research consistently shows that students who take comprehensive, elaborative notes retain significantly more information than those who don't. Here's why adding margins to your PDFs is a game-changer for learning.
           </p>
 
           <h2 style={{ fontSize: '28px', fontWeight: '700', marginTop: '40px', marginBottom: '20px', color: '#1a1a1a' }}>
             The Science Behind Active Note-Taking
           </h2>
           <p style={{ marginBottom: '20px' }}>
-            Research from Princeton University and UCLA found that students who take handwritten notes (or type elaborative notes with space) perform significantly better on conceptual questions than those who simply highlight or make minimal annotations.
+            Educational research has consistently found that students who take elaborative notes perform significantly better on conceptual understanding and long-term retention compared to those who simply highlight or make minimal annotations.
           </p>
           <p style={{ marginBottom: '20px' }}>
             The key factor? <strong>Engagement level</strong>. When you have adequate space to write:
@@ -91,7 +91,7 @@ export default function BlogPost() {
             marginBottom: '30px'
           }}>
             <p style={{ margin: 0, color: '#075985' }}>
-              <strong>💡 Research Insight:</strong> A 2014 study published in Psychological Science found that students who took comprehensive notes scored 34% higher on conceptual questions one week later compared to those who didn't take notes.
+              <strong>💡 Key Insight:</strong> Educational research consistently demonstrates that students who take comprehensive, elaborative notes perform significantly better on both immediate recall and long-term understanding compared to those who use passive study methods like highlighting alone.
             </p>
           </div>
 
@@ -117,14 +117,14 @@ export default function BlogPost() {
             3. Supports Visual Learning
           </h3>
           <p style={{ marginBottom: '20px' }}>
-            Studies show that 65% of people are visual learners. Wide margins give you room to draw diagrams, flowcharts, and mind maps—all of which significantly improve comprehension and memory.
+            Many students benefit from combining text with visual elements. Wide margins give you room to draw diagrams, flowcharts, and mind maps—tools that can significantly improve comprehension and memory for visual concepts.
           </p>
 
           <h3 style={{ fontSize: '22px', fontWeight: '600', marginTop: '30px', marginBottom: '15px', color: '#1a1a1a' }}>
             4. Facilitates Active Recall Practice
           </h3>
           <p style={{ marginBottom: '20px' }}>
-            When reviewing, you can cover your notes and test yourself using the questions you wrote in the margins. Active recall is the #1 most effective study technique according to cognitive science research.
+            When reviewing, you can cover your notes and test yourself using the questions you wrote in the margins. Active recall—testing yourself on material rather than passively re-reading—is widely recognized as one of the most effective study techniques.
           </p>
 
           <h2 style={{ fontSize: '28px', fontWeight: '700', marginTop: '40px', marginBottom: '20px', color: '#1a1a1a' }}>
