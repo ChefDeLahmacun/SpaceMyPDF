@@ -1,3 +1,5 @@
+'use client';
+
 import React, { ReactNode, useState, useEffect, useRef, createContext, useLayoutEffect } from 'react';
 import MobileOrientationMessage from './MobileOrientationMessage';
 
