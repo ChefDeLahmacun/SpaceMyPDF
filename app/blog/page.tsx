@@ -72,11 +72,6 @@ const blogPosts = [
 export default function Blog() {
   return (
     <Layout>
-      <style jsx>{`
-        .cta-button:hover {
-          background-color: #4338ca !important;
-        }
-      `}</style>
       <div style={{ 
         maxWidth: '1200px', 
         margin: '0 auto', 
@@ -149,7 +144,7 @@ export default function Blog() {
           }}>
             Join thousands of students improving their note-taking skills. Start using SpaceMyPDF today to add note space to your PDFs instantly.
           </p>
-          <a 
+          <Link 
             href="/"
             style={{
               display: 'inline-block',
@@ -159,13 +154,11 @@ export default function Blog() {
               textDecoration: 'none',
               borderRadius: '8px',
               fontWeight: '600',
-              fontSize: '16px',
-              transition: 'background-color 0.2s'
+              fontSize: '16px'
             }}
-            className="cta-button"
           >
             Try SpaceMyPDF Free
-          </a>
+          </Link>
         </section>
       </div>
     </Layout>
