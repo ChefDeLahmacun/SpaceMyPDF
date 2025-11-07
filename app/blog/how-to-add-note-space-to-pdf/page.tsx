@@ -24,7 +24,7 @@ export default function BlogPost() {
       <Header />
       <div style={{
         minHeight: '100vh',
-        backgroundColor: '#ffffff',
+        backgroundColor: '#f5f5f5',
         paddingBottom: '80px'
       }}>
         <article style={{

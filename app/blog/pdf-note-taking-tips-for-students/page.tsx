@@ -22,7 +22,7 @@ export default function BlogPost() {
   return (
     <>
       <Header />
-      <div style={{ minHeight: '100vh', backgroundColor: '#ffffff', paddingBottom: '80px' }}>
+      <div style={{ minHeight: '100vh', backgroundColor: '#f5f5f5', paddingBottom: '80px' }}>
         <article style={{
           maxWidth: '800px',
           margin: '0 auto',

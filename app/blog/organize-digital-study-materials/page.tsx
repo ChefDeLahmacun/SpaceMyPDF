@@ -22,7 +22,7 @@ export default function BlogPost() {
   return (
     <>
       <Header />
-      <div style={{ minHeight: '100vh', backgroundColor: '#ffffff', paddingBottom: '80px' }}>
+      <div style={{ minHeight: '100vh', backgroundColor: '#f5f5f5', paddingBottom: '80px' }}>
         <article style={{ maxWidth: '800px', margin: '0 auto', padding: '60px 20px', fontFamily: 'var(--font-inter), system-ui, sans-serif' }}>
         <nav style={{ marginBottom: '20px', fontSize: '14px', color: '#666' }}>
           <Link href="/" style={{ color: '#4f46e5', textDecoration: 'none' }}>Home</Link> / <Link href="/blog" style={{ color: '#4f46e5', textDecoration: 'none' }}>Blog</Link> / <span>Why PDF Margins Improve Learning</span>

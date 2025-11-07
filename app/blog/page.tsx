@@ -75,7 +75,7 @@ export default function Blog() {
       <Header />
       <div style={{ 
         minHeight: '100vh',
-        backgroundColor: '#f9fafb',
+        backgroundColor: '#f5f5f5',
         paddingBottom: '80px'
       }}>
         <div style={{ 
