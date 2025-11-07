@@ -38,7 +38,7 @@ const blogPosts = [
   {
     title: "Why Adding Margins to PDFs Improves Learning and Retention",
     slug: "why-pdf-margins-improve-learning",
-    excerpt: "Scientific research shows that active note-taking improves memory retention by up to 34%. Discover why adding note space to your PDFs is a game-changer for learning and how to do it effectively.",
+    excerpt: "Research shows that active note-taking significantly improves memory retention. Discover why adding note space to your PDFs is a game-changer for learning and how to do it effectively.",
     date: "2024-11-05",
     readTime: "6 min read",
     category: "Research"
