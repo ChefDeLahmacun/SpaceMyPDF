@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
-import Layout from '../components/Layout';
 import BlogPostCard from '../components/BlogPostCard';
+import Header from '../components/Header';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -71,13 +71,19 @@ const blogPosts = [
 
 export default function Blog() {
   return (
-    <Layout>
+    <>
+      <Header />
       <div style={{ 
-        maxWidth: '1200px', 
-        margin: '0 auto', 
-        padding: '60px 20px',
-        fontFamily: 'var(--font-inter), system-ui, sans-serif'
+        minHeight: '100vh',
+        backgroundColor: '#f9fafb',
+        paddingBottom: '80px'
       }}>
+        <div style={{ 
+          maxWidth: '1200px', 
+          margin: '0 auto', 
+          padding: '60px 20px',
+          fontFamily: 'var(--font-inter), system-ui, sans-serif'
+        }}>
         {/* Header */}
         <header style={{ marginBottom: '60px', textAlign: 'center' }}>
           <h1 style={{ 
@@ -160,7 +166,8 @@ export default function Blog() {
             Try SpaceMyPDF Free
           </Link>
         </section>
+        </div>
       </div>
-    </Layout>
+    </>
   );
 }
