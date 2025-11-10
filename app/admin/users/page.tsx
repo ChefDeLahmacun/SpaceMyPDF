@@ -153,6 +153,39 @@ export default function AdminUsers() {
     }
   };
 
+  const handleDeleteUser = async (userId: string, userEmail: string) => {
+    if (!confirm(`Are you sure you want to DELETE this user account?\n\nEmail: ${userEmail}\n\nThis action CANNOT be undone and will delete:\n- User account\n- All referrals\n- All feature requests\n- All analytics data\n- All support tickets`)) {
+      return;
+    }
+
+    // Double confirmation for safety
+    if (!confirm('This is your final warning. The user account will be permanently deleted. Continue?')) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`/api/admin/delete-user?userId=${userId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        alert(data.message);
+        await fetchUsers(); // Refresh the list
+      } else {
+        const errorData = await response.json();
+        alert(`Error: ${errorData.error}`);
+      }
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      alert('Failed to delete user account');
+    }
+  };
+
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          user.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -400,6 +433,13 @@ export default function AdminUsers() {
                                 Grant Premium
                               </button>
                             )}
+                            <button
+                              onClick={() => handleDeleteUser(user.id, user.email)}
+                              className="text-red-600 hover:text-red-900 font-medium ml-4"
+                              title="Delete user account permanently"
+                            >
+                              🗑️ Delete Account
+                            </button>
                           </div>
                         </div>
                       </td>

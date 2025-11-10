@@ -63,6 +63,12 @@ export default function DownloadRestriction({ onDownload, children }: DownloadRe
       return;
     }
 
+    // Check if email is verified
+    if (!user?.emailVerified) {
+      alert('Please verify your email address before downloading. Check your inbox for the verification link, or click "Resend Verification Email" in your dashboard.');
+      return;
+    }
+
     // Check if user has active subscription
     if (user?.subscriptionStatus === 'expired' || user?.subscriptionStatus === 'cancelled') {
       setIsDownloadTriggered(true);
@@ -70,7 +76,7 @@ export default function DownloadRestriction({ onDownload, children }: DownloadRe
       return;
     }
 
-    // User is authenticated and has active subscription, proceed with download
+    // User is authenticated, verified, and has active subscription, proceed with download
     onDownload();
   };
 

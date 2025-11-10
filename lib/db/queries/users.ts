@@ -5,6 +5,9 @@ export interface User {
   name: string;
   email: string;
   password_hash: string;
+  email_verified?: boolean;
+  email_verification_token?: string;
+  email_verification_token_expires?: Date;
   phone?: string;
   phone_verified: boolean;
   referral_code: string;

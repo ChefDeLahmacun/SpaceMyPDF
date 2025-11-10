@@ -1,6 +1,11 @@
 // Anti-Fraud Detection System
 // Prevents abuse through disposable emails, suspicious patterns, and duplicate phone numbers
 
+import dns from 'dns';
+import { promisify } from 'util';
+
+const resolveMx = promisify(dns.resolveMx);
+
 export interface FraudScore {
   score: number; // 0-100 (higher = more suspicious)
   reasons: string[];
@@ -15,9 +20,16 @@ export interface PhoneCheckResult {
   reason?: string;
 }
 
+export interface EmailValidationResult {
+  isValid: boolean;
+  hasMxRecords: boolean;
+  error?: string;
+}
+
 export class AntiFraudService {
-  // Disposable email domains (expanded list)
+  // Disposable email domains (expanded list - updated 2024)
   private static disposableDomains = [
+    // Popular temp email services
     '10minutemail.com', 'tempmail.org', 'guerrillamail.com',
     'mailinator.com', 'throwaway.email', 'temp-mail.org',
     'getnada.com', 'maildrop.cc', 'yopmail.com', 'sharklasers.com',
@@ -29,7 +41,16 @@ export class AntiFraudService {
     'temp-mail.io', 'fakeinbox.com', 'trashmail.com', 'tempmail.net',
     'minutemail.com', 'emailondeck.com', 'tempr.email', 'guerrillamailblock.com',
     'mailcatch.com', 'mailtemporaire.fr', 'spambox.us', 'throwawaymail.com',
-    'tempemail.net', 'tempinbox.com', 'temporaryemail.net', 'trashmail.net'
+    'tempemail.net', 'tempinbox.com', 'temporaryemail.net', 'trashmail.net',
+    // Additional common disposable domains
+    'grr.la', 'getairmail.com', 'harakirimail.com', 'mailexpire.com',
+    'mailforspam.com', 'mailmoat.com', 'mintemail.com', 'mytempemail.com',
+    'spamgourmet.com', 'spaml.de', 'tempail.com', 'tempsky.com',
+    'thankyou2010.com', 'trashcanmail.com', 'trbvm.com', 'wegwerfemail.de',
+    'zehnminutenmail.de', 'maildrop.cc', 'dropmail.me', 'fakemail.net',
+    'mailsac.com', 'mailnator.com', 'inboxbear.com', 'burnermail.io',
+    'guerrillamail.com', 'spambox.info', 'tempmail.de', 'trash-mail.com',
+    'tmpeml.info', '10mail.org', '20email.eu', 'correotemporal.org'
   ];
 
   // Suspicious email patterns
@@ -42,6 +63,12 @@ export class AntiFraudService {
     /throwaway@/i,         // throwaway@
     /\d{8,}@/,             // 8+ consecutive digits
     /^[a-z]{1,2}\d+@/i,    // a1@, ab123@ (short + numbers)
+    /^([a-z])\1{2,}/i,     // aaa@, bbb@, ccc@ (3+ repeated chars)
+    /^[a-z]{1,3}\.[a-z]{1,3}@[a-z]{1,3}\./i, // aaa.bbb@ccc. (short segments)
+    /^[a-z]{3}@[a-z]{3}\./i,  // aaa@bbb. (3 letter combinations)
+    /asdf|qwer|zxcv|hjkl/i,   // keyboard patterns
+    /sample|example|demo/i,   // sample/demo emails
+    /spam|junk|trash/i,       // spam-related words
   ];
 
   // Analyze user registration
@@ -103,6 +130,31 @@ export class AntiFraudService {
     if (localPart.length <= 2) {
       score += 15;
       reasons.push('Suspicious email format');
+    }
+
+    // Check for repeated character patterns (e.g., aaa, bbb, ccc)
+    if (/([a-z])\1{2,}/i.test(localPart) || /([a-z])\1{2,}/i.test(domain.split('.')[0])) {
+      score += 25;
+      reasons.push('Repetitive character pattern in email');
+    }
+
+    // Check for nonsensical short domain names (e.g., ccc.com, aaa.org)
+    const domainName = domain.split('.')[0];
+    if (domainName && domainName.length <= 3 && /^[a-z]{1,3}$/i.test(domainName)) {
+      // Whitelist of legitimate short domains
+      const legitimateShort = ['ibm', 'ups', 'aol', 'att', 'msn', 'hp', 'sap', 'bmw', 'fox', 'cnn', 'bbc'];
+      if (!legitimateShort.includes(domainName.toLowerCase())) {
+        score += 20;
+        reasons.push('Suspicious domain name');
+      }
+    }
+
+    // Check for patterns like "a.b@c.com" (single/double char segments)
+    const localSegments = localPart.split('.');
+    const allShortSegments = localSegments.every(seg => seg.length <= 2);
+    if (localSegments.length > 1 && allShortSegments) {
+      score += 20;
+      reasons.push('Suspicious email structure');
     }
 
     return { score, reasons };
@@ -270,6 +322,65 @@ export class AntiFraudService {
       return {
         limited: false,
         recentAccounts: 0
+      };
+    }
+  }
+
+  // MX Record Validation - Verify domain can receive emails
+  static async validateEmailDomain(email: string): Promise<EmailValidationResult> {
+    try {
+      const domain = email.split('@')[1]?.toLowerCase();
+      
+      if (!domain) {
+        return {
+          isValid: false,
+          hasMxRecords: false,
+          error: 'Invalid email format'
+        };
+      }
+
+      // Try to resolve MX records for the domain
+      try {
+        const addresses = await resolveMx(domain);
+        
+        if (!addresses || addresses.length === 0) {
+          return {
+            isValid: false,
+            hasMxRecords: false,
+            error: 'Domain cannot receive emails (no MX records)'
+          };
+        }
+
+        // Domain has valid MX records
+        return {
+          isValid: true,
+          hasMxRecords: true
+        };
+      } catch (dnsError: any) {
+        // DNS lookup failed - domain doesn't exist or has no MX records
+        if (dnsError.code === 'ENOTFOUND' || dnsError.code === 'ENODATA') {
+          return {
+            isValid: false,
+            hasMxRecords: false,
+            error: 'Domain does not exist or cannot receive emails'
+          };
+        }
+
+        // Other DNS errors - fail open (allow the email)
+        console.warn('DNS lookup warning for', domain, ':', dnsError.message);
+        return {
+          isValid: true,
+          hasMxRecords: false,
+          error: 'Could not verify domain (allowed by default)'
+        };
+      }
+    } catch (error) {
+      console.error('Error validating email domain:', error);
+      // On unexpected error, fail open (allow the email)
+      return {
+        isValid: true,
+        hasMxRecords: false,
+        error: 'Validation error (allowed by default)'
       };
     }
   }

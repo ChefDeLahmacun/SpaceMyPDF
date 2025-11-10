@@ -62,6 +62,55 @@ export class EmailService {
     }
   }
 
+  // Send email verification email
+  async sendVerificationEmail(userEmail: string, userName: string, verificationLink: string): Promise<boolean> {
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+          <h1 style="color: white; margin: 0; font-size: 28px;">✉️ Verify Your Email</h1>
+        </div>
+        
+        <div style="background: #f9fafb; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 10px 10px;">
+          <p style="color: #374151; font-size: 16px; margin: 0 0 20px 0;">
+            Hi <strong>${userName}</strong>! 👋
+          </p>
+          
+          <p style="color: #374151; font-size: 16px; margin: 0 0 20px 0;">
+            Welcome to SpaceMyPDF! Please verify your email address to start using all features.
+          </p>
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${verificationLink}" 
+               style="background-color: #4f46e5; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: 600; font-size: 16px;">
+              Verify Email Address
+            </a>
+          </div>
+
+          <p style="color: #6b7280; font-size: 14px; margin: 20px 0 0 0;">
+            This link will expire in 24 hours. If you didn't create an account, you can safely ignore this email.
+          </p>
+
+          <div style="border-top: 1px solid #e5e7eb; margin-top: 30px; padding-top: 20px; color: #9ca3af; font-size: 12px;">
+            <p style="margin: 0;">
+              If the button doesn't work, copy and paste this link into your browser:<br/>
+              <a href="${verificationLink}" style="color: #4f46e5; word-break: break-all;">${verificationLink}</a>
+            </p>
+          </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 20px; color: #9ca3af; font-size: 12px;">
+          <p>© ${new Date().getFullYear()} SpaceMyPDF. All rights reserved.</p>
+        </div>
+      </div>
+    `;
+
+    return this.sendEmail({
+      to: userEmail,
+      subject: '✉️ Verify Your Email - SpaceMyPDF',
+      html
+    });
+  }
+
   // Send welcome email to new users
   async sendWelcomeEmail(userEmail: string, userName: string, referralCode: string): Promise<boolean> {
     // Check email notification preference

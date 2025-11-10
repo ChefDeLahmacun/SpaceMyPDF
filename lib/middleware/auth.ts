@@ -56,6 +56,7 @@ export async function authenticateRequest(request: NextRequest): Promise<{
         id: user.id,
         name: user.name,
         email: user.email,
+        emailVerified: user.email_verified || false,
         subscriptionStatus: user.subscription_status,
         phone: user.phone,
         phoneVerified: user.phone_verified,

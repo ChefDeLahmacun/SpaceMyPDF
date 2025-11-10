@@ -64,6 +64,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // MX Record Validation - Check if domain can actually receive emails
+    const domainValidation = await AntiFraudService.validateEmailDomain(email);
+    if (!domainValidation.isValid) {
+      return NextResponse.json(
+        { error: domainValidation.error || 'Invalid email domain' },
+        { status: 400 }
+      );
+    }
+
     // Check if user already exists
     const existingUser = await UserQueries.getUserByEmail(email);
     if (existingUser) {
@@ -150,6 +159,21 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Generate email verification token
+    const crypto = await import('crypto');
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const tokenHash = crypto.createHash('sha256').update(verificationToken).digest('hex');
+    const tokenExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+    // Store verification token
+    await (await import('@/lib/db/connection')).Database.query(`
+      UPDATE users
+      SET email_verification_token = $1,
+          email_verification_token_expires = $2,
+          updated_at = NOW()
+      WHERE id = $3
+    `, [tokenHash, tokenExpiresAt, newUser.id]);
+
     // Generate JWT token
     const token = JWTUtils.generateToken({
       userId: newUser.id,
@@ -157,10 +181,11 @@ export async function POST(request: NextRequest) {
       subscriptionStatus: newUser.subscription_status
     });
 
-    // Send welcome email (don't wait for it to complete)
-    emailService.sendWelcomeEmail(newUser.email, newUser.name, newUser.referral_code)
+    // Send verification email (don't wait for it to complete)
+    const verificationLink = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/verify-email?token=${verificationToken}`;
+    emailService.sendVerificationEmail(newUser.email, newUser.name, verificationLink)
       .catch(error => {
-        console.error('Error sending welcome email:', error);
+        console.error('Error sending verification email:', error);
       });
 
     // Return user data (without password hash)
@@ -168,9 +193,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      user: userWithoutPassword,
+      user: { ...userWithoutPassword, email_verified: false },
       token,
-      message: 'User registered successfully'
+      message: 'User registered successfully. Please check your email to verify your account.'
     }, { status: 201 });
 
   } catch (error) {
