@@ -70,9 +70,6 @@ export const metadata: Metadata = {
   },
   verification: {
     google: "zAU4nyWIZ0lJgHFikZEcViImwePtQAc9T39mJ4n6vRY"
-  },
-  alternates: {
-    canonical: "https://www.spacemypdf.com"
   }
 };
 
