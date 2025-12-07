@@ -43,43 +43,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     })),
     
-    // Dashboard pages (lower priority, require login)
-    {
-      url: `${baseUrl}/dashboard`,
-      lastModified: currentDate,
-      changeFrequency: 'weekly',
-      priority: 0.5,
-    },
-    {
-      url: `${baseUrl}/dashboard/settings`,
-      lastModified: currentDate,
-      changeFrequency: 'monthly',
-      priority: 0.4,
-    },
-    {
-      url: `${baseUrl}/dashboard/features`,
-      lastModified: currentDate,
-      changeFrequency: 'monthly',
-      priority: 0.4,
-    },
-    {
-      url: `${baseUrl}/dashboard/referrals`,
-      lastModified: currentDate,
-      changeFrequency: 'monthly',
-      priority: 0.4,
-    },
-    {
-      url: `${baseUrl}/dashboard/support`,
-      lastModified: currentDate,
-      changeFrequency: 'monthly',
-      priority: 0.4,
-    },
-    {
-      url: `${baseUrl}/dashboard/announcements`,
-      lastModified: currentDate,
-      changeFrequency: 'weekly',
-      priority: 0.4,
-    },
+    // NOTE: Dashboard pages are excluded from sitemap because they:
+    // 1. Require authentication (login)
+    // 2. Have no SEO value
+    // 3. Are blocked in robots.txt
+    // 4. Should not appear in search results
   ]
 }
 

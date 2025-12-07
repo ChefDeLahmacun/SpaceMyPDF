@@ -11,8 +11,9 @@ export default function robots(): MetadataRoute.Robots {
         disallow: [
           '/api/',
           '/admin/',
-          '/dashboard/change-password/',
+          '/dashboard/',  // Block entire dashboard section
           '/reset-password/',
+          '/verify-email/',  // Block verification pages
         ],
       },
     ],
