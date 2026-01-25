@@ -55,6 +55,43 @@ const nextConfig = {
             value: 'strict-origin-when-cross-origin'
           }
         ]
+      },
+      // Add X-Robots-Tag header for dashboard and private pages
+      {
+        source: '/dashboard/:path*',
+        headers: [
+          {
+            key: 'X-Robots-Tag',
+            value: 'noindex, nofollow, noarchive, nosnippet'
+          }
+        ]
+      },
+      {
+        source: '/admin/:path*',
+        headers: [
+          {
+            key: 'X-Robots-Tag',
+            value: 'noindex, nofollow, noarchive, nosnippet'
+          }
+        ]
+      },
+      {
+        source: '/verify-email/:path*',
+        headers: [
+          {
+            key: 'X-Robots-Tag',
+            value: 'noindex, nofollow, noarchive, nosnippet'
+          }
+        ]
+      },
+      {
+        source: '/reset-password/:path*',
+        headers: [
+          {
+            key: 'X-Robots-Tag',
+            value: 'noindex, nofollow, noarchive, nosnippet'
+          }
+        ]
       }
     ];
   },
