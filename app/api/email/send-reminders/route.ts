@@ -24,48 +24,61 @@ export async function POST(request: NextRequest) {
 
     // Get users whose trials are ending soon
     const usersWithTrialsEnding = await Database.queryMany(`
-      SELECT u.id, u.email, u.trial_end
+      SELECT u.id, u.email, u.trial_ends_at, u.last_trial_reminder_sent
       FROM users u
       WHERE u.subscription_status = 'trial'
-        AND u.trial_end IS NOT NULL
-        AND u.trial_end > NOW()
-        AND u.trial_end <= NOW() + INTERVAL '7 days'
+        AND u.trial_ends_at IS NOT NULL
+        AND u.trial_ends_at > NOW()
+        AND u.trial_ends_at <= NOW() + INTERVAL '7 days'
     `);
 
     const results = [];
 
     for (const user of usersWithTrialsEnding) {
       try {
-        const trialEnd = new Date(user.trial_end);
+        const trialEnd = new Date(user.trial_ends_at);
         const daysLeft = Math.ceil((trialEnd.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
         
-        if (daysLeft === 7) {
-          // Send 7-day reminder
+        // Determine which reminder to send based on days left
+        let reminderType: 7 | 3 | 1 | null = null;
+        
+        if (daysLeft >= 7) {
+          reminderType = 7;
+        } else if (daysLeft >= 3 && daysLeft < 7) {
+          reminderType = 3;
+        } else if (daysLeft >= 1 && daysLeft < 3) {
+          reminderType = 1;
+        }
+        
+        // Check if we already sent this reminder type
+        const lastReminder = user.last_trial_reminder_sent;
+        const shouldSend = !lastReminder || 
+          (reminderType === 7 && lastReminder < 7) ||
+          (reminderType === 3 && lastReminder < 3) ||
+          (reminderType === 1 && lastReminder < 1);
+        
+        if (reminderType && shouldSend) {
+          // Send reminder email
           await emailService.sendTrialEndingReminder(
             user.email,
             user.email.split('@')[0],
-            daysLeft,
+            reminderType,
             trialEnd
           );
-          results.push({ user: user.email, type: '7-day-reminder', success: true });
-        } else if (daysLeft === 3) {
-          // Send 3-day reminder
-          await emailService.sendTrialEndingReminder(
-            user.email,
-            user.email.split('@')[0],
+          
+          // Update last reminder sent
+          await Database.query(`
+            UPDATE users 
+            SET last_trial_reminder_sent = $1, updated_at = NOW()
+            WHERE id = $2
+          `, [reminderType, user.id]);
+          
+          results.push({ 
+            user: user.email, 
+            type: `${reminderType}-day-reminder`, 
             daysLeft,
-            trialEnd
-          );
-          results.push({ user: user.email, type: '3-day-reminder', success: true });
-        } else if (daysLeft === 1) {
-          // Send 1-day reminder
-          await emailService.sendTrialEndingReminder(
-            user.email,
-            user.email.split('@')[0],
-            daysLeft,
-            trialEnd
-          );
-          results.push({ user: user.email, type: '1-day-reminder', success: true });
+            success: true 
+          });
         }
       } catch (error) {
         console.error(`Error sending reminder to ${user.email}:`, error);
@@ -75,11 +88,11 @@ export async function POST(request: NextRequest) {
 
     // Get users whose trials have ended
     const expiredTrials = await Database.queryMany(`
-      SELECT u.id, u.email, u.trial_end
+      SELECT u.id, u.email, u.trial_ends_at
       FROM users u
       WHERE u.subscription_status = 'trial'
-        AND u.trial_end IS NOT NULL
-        AND u.trial_end <= NOW()
+        AND u.trial_ends_at IS NOT NULL
+        AND u.trial_ends_at <= NOW()
     `);
 
     for (const user of expiredTrials) {
