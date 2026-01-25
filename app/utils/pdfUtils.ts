@@ -49,6 +49,9 @@ export const generatePDFPreview = async (
     // If noteSpaceWidth is provided, create a new page with extended dimensions
     if (noteSpaceWidth > 0) {
       const originalPage = originalPdfDoc.getPage(i);
+      const rotation = originalPage.getRotation().angle;
+      
+      // Get size considering rotation
       const { width, height } = originalPage.getSize();
       
       // Calculate new dimensions based on position
@@ -63,6 +66,9 @@ export const generatePDFPreview = async (
       
       // Create a new blank page with the new dimensions
       const newPage = modifiedPreviewDoc.addPage([newWidth, newHeight]);
+      
+      // Set the same rotation as original
+      newPage.setRotation({ type: 'degrees', angle: rotation });
       
       // Embed the original page content
       const embeddedPage = await modifiedPreviewDoc.embedPage(originalPage);
@@ -164,6 +170,9 @@ export const processPDFForDownload = async (
   // Process each page
   for (let i = 0; i < pageCount; i++) {
     const originalPage = pdfDoc.getPage(i);
+    const rotation = originalPage.getRotation().angle;
+    
+    // Get size considering rotation
     const { width, height } = originalPage.getSize();
     
     // Calculate new dimensions based on position
@@ -178,6 +187,9 @@ export const processPDFForDownload = async (
     
     // Create a new blank page with the new dimensions
     const newPage = newPdfDoc.addPage([newWidth, newHeight]);
+    
+    // Set the same rotation as original
+    newPage.setRotation({ type: 'degrees', angle: rotation });
     
     // Embed the original page content
     const embeddedPage = await newPdfDoc.embedPage(originalPage);
