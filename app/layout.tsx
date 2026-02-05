@@ -31,6 +31,9 @@ export const metadata: Metadata = {
   authors: [{ name: "SpaceMyPDF" }],
   generator: "Next.js",
   category: "Education",
+  alternates: {
+    canonical: 'https://www.spacemypdf.com',
+  },
   openGraph: {
     title: "SpaceMyPDF | Free PDF Note Space Tool - Add Margins to PDFs Online",
     description: "Add note-taking space to any PDF instantly. Free online tool for students and professionals. No downloads, 100% private, works in your browser.",
