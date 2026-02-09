@@ -3,9 +3,24 @@ import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
   const url = request.nextUrl.clone();
+  const userAgent = request.headers.get('user-agent') || '';
+  const isBot = /bot|crawler|spider|googlebot|bingbot|slurp/i.test(userAgent);
+  
+  // Block bots from accessing dashboard and private pages - return 404
+  if (isBot && (url.pathname.startsWith('/dashboard') || 
+                url.pathname.startsWith('/admin') || 
+                url.pathname.startsWith('/verify-email') || 
+                url.pathname.startsWith('/reset-password'))) {
+    // Return 404 for bots trying to access private pages
+    return new NextResponse(null, {
+      status: 404,
+      headers: {
+        'X-Robots-Tag': 'noindex, nofollow, noarchive, nosnippet',
+      },
+    });
+  }
   
   // Handle search parameter redirects - redirect to clean URL to avoid duplicates
-  // Only for homepage with search parameters
   if (url.pathname === '/' && url.searchParams.has('s')) {
     // Redirect to clean homepage URL
     url.searchParams.delete('s');
