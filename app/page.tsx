@@ -894,6 +894,19 @@ export default function Home() {
       Math.round(pdfBytes.length / 1024) // Size in KB as value
     );
     
+    // Auto-redirect for iOS/iPad users after download to prevent page corruption
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+    if (isIOS) {
+      // Redirect back to homepage after 5 minutes to prevent memory issues
+      setTimeout(() => {
+        // Check if user is still on the same page
+        if (window.location.pathname === '/') {
+          window.history.replaceState(null, '', '/');
+          window.location.reload();
+        }
+      }, 5 * 60 * 1000); // 5 minutes
+    }
+    
     // Increment PDF processed count
     try {
       const token = localStorage.getItem('token');
