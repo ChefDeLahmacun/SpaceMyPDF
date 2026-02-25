@@ -18,7 +18,7 @@ export default function AdminGrantAccess() {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        window.location.href = '/';
+        window.location.href = '/admin';
         return;
       }
 
@@ -30,13 +30,17 @@ export default function AdminGrantAccess() {
 
       if (response.ok) {
         const data = await response.json();
-        setUser(data.user);
+        if (data.user?.isAdmin) {
+          setUser(data.user);
+        } else {
+          window.location.href = '/admin';
+        }
       } else {
-        window.location.href = '/';
+        window.location.href = '/admin';
       }
     } catch (error) {
       console.error('Auth check error:', error);
-      window.location.href = '/';
+      window.location.href = '/admin';
     } finally {
       setLoading(false);
     }
@@ -45,7 +49,7 @@ export default function AdminGrantAccess() {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    window.location.href = '/';
+    window.location.href = '/admin';
   };
 
   const handleGrantPremium = async (e: React.FormEvent) => {

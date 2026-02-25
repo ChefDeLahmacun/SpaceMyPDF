@@ -53,7 +53,50 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    // Authenticate user
+    const body = await request.json();
+    const { action } = body;
+
+    // MEMBERSHIP DISABLED: Anonymous tracking for PDF downloads (no auth required)
+    if (action === 'increment_anonymous_pdf') {
+      try {
+        // Create table if it doesn't exist (safe to run multiple times)
+        await Database.query(`
+          CREATE TABLE IF NOT EXISTS site_analytics (
+            id SERIAL PRIMARY KEY,
+            metric_name VARCHAR(100) UNIQUE NOT NULL,
+            metric_value BIGINT DEFAULT 0,
+            created_at TIMESTAMP DEFAULT NOW(),
+            updated_at TIMESTAMP DEFAULT NOW()
+          )
+        `);
+
+        // Increment anonymous PDF count
+        const result = await Database.query(`
+          INSERT INTO site_analytics (metric_name, metric_value, updated_at)
+          VALUES ('anonymous_pdfs_processed', 1, NOW())
+          ON CONFLICT (metric_name) 
+          DO UPDATE SET 
+            metric_value = site_analytics.metric_value + 1,
+            updated_at = NOW()
+          RETURNING metric_value
+        `);
+
+        return NextResponse.json({
+          success: true,
+          message: 'Anonymous PDF processing recorded',
+          totalAnonymousPdfs: result.rows[0]?.metric_value || 1
+        });
+      } catch (dbError) {
+        console.error('[Analytics] Database error for anonymous tracking:', dbError);
+        // Don't fail the request if tracking fails - just log and return success
+        return NextResponse.json({
+          success: true,
+          message: 'PDF download allowed (tracking skipped)',
+        });
+      }
+    }
+
+    // Authenticated user tracking (kept for future re-enablement)
     const authResult = await authenticateRequest(request);
     if (!authResult.isAuthenticated) {
       return NextResponse.json(
@@ -63,11 +106,9 @@ export async function POST(request: NextRequest) {
     }
 
     const user = authResult.user!;
-    const body = await request.json();
-    const { action } = body;
 
     if (action === 'increment_pdf_processed') {
-      // Increment PDF processed count
+      // Increment PDF processed count for authenticated user
       const result = await Database.query(`
         INSERT INTO user_analytics (user_id, pdfs_processed, last_activity)
         VALUES ($1, 1, NOW())
@@ -77,7 +118,7 @@ export async function POST(request: NextRequest) {
           last_activity = NOW(),
           updated_at = NOW()
         RETURNING pdfs_processed
-      `, [user.id]        );
+      `, [user.id]);
 
       return NextResponse.json({
         success: true,

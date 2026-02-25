@@ -45,7 +45,7 @@ export default function AdminSettings() {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        window.location.href = '/';
+        window.location.href = '/admin';
         return;
       }
 
@@ -57,14 +57,18 @@ export default function AdminSettings() {
 
       if (response.ok) {
         const data = await response.json();
-        setUser(data.user);
-        await fetchData();
+        if (data.user?.isAdmin) {
+          setUser(data.user);
+          await fetchData();
+        } else {
+          setError('Admin access required');
+        }
       } else {
-        window.location.href = '/';
+        window.location.href = '/admin';
       }
     } catch (error) {
       console.error('Auth check error:', error);
-      window.location.href = '/';
+      window.location.href = '/admin';
     } finally {
       setLoading(false);
     }
@@ -236,7 +240,7 @@ export default function AdminSettings() {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    window.location.href = '/';
+    window.location.href = '/admin';
   };
 
   const getTypeBadge = (type: string) => {

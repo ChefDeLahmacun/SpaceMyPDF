@@ -4,12 +4,14 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { FaFileAlt } from 'react-icons/fa';
-import UserStatus from './UserStatus';
-import MembershipModal from './MembershipModal';
+// MEMBERSHIP DISABLED: Components commented out for future re-enablement
+// import UserStatus from './UserStatus';
+// import MembershipModal from './MembershipModal';
 import './Header.css';
 
 const Header: React.FC = () => {
-  const [showMembershipModal, setShowMembershipModal] = useState(false);
+  // MEMBERSHIP DISABLED: Modal state commented out for future re-enablement
+  // const [showMembershipModal, setShowMembershipModal] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
@@ -56,13 +58,14 @@ const Header: React.FC = () => {
     };
   }, []);
 
-  const handleSignIn = () => {
-    setShowMembershipModal(true);
-  };
+  // MEMBERSHIP DISABLED: Sign-in handlers commented out for future re-enablement
+  // const handleSignIn = () => {
+  //   setShowMembershipModal(true);
+  // };
 
-  const handleModalClose = () => {
-    setShowMembershipModal(false);
-  };
+  // const handleModalClose = () => {
+  //   setShowMembershipModal(false);
+  // };
   return (
     <div className="header-container">
       {/* Header content */}
@@ -72,9 +75,10 @@ const Header: React.FC = () => {
           <Link href="/changelog" className="nav-link">
             Changelog
           </Link>
-          <Link href="/dashboard" className="nav-link">
+          {/* MEMBERSHIP DISABLED: Dashboard link hidden for now */}
+          {/* <Link href="/dashboard" className="nav-link">
             Dashboard
-          </Link>
+          </Link> */}
           {isAdmin && (
             <Link href="/admin" className="nav-link admin-link">
               Admin
@@ -104,19 +108,19 @@ const Header: React.FC = () => {
           </div>
         </div>
         
-        {/* Right side: User status */}
-        <div className="right-nav">
+        {/* MEMBERSHIP DISABLED: Right side user status hidden for now */}
+        {/* <div className="right-nav">
           <UserStatus onLogin={handleSignIn} />
-        </div>
+        </div> */}
       </div>
 
-      {/* Membership Modal */}
-      <MembershipModal
+      {/* MEMBERSHIP DISABLED: Membership Modal commented out for future re-enablement */}
+      {/* <MembershipModal
         isOpen={showMembershipModal}
         onClose={handleModalClose}
         onSignUp={handleModalClose}
         onLogin={handleModalClose}
-      />
+      /> */}
     </div>
   );
 };

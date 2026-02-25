@@ -108,14 +108,37 @@ export async function GET(request: NextRequest) {
       // Silently handle error - return default values
     }
 
-    // Get PDFs processed statistics
+    // Get PDFs processed statistics (includes both authenticated and anonymous)
     let pdfStats = { total_pdfs_processed: 0 };
     try {
-      const pdfStatsQuery = `
-        SELECT COALESCE(SUM(pdfs_processed), 0) as total_pdfs_processed
-        FROM user_analytics
-      `;
-      pdfStats = await Database.queryOne(pdfStatsQuery) || pdfStats;
+      // Get authenticated user PDFs
+      let userPdfs = 0;
+      try {
+        const userPdfQuery = `
+          SELECT COALESCE(SUM(pdfs_processed), 0) as total
+          FROM user_analytics
+        `;
+        const userPdfResult = await Database.queryOne(userPdfQuery);
+        userPdfs = parseInt(String(userPdfResult?.total)) || 0;
+      } catch (e) {
+        // Table may not exist yet
+      }
+
+      // Get anonymous PDFs (MEMBERSHIP DISABLED: This is the primary source now)
+      let anonymousPdfs = 0;
+      try {
+        const anonymousPdfQuery = `
+          SELECT COALESCE(metric_value, 0) as total
+          FROM site_analytics
+          WHERE metric_name = 'anonymous_pdfs_processed'
+        `;
+        const anonymousPdfResult = await Database.queryOne(anonymousPdfQuery);
+        anonymousPdfs = parseInt(String(anonymousPdfResult?.total)) || 0;
+      } catch (e) {
+        // Table may not exist yet
+      }
+
+      pdfStats = { total_pdfs_processed: userPdfs + anonymousPdfs };
     } catch (error) {
       // Silently handle error - return default values
     }

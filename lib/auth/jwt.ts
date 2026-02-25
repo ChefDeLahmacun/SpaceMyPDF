@@ -1,6 +1,18 @@
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.NEXTAUTH_SECRET || 'your-fallback-secret-key';
+function getJwtSecret(): string {
+  const secret = process.env.NEXTAUTH_SECRET;
+  if (!secret) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('NEXTAUTH_SECRET environment variable is required in production');
+    }
+    console.warn('WARNING: NEXTAUTH_SECRET not set. Using insecure fallback for development only.');
+    return 'dev-only-insecure-fallback-key-do-not-use-in-production';
+  }
+  return secret;
+}
+
+const JWT_SECRET = getJwtSecret();
 
 export interface JWTPayload {
   userId: string;

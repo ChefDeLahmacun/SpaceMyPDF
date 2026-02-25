@@ -12,10 +12,11 @@ import FeedbackForm from './components/FeedbackForm';
 import WhiteBox from './components/WhiteBox';
 import DonationsBox from './components/DonationsBox';
 import MobileOrientationMessage from './components/MobileOrientationMessage';
-import DownloadRestriction from './components/DownloadRestriction';
-import MembershipBanner from './components/MembershipBanner';
-import UserStatus from './components/UserStatus';
-import MembershipModal from './components/MembershipModal';
+// MEMBERSHIP DISABLED: These imports commented out for future re-enablement
+// import DownloadRestriction from './components/DownloadRestriction';
+// import MembershipBanner from './components/MembershipBanner';
+// import UserStatus from './components/UserStatus';
+// import MembershipModal from './components/MembershipModal';
 import { useAnalytics } from './utils/useAnalytics';
 import './components/GreenSectionFinal.css';
 
@@ -36,8 +37,9 @@ export default function Home() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [totalPages, setTotalPages] = useState(0);
   const [downloadIsProcessing, setDownloadIsProcessing] = useState(false);
-  const [showMembershipModal, setShowMembershipModal] = useState(false);
-  const [referralCode, setReferralCode] = useState<string>('');
+  // MEMBERSHIP DISABLED: Modal state commented out for future re-enablement
+  // const [showMembershipModal, setShowMembershipModal] = useState(false);
+  // const [referralCode, setReferralCode] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   // New state variables for color options
@@ -146,31 +148,31 @@ export default function Home() {
     updateOutputFileName(baseFileName, includeWithNotes);
   }, [baseFileName, includeWithNotes]);
 
-  // Check for referral code in URL
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const urlParams = new URLSearchParams(window.location.search);
-      const refCode = urlParams.get('ref');
-      if (refCode) {
-        setReferralCode(refCode);
-        
-        // Check if user is already logged in
-        const token = localStorage.getItem('token');
-        if (token) {
-          // User is logged in, don't show signup modal
-          // Just track the referral link visit
-          trackEvent('referral_link_visited', 'referral', refCode);
-          // Clear the referral code from URL to prevent redirect loop
-          const newUrl = window.location.pathname;
-          window.history.replaceState({}, '', newUrl);
-        } else {
-          // User is not logged in, show signup modal
-          setShowMembershipModal(true);
-          trackEvent('referral_link_visited', 'referral', refCode);
-        }
-      }
-    }
-  }, [trackEvent]);
+  // MEMBERSHIP DISABLED: Referral code handling commented out for future re-enablement
+  // useEffect(() => {
+  //   if (typeof window !== 'undefined') {
+  //     const urlParams = new URLSearchParams(window.location.search);
+  //     const refCode = urlParams.get('ref');
+  //     if (refCode) {
+  //       setReferralCode(refCode);
+  //       
+  //       // Check if user is already logged in
+  //       const token = localStorage.getItem('token');
+  //       if (token) {
+  //         // User is logged in, don't show signup modal
+  //         // Just track the referral link visit
+  //         trackEvent('referral_link_visited', 'referral', refCode);
+  //         // Clear the referral code from URL to prevent redirect loop
+  //         const newUrl = window.location.pathname;
+  //         window.history.replaceState({}, '', newUrl);
+  //       } else {
+  //         // User is not logged in, show signup modal
+  //         setShowMembershipModal(true);
+  //         trackEvent('referral_link_visited', 'referral', refCode);
+  //       }
+  //     }
+  //   }
+  // }, [trackEvent]);
 
   // Handle base filename change
   const handleBaseFileNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -815,19 +817,15 @@ export default function Home() {
             clearAllFeedbackImages();
             setFeedbackSectionNeedsExtraHeight(false);
             
-            // Increment PDF processed count
+            // MEMBERSHIP DISABLED: Track anonymous PDF download
             try {
-              const token = localStorage.getItem('token');
-              if (token) {
-                await fetch('/api/analytics/user-stats', {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                  },
-                  body: JSON.stringify({ action: 'increment_pdf_processed' })
-                });
-              }
+              await fetch('/api/analytics/user-stats', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ action: 'increment_anonymous_pdf' })
+              });
             } catch (error) {
               console.error('Failed to update analytics:', error);
             }
@@ -907,23 +905,19 @@ export default function Home() {
       }, 5 * 60 * 1000); // 5 minutes
     }
     
-    // Increment PDF processed count
+    // MEMBERSHIP DISABLED: Track anonymous PDF download
     try {
-      const token = localStorage.getItem('token');
-      if (token) {
-        fetch('/api/analytics/user-stats', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({ action: 'increment_pdf_processed' })
-        })
-          .then(response => response.json())
-          .catch(error => {
-            console.error('[PDF Download] Failed to update analytics:', error);
-          });
-      }
+      fetch('/api/analytics/user-stats', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ action: 'increment_anonymous_pdf' })
+      })
+        .then(response => response.json())
+        .catch(error => {
+          console.error('[PDF Download] Failed to update analytics:', error);
+        });
     } catch (error) {
       console.error('[PDF Download] Failed to update analytics:', error);
     }
@@ -1114,7 +1108,8 @@ export default function Home() {
         }}
       >
         <MobileOrientationMessage />
-        <MembershipBanner />
+        {/* MEMBERSHIP DISABLED: Banner hidden for now */}
+        {/* <MembershipBanner /> */}
         <Header />
         <Features />
         
@@ -1250,14 +1245,14 @@ export default function Home() {
         }}
       />
       
-      {/* Membership Modal for Referral Links */}
-      <MembershipModal
+      {/* MEMBERSHIP DISABLED: Membership Modal commented out for future re-enablement */}
+      {/* <MembershipModal
         isOpen={showMembershipModal}
         onClose={() => setShowMembershipModal(false)}
         onSignUp={() => setShowMembershipModal(false)}
         onLogin={() => setShowMembershipModal(false)}
         initialReferralCode={referralCode}
-      />
+      /> */}
     </Layout>
   );
 }

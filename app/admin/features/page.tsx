@@ -33,7 +33,7 @@ export default function AdminFeatures() {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        window.location.href = '/';
+        window.location.href = '/admin';
         return;
       }
 
@@ -45,14 +45,18 @@ export default function AdminFeatures() {
 
       if (response.ok) {
         const data = await response.json();
-        setUser(data.user);
-        await fetchFeatures();
+        if (data.user?.isAdmin) {
+          setUser(data.user);
+          await fetchFeatures();
+        } else {
+          setError('Admin access required');
+        }
       } else {
-        window.location.href = '/';
+        window.location.href = '/admin';
       }
     } catch (error) {
       console.error('Auth check error:', error);
-      window.location.href = '/';
+      window.location.href = '/admin';
     } finally {
       setLoading(false);
     }
@@ -138,7 +142,7 @@ export default function AdminFeatures() {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    window.location.href = '/';
+    window.location.href = '/admin';
   };
 
   const filteredFeatures = features.filter(feature => {

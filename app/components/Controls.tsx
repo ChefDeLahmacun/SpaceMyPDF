@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useEffect, useLayoutEffect, useRef } from 'react';
-import DownloadRestriction from './DownloadRestriction';
+// MEMBERSHIP DISABLED: Import commented out for future re-enablement
+// import DownloadRestriction from './DownloadRestriction';
 
 interface ControlsProps {
   file: File | null;
@@ -1117,8 +1118,10 @@ const Controls: React.FC<ControlsProps> = ({
             )}
             
             <div style={{ marginBottom: '3%', width: '100%' }}>
-              <DownloadRestriction onDownload={handleDownload}>
+              {/* MEMBERSHIP DISABLED: DownloadRestriction wrapper removed for open access */}
+              {/* <DownloadRestriction onDownload={handleDownload}> */}
                 <button
+                  onClick={handleDownload}
                   disabled={!file || downloadIsProcessing}
                   style={{
                     backgroundColor: file ? '#4a6741' : '#ccc',
@@ -1137,7 +1140,7 @@ const Controls: React.FC<ControlsProps> = ({
               >
                 {downloadIsProcessing ? 'Processing...' : 'Download PDF'}
               </button>
-              </DownloadRestriction>
+              {/* </DownloadRestriction> */}
               {successMessage && (
                 <div style={{ 
                   marginTop: '2%', 

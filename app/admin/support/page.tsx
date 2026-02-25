@@ -33,7 +33,7 @@ export default function AdminSupport() {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        window.location.href = '/';
+        window.location.href = '/admin';
         return;
       }
 
@@ -45,14 +45,18 @@ export default function AdminSupport() {
 
       if (response.ok) {
         const data = await response.json();
-        setUser(data.user);
-        await fetchTickets();
+        if (data.user?.isAdmin) {
+          setUser(data.user);
+          await fetchTickets();
+        } else {
+          setError('Admin access required');
+        }
       } else {
-        window.location.href = '/';
+        window.location.href = '/admin';
       }
     } catch (error) {
       console.error('Auth check error:', error);
-      window.location.href = '/';
+      window.location.href = '/admin';
     } finally {
       setLoading(false);
     }
@@ -110,7 +114,7 @@ export default function AdminSupport() {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    window.location.href = '/';
+    window.location.href = '/admin';
   };
 
   const filteredTickets = tickets.filter(ticket => {

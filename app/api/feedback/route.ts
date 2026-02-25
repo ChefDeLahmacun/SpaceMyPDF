@@ -1,5 +1,6 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { emailService } from '@/lib/email/service';
+import { authenticateAdmin } from '@/lib/middleware/admin-auth';
 
 // Store feedback in memory for development purposes
 // In production, you would use a database or external service
@@ -115,8 +116,17 @@ export async function POST(request: Request) {
   }
 }
 
-// Add a GET endpoint to retrieve all feedback (for development purposes)
-export async function GET() {
+// Admin-only endpoint to retrieve all feedback
+export async function GET(request: NextRequest) {
+  const adminAuth = await authenticateAdmin(request);
+  
+  if (!adminAuth.isAdmin) {
+    return NextResponse.json(
+      { success: false, error: adminAuth.error || 'Admin access required' },
+      { status: 401 }
+    );
+  }
+
   return NextResponse.json({ 
     success: true,
     count: feedbackStore.length,
