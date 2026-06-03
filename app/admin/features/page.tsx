@@ -49,13 +49,19 @@ export default function AdminFeatures() {
           setUser(data.user);
           await fetchFeatures();
         } else {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
           setError('Admin access required');
         }
       } else {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
         window.location.href = '/admin';
       }
     } catch (error) {
       console.error('Auth check error:', error);
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
       window.location.href = '/admin';
     } finally {
       setLoading(false);

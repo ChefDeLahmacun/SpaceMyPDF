@@ -33,13 +33,19 @@ export default function AdminGrantAccess() {
         if (data.user?.isAdmin) {
           setUser(data.user);
         } else {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
           window.location.href = '/admin';
         }
       } else {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
         window.location.href = '/admin';
       }
     } catch (error) {
       console.error('Auth check error:', error);
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
       window.location.href = '/admin';
     } finally {
       setLoading(false);

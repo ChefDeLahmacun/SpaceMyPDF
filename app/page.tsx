@@ -24,6 +24,7 @@ export default function Home() {
   const { trackEvent } = useAnalytics();
   const [file, setFile] = useState<File | null>(null);
   const [noteSpaceWidth, setNoteSpaceWidth] = useState(70);
+  const [noteContentGap, setNoteContentGap] = useState(0);
   const [horizontalNoteSpaceWidth, setHorizontalNoteSpaceWidth] = useState(70); // For left/right note spaces
   const [verticalNoteSpaceWidth, setVerticalNoteSpaceWidth] = useState(70); // For top/bottom note spaces
   const [useSeparateWidths, setUseSeparateWidths] = useState(false); // Toggle for separate width controls
@@ -244,21 +245,29 @@ export default function Home() {
               // Use separate widths if enabled and multiple sides are selected
               const leftRightWidth = useSeparateWidths ? horizontalNoteSpaceWidth : noteSpaceWidth;
               const topBottomWidth = useSeparateWidths ? verticalNoteSpaceWidth : noteSpaceWidth;
+              const horizontalNoteSpace = width * leftRightWidth / 100;
+              const verticalNoteSpace = height * topBottomWidth / 100;
+              const horizontalGap = (noteSpacePositions.includes('left') || noteSpacePositions.includes('right'))
+                ? width * noteContentGap / 100
+                : 0;
+              const verticalGap = (noteSpacePositions.includes('top') || noteSpacePositions.includes('bottom'))
+                ? height * noteContentGap / 100
+                : 0;
               
               // Calculate total space needed for all positions
               if (noteSpacePositions.includes('right')) {
-                newWidth += (width * leftRightWidth / 100);
+                newWidth += horizontalNoteSpace + horizontalGap;
               }
               if (noteSpacePositions.includes('left')) {
-                newWidth += (width * leftRightWidth / 100);
-                contentX = (width * leftRightWidth / 100);
+                newWidth += horizontalNoteSpace + horizontalGap;
+                contentX = horizontalNoteSpace + horizontalGap;
               }
               if (noteSpacePositions.includes('top')) {
-                newHeight += (height * topBottomWidth / 100);
+                newHeight += verticalNoteSpace + verticalGap;
               }
               if (noteSpacePositions.includes('bottom')) {
-                newHeight += (height * topBottomWidth / 100);
-                contentY = (height * topBottomWidth / 100);
+                newHeight += verticalNoteSpace + verticalGap;
+                contentY = verticalNoteSpace + verticalGap;
               }
               
               // Create a new blank page with the new dimensions
@@ -284,7 +293,7 @@ export default function Home() {
                 if (noteSpacePositions.includes('left')) {
                   const x = 0;
                   const y = 0;
-                  const rectWidth = (width * leftRightWidth / 100);
+                  const rectWidth = horizontalNoteSpace;
                   const rectHeight = newHeight;
                   
                   newPage.drawRectangle({
@@ -298,9 +307,9 @@ export default function Home() {
                 
                 // Fill right note space (if selected)
                 if (noteSpacePositions.includes('right')) {
-                  const x = contentX + width;
+                  const x = contentX + width + horizontalGap;
                   const y = 0;
-                  const rectWidth = (width * leftRightWidth / 100);
+                  const rectWidth = horizontalNoteSpace;
                   const rectHeight = newHeight;
                   
                   newPage.drawRectangle({
@@ -315,9 +324,9 @@ export default function Home() {
                 // Fill top note space (if selected)
                 if (noteSpacePositions.includes('top')) {
                   const x = contentX;
-                  const y = contentY + height;
+                  const y = contentY + height + verticalGap;
                   const rectWidth = width;
-                  const rectHeight = (height * topBottomWidth / 100);
+                  const rectHeight = verticalNoteSpace;
                   
                   newPage.drawRectangle({
                     x,
@@ -333,7 +342,7 @@ export default function Home() {
                   const x = contentX;
                   const y = 0;
                   const rectWidth = width;
-                  const rectHeight = (height * topBottomWidth / 100);
+                  const rectHeight = verticalNoteSpace;
                   
                   newPage.drawRectangle({
                     x,
@@ -352,7 +361,7 @@ export default function Home() {
                     // Draw horizontal lines that span the entire note space area
                     for (let lineY = 0; lineY <= newHeight; lineY += spacing) {
                       // Only draw if this line intersects with note space areas
-                      if (lineY < contentY || lineY >= contentY + height) {
+                      if (lineY < contentY - verticalGap || lineY >= contentY + height + verticalGap) {
                         // This line is in top or bottom note space - draw full width
                         newPage.drawLine({
                           start: { x: 0, y: lineY },
@@ -366,7 +375,7 @@ export default function Home() {
                         if (noteSpacePositions.includes('left')) {
                           newPage.drawLine({
                             start: { x: 0, y: lineY },
-                            end: { x: contentX, y: lineY },
+                            end: { x: contentX - horizontalGap, y: lineY },
                             thickness: 0.5,
                             color: rgb(0.7, 0.7, 0.7)
                           });
@@ -374,7 +383,7 @@ export default function Home() {
                         // Draw right note space line
                         if (noteSpacePositions.includes('right')) {
                           newPage.drawLine({
-                            start: { x: contentX + width, y: lineY },
+                            start: { x: contentX + width + horizontalGap, y: lineY },
                             end: { x: newWidth, y: lineY },
                             thickness: 0.5,
                             color: rgb(0.7, 0.7, 0.7)
@@ -385,7 +394,7 @@ export default function Home() {
                   } else if (notePattern === 'grid') {
                     // Draw horizontal lines
                     for (let lineY = 0; lineY <= newHeight; lineY += spacing) {
-                      if (lineY < contentY || lineY >= contentY + height) {
+                      if (lineY < contentY - verticalGap || lineY >= contentY + height + verticalGap) {
                         // Full width line for top/bottom note spaces
                         newPage.drawLine({
                           start: { x: 0, y: lineY },
@@ -398,14 +407,14 @@ export default function Home() {
                         if (noteSpacePositions.includes('left')) {
                           newPage.drawLine({
                             start: { x: 0, y: lineY },
-                            end: { x: contentX, y: lineY },
+                            end: { x: contentX - horizontalGap, y: lineY },
                             thickness: 0.5,
                             color: rgb(0.7, 0.7, 0.7)
                           });
                         }
                         if (noteSpacePositions.includes('right')) {
                           newPage.drawLine({
-                            start: { x: contentX + width, y: lineY },
+                            start: { x: contentX + width + horizontalGap, y: lineY },
                             end: { x: newWidth, y: lineY },
                             thickness: 0.5,
                             color: rgb(0.7, 0.7, 0.7)
@@ -416,7 +425,7 @@ export default function Home() {
                     
                     // Draw vertical lines
                     for (let lineX = 0; lineX <= newWidth; lineX += spacing) {
-                      if (lineX < contentX || lineX >= contentX + width) {
+                      if (lineX < contentX - horizontalGap || lineX >= contentX + width + horizontalGap) {
                         // Full height line for left/right note spaces
                         newPage.drawLine({
                           start: { x: lineX, y: 0 },
@@ -429,14 +438,14 @@ export default function Home() {
                         if (noteSpacePositions.includes('bottom')) {
                           newPage.drawLine({
                             start: { x: lineX, y: 0 },
-                            end: { x: lineX, y: contentY },
+                            end: { x: lineX, y: contentY - verticalGap },
                             thickness: 0.5,
                             color: rgb(0.7, 0.7, 0.7)
                           });
                         }
                         if (noteSpacePositions.includes('top')) {
                           newPage.drawLine({
-                            start: { x: lineX, y: contentY + height },
+                            start: { x: lineX, y: contentY + height + verticalGap },
                             end: { x: lineX, y: newHeight },
                             thickness: 0.5,
                             color: rgb(0.7, 0.7, 0.7)
@@ -449,8 +458,9 @@ export default function Home() {
                     for (let dotY = 0; dotY <= newHeight; dotY += spacing) {
                       for (let dotX = 0; dotX <= newWidth; dotX += spacing) {
                         // Skip dots that would be inside the PDF content area
-                        if (dotX >= contentX && dotX < contentX + width && 
-                            dotY >= contentY && dotY < contentY + height) {
+                        const isInHorizontalNoteSpace = dotX < contentX - horizontalGap || dotX >= contentX + width + horizontalGap;
+                        const isInVerticalNoteSpace = dotY < contentY - verticalGap || dotY >= contentY + height + verticalGap;
+                        if (!isInHorizontalNoteSpace && !isInVerticalNoteSpace) {
                           continue;
                         }
                         
@@ -517,7 +527,7 @@ export default function Home() {
         }
       }
     };
-  }, [file, noteSpaceWidth, colorOption, customColor, noteSpacePosition, noteSpacePositions, notePattern, lineSpacing, gridSpacing, dotSpacing, useSeparateWidths, horizontalNoteSpaceWidth, verticalNoteSpaceWidth]);
+  }, [file, noteSpaceWidth, noteContentGap, colorOption, customColor, noteSpacePosition, noteSpacePositions, notePattern, lineSpacing, gridSpacing, dotSpacing, useSeparateWidths, horizontalNoteSpaceWidth, verticalNoteSpaceWidth]);
 
   // Download functionality
   const handleDownload = async () => {
@@ -557,21 +567,29 @@ export default function Home() {
           // Use separate widths if enabled and multiple sides are selected
           const leftRightWidth = useSeparateWidths ? horizontalNoteSpaceWidth : noteSpaceWidth;
           const topBottomWidth = useSeparateWidths ? verticalNoteSpaceWidth : noteSpaceWidth;
+          const horizontalNoteSpace = width * leftRightWidth / 100;
+          const verticalNoteSpace = height * topBottomWidth / 100;
+          const horizontalGap = (noteSpacePositions.includes('left') || noteSpacePositions.includes('right'))
+            ? width * noteContentGap / 100
+            : 0;
+          const verticalGap = (noteSpacePositions.includes('top') || noteSpacePositions.includes('bottom'))
+            ? height * noteContentGap / 100
+            : 0;
           
           // Calculate total space needed for all positions
           if (noteSpacePositions.includes('right')) {
-            newWidth += (width * leftRightWidth / 100);
+            newWidth += horizontalNoteSpace + horizontalGap;
           }
           if (noteSpacePositions.includes('left')) {
-            newWidth += (width * leftRightWidth / 100);
-            contentX = (width * leftRightWidth / 100);
+            newWidth += horizontalNoteSpace + horizontalGap;
+            contentX = horizontalNoteSpace + horizontalGap;
           }
           if (noteSpacePositions.includes('top')) {
-            newHeight += (height * topBottomWidth / 100);
+            newHeight += verticalNoteSpace + verticalGap;
           }
           if (noteSpacePositions.includes('bottom')) {
-            newHeight += (height * topBottomWidth / 100);
-            contentY = (height * topBottomWidth / 100);
+            newHeight += verticalNoteSpace + verticalGap;
+            contentY = verticalNoteSpace + verticalGap;
           }
           
           // Create a new blank page with the new dimensions
@@ -597,7 +615,7 @@ export default function Home() {
             if (noteSpacePositions.includes('left')) {
               const x = 0;
               const y = 0;
-              const rectWidth = (width * leftRightWidth / 100);
+              const rectWidth = horizontalNoteSpace;
               const rectHeight = newHeight;
               
               newPage.drawRectangle({
@@ -611,9 +629,9 @@ export default function Home() {
             
             // Fill right note space (if selected)
             if (noteSpacePositions.includes('right')) {
-              const x = contentX + width;
+              const x = contentX + width + horizontalGap;
               const y = 0;
-              const rectWidth = (width * leftRightWidth / 100);
+              const rectWidth = horizontalNoteSpace;
               const rectHeight = newHeight;
               
               newPage.drawRectangle({
@@ -628,9 +646,9 @@ export default function Home() {
             // Fill top note space (if selected)
             if (noteSpacePositions.includes('top')) {
               const x = contentX;
-              const y = contentY + height;
+              const y = contentY + height + verticalGap;
               const rectWidth = width;
-              const rectHeight = (height * topBottomWidth / 100);
+              const rectHeight = verticalNoteSpace;
               
               newPage.drawRectangle({
                 x,
@@ -646,7 +664,7 @@ export default function Home() {
               const x = contentX;
               const y = 0;
               const rectWidth = width;
-              const rectHeight = (height * topBottomWidth / 100);
+              const rectHeight = verticalNoteSpace;
               
               newPage.drawRectangle({
                 x,
@@ -665,7 +683,7 @@ export default function Home() {
                 // Draw horizontal lines that span the entire note space area
                 for (let lineY = 0; lineY <= newHeight; lineY += spacing) {
                   // Only draw if this line intersects with note space areas
-                  if (lineY < contentY || lineY >= contentY + height) {
+                  if (lineY < contentY - verticalGap || lineY >= contentY + height + verticalGap) {
                     // This line is in top or bottom note space - draw full width
                     newPage.drawLine({
                       start: { x: 0, y: lineY },
@@ -679,7 +697,7 @@ export default function Home() {
                     if (noteSpacePositions.includes('left')) {
                       newPage.drawLine({
                         start: { x: 0, y: lineY },
-                        end: { x: contentX, y: lineY },
+                        end: { x: contentX - horizontalGap, y: lineY },
                         thickness: 0.5,
                         color: rgb(0.7, 0.7, 0.7)
                       });
@@ -687,7 +705,7 @@ export default function Home() {
                     // Draw right note space line
                     if (noteSpacePositions.includes('right')) {
                       newPage.drawLine({
-                        start: { x: contentX + width, y: lineY },
+                        start: { x: contentX + width + horizontalGap, y: lineY },
                         end: { x: newWidth, y: lineY },
                         thickness: 0.5,
                         color: rgb(0.7, 0.7, 0.7)
@@ -698,7 +716,7 @@ export default function Home() {
               } else if (notePattern === 'grid') {
                 // Draw horizontal lines
                 for (let lineY = 0; lineY <= newHeight; lineY += spacing) {
-                  if (lineY < contentY || lineY >= contentY + height) {
+                  if (lineY < contentY - verticalGap || lineY >= contentY + height + verticalGap) {
                     // Full width line for top/bottom note spaces
                     newPage.drawLine({
                       start: { x: 0, y: lineY },
@@ -711,14 +729,14 @@ export default function Home() {
                     if (noteSpacePositions.includes('left')) {
                       newPage.drawLine({
                         start: { x: 0, y: lineY },
-                        end: { x: contentX, y: lineY },
+                        end: { x: contentX - horizontalGap, y: lineY },
                         thickness: 0.5,
                         color: rgb(0.7, 0.7, 0.7)
                       });
                     }
                     if (noteSpacePositions.includes('right')) {
                       newPage.drawLine({
-                        start: { x: contentX + width, y: lineY },
+                        start: { x: contentX + width + horizontalGap, y: lineY },
                         end: { x: newWidth, y: lineY },
                         thickness: 0.5,
                         color: rgb(0.7, 0.7, 0.7)
@@ -729,7 +747,7 @@ export default function Home() {
                 
                 // Draw vertical lines
                 for (let lineX = 0; lineX <= newWidth; lineX += spacing) {
-                  if (lineX < contentX || lineX >= contentX + width) {
+                  if (lineX < contentX - horizontalGap || lineX >= contentX + width + horizontalGap) {
                     // Full height line for left/right note spaces
                     newPage.drawLine({
                       start: { x: lineX, y: 0 },
@@ -742,41 +760,42 @@ export default function Home() {
                     if (noteSpacePositions.includes('bottom')) {
                       newPage.drawLine({
                         start: { x: lineX, y: 0 },
-                        end: { x: lineX, y: contentY },
+                        end: { x: lineX, y: contentY - verticalGap },
                         thickness: 0.5,
                         color: rgb(0.7, 0.7, 0.7)
                       });
                     }
                     if (noteSpacePositions.includes('top')) {
                       newPage.drawLine({
-                        start: { x: lineX, y: contentY + height },
+                        start: { x: lineX, y: contentY + height + verticalGap },
                         end: { x: lineX, y: newHeight },
                         thickness: 0.5,
                         color: rgb(0.7, 0.7, 0.7)
                       });
-                        }
-                      }
-                    }
-                  } else if (notePattern === 'dots') {
-                    // Draw dots in a grid pattern across the entire note space area
-                    for (let dotY = 0; dotY <= newHeight; dotY += spacing) {
-                      for (let dotX = 0; dotX <= newWidth; dotX += spacing) {
-                        // Skip dots that would be inside the PDF content area
-                        if (dotX >= contentX && dotX < contentX + width && 
-                            dotY >= contentY && dotY < contentY + height) {
-                          continue;
-                        }
-                        
-                        newPage.drawCircle({
-                          x: dotX,
-                          y: dotY,
-                          size: 1,
-                          color: rgb(0.7, 0.7, 0.7)
-                        });
-                      }
                     }
                   }
                 }
+              } else if (notePattern === 'dots') {
+                // Draw dots in a grid pattern across the entire note space area
+                for (let dotY = 0; dotY <= newHeight; dotY += spacing) {
+                  for (let dotX = 0; dotX <= newWidth; dotX += spacing) {
+                    // Skip dots that would be inside the PDF content area
+                    const isInHorizontalNoteSpace = dotX < contentX - horizontalGap || dotX >= contentX + width + horizontalGap;
+                    const isInVerticalNoteSpace = dotY < contentY - verticalGap || dotY >= contentY + height + verticalGap;
+                    if (!isInHorizontalNoteSpace && !isInVerticalNoteSpace) {
+                      continue;
+                    }
+
+                    newPage.drawCircle({
+                      x: dotX,
+                      y: dotY,
+                      size: 1,
+                      color: rgb(0.7, 0.7, 0.7)
+                    });
+                  }
+                }
+              }
+            }
           }
         } else {
           // If no note space is needed, just copy the original page
@@ -1126,6 +1145,8 @@ export default function Home() {
             file={file}
             noteSpaceWidth={noteSpaceWidth}
             setNoteSpaceWidth={setNoteSpaceWidth}
+            noteContentGap={noteContentGap}
+            setNoteContentGap={setNoteContentGap}
             horizontalNoteSpaceWidth={horizontalNoteSpaceWidth}
             setHorizontalNoteSpaceWidth={setHorizontalNoteSpaceWidth}
             verticalNoteSpaceWidth={verticalNoteSpaceWidth}

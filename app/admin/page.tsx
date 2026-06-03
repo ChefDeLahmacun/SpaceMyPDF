@@ -63,6 +63,8 @@ export default function AdminDashboard() {
           await fetchAdminData();
         } else {
           // Not an admin - show error
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
           setError('Admin access required. You do not have permission to view this page.');
           setShowLoginForm(false);
         }
@@ -122,6 +124,8 @@ export default function AdminDashboard() {
             setLoginError('Admin access required. This account does not have admin privileges.');
           }
         } else {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
           setLoginError('Failed to verify account. Please try again.');
         }
       } else {

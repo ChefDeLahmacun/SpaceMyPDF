@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { FaFileAlt } from 'react-icons/fa';
@@ -12,51 +12,6 @@ import './Header.css';
 const Header: React.FC = () => {
   // MEMBERSHIP DISABLED: Modal state commented out for future re-enablement
   // const [showMembershipModal, setShowMembershipModal] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
-
-  useEffect(() => {
-    // Check if current user is admin
-    const checkAdminStatus = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          setIsAdmin(false);
-          return;
-        }
-
-        const response = await fetch('/api/auth/verify', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          const user = data.user;
-          // Check if user is admin from database
-          setIsAdmin(user.isAdmin === true);
-        } else {
-          setIsAdmin(false);
-        }
-      } catch (error) {
-        console.error('Error checking admin status:', error);
-        setIsAdmin(false);
-      }
-    };
-
-    checkAdminStatus();
-    
-    // Listen for auth change events
-    const handleAuthChange = () => {
-      checkAdminStatus();
-    };
-    
-    window.addEventListener('authChange', handleAuthChange);
-    
-    return () => {
-      window.removeEventListener('authChange', handleAuthChange);
-    };
-  }, []);
 
   // MEMBERSHIP DISABLED: Sign-in handlers commented out for future re-enablement
   // const handleSignIn = () => {
@@ -79,11 +34,7 @@ const Header: React.FC = () => {
           {/* <Link href="/dashboard" className="nav-link">
             Dashboard
           </Link> */}
-          {isAdmin && (
-            <Link href="/admin" className="nav-link admin-link">
-              Admin
-            </Link>
-          )}
+          {/* Admin access remains available directly at /admin. Hidden here to avoid public auth checks. */}
         </nav>
         
         {/* Center: Logo and title */}

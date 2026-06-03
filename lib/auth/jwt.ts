@@ -38,7 +38,16 @@ export class JWTUtils {
       const decoded = jwt.verify(token, JWT_SECRET) as JWTPayload;
       return decoded;
     } catch (error) {
-      console.error('JWT verification error:', error);
+      if (error instanceof jwt.TokenExpiredError) {
+        return null;
+      }
+
+      if (error instanceof jwt.JsonWebTokenError) {
+        console.warn('JWT verification failed:', error.message);
+        return null;
+      }
+
+      console.error('Unexpected JWT verification error:', error);
       return null;
     }
   }

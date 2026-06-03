@@ -8,6 +8,8 @@ interface ControlsProps {
   file: File | null;
   noteSpaceWidth: number;
   setNoteSpaceWidth: (width: number) => void;
+  noteContentGap: number;
+  setNoteContentGap: (gap: number) => void;
   horizontalNoteSpaceWidth: number;
   setHorizontalNoteSpaceWidth: (width: number) => void;
   verticalNoteSpaceWidth: number;
@@ -50,6 +52,8 @@ const Controls: React.FC<ControlsProps> = ({
   file,
   noteSpaceWidth,
   setNoteSpaceWidth,
+  noteContentGap,
+  setNoteContentGap,
   horizontalNoteSpaceWidth,
   setHorizontalNoteSpaceWidth,
   verticalNoteSpaceWidth,
@@ -328,6 +332,42 @@ const Controls: React.FC<ControlsProps> = ({
             </div>
           </div>
         </div>
+        )}
+        
+        {/* Gap control between the original page and the note pattern */}
+        {file && noteSpacePositions.length > 0 && (
+          <div style={{ marginBottom: '2vh', width: '100%' }}>
+            <p style={{ fontWeight: '600', marginBottom: '1vh', color: '#2c3e50', fontSize: 'clamp(13px, 1.5vw, 15px)' }}>
+              Gap Between Page and Notes: <span style={{ color: '#4b5563', fontSize: 'clamp(14px, 1.6vw, 16px)' }}>{noteContentGap}%</span>
+            </p>
+            <div style={{
+              border: '1px solid black',
+              borderRadius: '4px',
+              backgroundColor: 'white',
+              padding: '10px',
+              marginBottom: '10px',
+              width: '100%'
+            }}>
+              <div style={{ width: '100%', maxWidth: '100%', marginBottom: '10px' }}>
+                <input
+                  id="noteContentGapSlider"
+                  type="range"
+                  min="0"
+                  max="25"
+                  value={noteContentGap}
+                  onChange={(e) => setNoteContentGap(Number(e.target.value))}
+                  style={{ width: '100%' }}
+                />
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'clamp(10px, 1.2vw, 12px)', width: '100%' }}>
+                <span>Touching page</span>
+                <span>More space</span>
+              </div>
+              <p style={{ fontSize: 'clamp(10px, 1.2vw, 12px)', margin: '10px 0 0 0', lineHeight: '1.4', color: '#4b5563' }}>
+                Increase this to add blank space between the original PDF page and the added note area.
+              </p>
+            </div>
+          </div>
         )}
         
         {/* Note Space Position selector */}
