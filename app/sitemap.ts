@@ -7,7 +7,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   // Blog posts with their publication dates
   const blogPosts = [
     { slug: 'how-to-add-note-space-to-pdf', date: '2024-11-07T00:00:00.000Z' },
-    { slug: 'pdf-note-taking-tips-for-students', date: '2024-11-06T00:00:00.000Z' },
+    { slug: 'pdf-note-taking-tips-for-students', date: '2026-06-03T00:00:00.000Z' },
     { slug: 'why-pdf-margins-improve-learning', date: '2024-11-05T00:00:00.000Z' },
     { slug: 'digital-vs-traditional-note-taking', date: '2024-11-04T00:00:00.000Z' },
     { slug: 'best-pdf-tools-for-students', date: '2024-11-03T00:00:00.000Z' },

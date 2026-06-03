@@ -271,7 +271,7 @@ Midterm-StudyGuide-annotated.pdf`}
               Start Your Organization System Today
             </h3>
             <p style={{ fontSize: '16px', marginBottom: '25px', opacity: 0.9 }}>
-              Use SpaceMyPDF to standardize your study materials with professional note space. Free 30-day trial with unlimited processing.
+              Use SpaceMyPDF to standardize your study materials with clean, customizable note space. No account required.
             </p>
             <Link 
               href="/"

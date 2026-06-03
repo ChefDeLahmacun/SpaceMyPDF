@@ -133,7 +133,7 @@ export default function BlogPost() {
             marginBottom: '30px'
           }}>
             <p style={{ margin: 0, color: '#92400e' }}>
-              <strong>💰 Student Budget-Friendly:</strong> Start with a completely free 30-day trial. No credit card required. After that, plans start at just a few dollars per month—less than a single textbook.
+              <strong>Student Budget-Friendly:</strong> SpaceMyPDF runs in your browser and does not require an account, making it easy to prepare study PDFs without adding another paid app to your workflow.
             </p>
           </div>
 
@@ -200,7 +200,7 @@ export default function BlogPost() {
             <li style={{ marginBottom: '10px' }}>Download and start taking better notes</li>
           </ol>
           <p style={{ marginBottom: '30px' }}>
-            The entire process takes under 30 seconds. And with your free 30-day trial, you can process unlimited PDFs to prepare for the entire semester.
+            The entire process takes under 30 seconds, so you can prepare lecture slides, worksheets, and textbook chapters before each study session.
           </p>
 
           <h2 style={{ fontSize: '28px', fontWeight: '700', marginTop: '40px', marginBottom: '20px', color: '#1a1a1a' }}>

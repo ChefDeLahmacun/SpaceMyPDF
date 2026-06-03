@@ -137,7 +137,7 @@ export default function BlogPost() {
             <li style={{ marginBottom: '10px' }}>Add customizable margins to any position (right, left, top, bottom)</li>
             <li style={{ marginBottom: '10px' }}>Choose from lined, grid, or dot patterns for structured note-taking</li>
             <li style={{ marginBottom: '10px' }}>Select custom colors to implement color-coded systems</li>
-            <li style={{ marginBottom: '10px' }}>Process unlimited PDFs during your free 30-day trial</li>
+            <li style={{ marginBottom: '10px' }}>Process PDFs directly in your browser without creating an account</li>
           </ul>
 
           <h2 style={{ fontSize: '28px', fontWeight: '700', marginTop: '40px', marginBottom: '20px', color: '#1a1a1a' }}>
@@ -162,7 +162,7 @@ export default function BlogPost() {
               Start Learning More Effectively Today
             </h3>
             <p style={{ fontSize: '16px', marginBottom: '25px', opacity: 0.9 }}>
-              Add proper note-taking space to your PDFs in seconds. Start your free 30-day trial with unlimited PDF processing.
+              Add proper note-taking space to your PDFs in seconds. No account required.
             </p>
             <Link 
               href="/"

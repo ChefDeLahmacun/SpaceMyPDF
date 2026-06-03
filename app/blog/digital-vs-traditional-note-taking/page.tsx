@@ -197,7 +197,7 @@ export default function BlogPost() {
               Get the Best of Both Worlds
             </h3>
             <p style={{ fontSize: '16px', marginBottom: '25px', opacity: 0.9 }}>
-              Start taking smarter notes with SpaceMyPDF. Add professional note space to your PDFs and keep everything organized. Free 30-day trial included.
+              Start taking smarter notes with SpaceMyPDF. Add professional note space to your PDFs and keep everything organized. No account required.
             </p>
             <Link 
               href="/"

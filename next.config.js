@@ -117,6 +117,20 @@ const nextConfig = {
     
     return config;
   },
+  async redirects() {
+    return [
+      {
+        source: '/dashboard',
+        destination: '/',
+        permanent: false,
+      },
+      {
+        source: '/dashboard/:path*',
+        destination: '/',
+        permanent: false,
+      },
+    ];
+  },
   // Add compression
   compress: true
 }

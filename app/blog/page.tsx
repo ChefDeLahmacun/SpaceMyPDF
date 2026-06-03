@@ -28,11 +28,11 @@ const blogPosts = [
     category: "Guides"
   },
   {
-    title: "10 PDF Note-Taking Tips Every Student Should Know",
+    title: "10 PDF Note-Taking Tips for Students",
     slug: "pdf-note-taking-tips-for-students",
-    excerpt: "Master the art of digital note-taking with these proven strategies. From annotation techniques to organization systems, learn how successful students take notes on PDF lecture slides and textbooks.",
-    date: "2024-11-06",
-    readTime: "7 min read",
+    excerpt: "Learn practical PDF note-taking strategies for lecture slides, textbook chapters, worksheets, and e-readers, including Cornell notes, active recall, lined note space, and file organization.",
+    date: "2026-06-03",
+    readTime: "8 min read",
     category: "Study Tips"
   },
   {
@@ -148,7 +148,7 @@ export default function Blog() {
             maxWidth: '600px',
             margin: '0 auto 25px'
           }}>
-            Join thousands of students using SpaceMyPDF to add professional note space to their PDFs. Start your free 30-day trial today—unlimited PDF processing, all premium features included.
+            Use SpaceMyPDF to add note-taking space to PDFs directly in your browser. No account required, and your files stay on your device.
           </p>
           <Link 
             href="/"

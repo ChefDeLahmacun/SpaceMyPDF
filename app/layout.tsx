@@ -114,12 +114,7 @@ export default function RootLayout({
                   "@id": "https://www.spacemypdf.com/#website",
                   "url": "https://www.spacemypdf.com",
                   "name": "SpaceMyPDF",
-                  "description": "Free online tool to add note-taking space to PDF documents",
-                  "potentialAction": {
-                    "@type": "SearchAction",
-                    "target": "https://www.spacemypdf.com/?s={search_term_string}",
-                    "query-input": "required name=search_term_string"
-                  }
+                  "description": "Free online tool to add note-taking space to PDF documents"
                 },
                 {
                   "@type": "Organization",

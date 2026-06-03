@@ -106,7 +106,7 @@ export default function BlogPost() {
             The Best Way: Using SpaceMyPDF
           </h2>
           <p style={{ marginBottom: '20px' }}>
-            SpaceMyPDF is the fastest and most powerful tool for adding note space to PDFs. It works entirely in your browser with advanced features that make note-taking effortless. Start with a <strong>free 30-day trial</strong> to experience unlimited PDF processing:
+            SpaceMyPDF is a fast browser-based tool for adding note space to PDFs. It works directly in your browser with customization options that make note-taking easier:
           </p>
           
           <h3 style={{ fontSize: '22px', fontWeight: '600', marginTop: '30px', marginBottom: '15px', color: '#1a1a1a' }}>
@@ -156,10 +156,10 @@ export default function BlogPost() {
               <strong>Lightning fast:</strong> Process PDFs in seconds, not minutes
             </li>
             <li style={{ marginBottom: '15px' }}>
-              <strong>Unlimited processing:</strong> Add note space to as many PDFs as you need
+              <strong>No account required:</strong> Add note space without signing in
             </li>
             <li style={{ marginBottom: '15px' }}>
-              <strong>30-day free trial:</strong> Try all features risk-free
+              <strong>Private by design:</strong> Your PDF is processed in your browser
             </li>
           </ul>
 
@@ -188,7 +188,7 @@ export default function BlogPost() {
             Adding note space to PDFs transforms passive reading into active learning. Whether you're studying for exams, reviewing work documents, or analyzing research papers, having dedicated space for annotations makes you more productive.
           </p>
           <p style={{ marginBottom: '30px' }}>
-            <Link href="/" style={{ color: '#4f46e5', fontWeight: '600' }}>SpaceMyPDF</Link> makes this process effortless with its powerful browser-based tool. Start your <strong>free 30-day trial</strong> today and experience unlimited PDF processing with all premium features included.
+            <Link href="/" style={{ color: '#4f46e5', fontWeight: '600' }}>SpaceMyPDF</Link> makes this process simple with its browser-based tool. Upload a PDF, choose your note-space layout, preview the result, and download the spaced copy.
           </p>
 
           {/* CTA */}
@@ -204,7 +204,7 @@ export default function BlogPost() {
               Ready to Transform Your PDF Note-Taking?
             </h3>
             <p style={{ fontSize: '16px', marginBottom: '25px', opacity: 0.9 }}>
-              Start your free 30-day trial now. No credit card required. Unlimited PDF processing included.
+              Add note-taking space to a PDF directly in your browser. No account required.
             </p>
             <Link 
               href="/"
